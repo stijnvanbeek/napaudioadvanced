@@ -1,0 +1,148 @@
+#include "envelopenode.h"
+
+// Audio includes
+#include <audio/core/audionodemanager.h>
+
+// RTTI include
+#include <rtti/rtti.h>
+
+// RTTI
+RTTI_BEGIN_ENUM(nap::audio::RampMode)
+    RTTI_ENUM_VALUE(nap::audio::RampMode::Linear, "Linear"),
+    RTTI_ENUM_VALUE(nap::audio::RampMode::Exponential, "Exponential")
+RTTI_END_ENUM
+
+RTTI_BEGIN_STRUCT(nap::audio::EnvelopeGenerator::Segment)
+    RTTI_PROPERTY("Duration", &nap::audio::EnvelopeGenerator::Segment::mDuration, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("Destination", &nap::audio::EnvelopeGenerator::Segment::mDestination, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("DurationRelative", &nap::audio::EnvelopeGenerator::Segment::mDurationRelative, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("RampMode", &nap::audio::EnvelopeGenerator::Segment::mMode, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Translate", &nap::audio::EnvelopeGenerator::Segment::mTranslate, nap::rtti::EPropertyMetaData::Default)
+RTTI_END_STRUCT
+
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::EnvelopeGenerator)
+RTTI_END_CLASS
+
+
+namespace nap
+{
+
+    namespace audio
+    {
+
+        EnvelopeGenerator::EnvelopeGenerator(NodeManager& manager, Envelope& envelope, SafePtr<Translator<ControllerValue>> translator) : Node(manager)
+        {
+            assert(translator != nullptr);
+            mEnvelope = envelope;
+            mTranslator = translator;
+            mValue.destinationReachedSignal.connect(rampFinishedSlot);
+        }
+
+
+        void EnvelopeGenerator::trigger(TimeValue totalDuration)
+        {
+            trigger(0, mEnvelope.size() - 1, 0, totalDuration);
+        }
+
+
+        void EnvelopeGenerator::trigger(int startSegment, int endSegment, ControllerValue startValue, TimeValue totalDuration)
+        {
+            auto absoluteDuration = 0.f;
+            auto relativeDuration = 0.f;
+            for (auto i = startSegment; i < endSegment; ++i)
+            {
+                auto& segment = mEnvelope[i];
+                if (!segment.mDurationRelative)
+                    absoluteDuration += segment.mDuration;
+                else
+                    relativeDuration += segment.mDuration;
+            }
+
+            mTotalRelativeDuration = (totalDuration - absoluteDuration) / relativeDuration;
+            if (mTotalRelativeDuration < 0)
+                mTotalRelativeDuration = 0;
+
+            mNewEndSegment.store(endSegment);
+            mNewCurrentSegment.store(startSegment);
+            mIsDirty.set();
+        }
+
+
+        void EnvelopeGenerator::stop(TimeValue rampTime)
+        {
+            mNewCurrentSegment.store(mNewEndSegment.load());
+            mFadeOutTime.store(rampTime);
+            mIsDirty.set();
+        }
+
+
+        void EnvelopeGenerator::playSegment(int index)
+        {
+            auto envelope = mEnvelope;
+
+            assert(index < envelope.size());
+            mCurrentSegment = index;
+            auto& segment = envelope[index];
+            mTranslate = segment.mTranslate;
+
+            if (segment.mDurationRelative)
+                mValue.ramp(segment.mDestination, segment.mDuration * mTotalRelativeDuration * getNodeManager().getSamplesPerMillisecond(), segment.mMode);
+            else
+                mValue.ramp(segment.mDestination, segment.mDuration * getNodeManager().getSamplesPerMillisecond(), segment.mMode);
+        }
+
+
+        void EnvelopeGenerator::update()
+        {
+            if (mIsDirty.check())
+            {
+                mCurrentSegment = mNewCurrentSegment.load();
+                mEndSegment = mNewEndSegment.load();
+                if (mCurrentSegment == mEndSegment)
+                    mValue.ramp(0.f, mFadeOutTime.load() * getNodeManager().getSamplesPerMillisecond(), RampMode::Linear);
+                else {
+                    playSegment(mCurrentSegment);
+                }
+            }
+        }
+
+
+        void EnvelopeGenerator::process()
+        {
+            update();
+            auto& outputBuffer = getOutputBuffer(output);
+
+            if (mTranslate)
+            {
+                for (auto i = 0; i < outputBuffer.size(); ++i)
+                {
+                    outputBuffer[i] = mTranslator->translate(mValue.getNextValue());
+                }
+            }
+            else {
+                for (auto i = 0; i < outputBuffer.size(); ++i)
+                {
+                    outputBuffer[i] = mValue.getNextValue();
+                }
+            }
+            mCurrentValue.store(outputBuffer.back());
+        }
+
+
+        void EnvelopeGenerator::rampFinished(ControllerValue value)
+        {
+            segmentFinishedSignal(*this);
+            if (mCurrentSegment < mEndSegment)
+                playSegment(mCurrentSegment + 1);
+            else {
+                if (value == 0.f)
+                {
+                    mCurrentValue.store(0.f);
+                    envelopeFinishedSignal(*this);
+                }
+            }
+        }
+
+    }
+
+}
