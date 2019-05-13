@@ -23,6 +23,7 @@ namespace nap
         
         /**
          * The Graph manages a number of different audio objects that are connected together to represent a DSP network to perform a specific task of mono or multichannel audio processing.
+         * Internally it resolves links between the objects and manages order of initialization accordingly.
          */
         class NAPAPI Graph : public Resource
         {
@@ -34,18 +35,6 @@ namespace nap
              * The audio objects managed by the graph that are part of it's DSP network.
              */
             std::vector<AudioObjectPtr> mObjects;
-            
-            /**
-             * Has to point to one of the objects in mObjects.
-             * This is normally the "root" of the graph's network and is used to poll output from the graph.
-             */
-            AudioObjectPtr mOutput = nullptr;
-            
-            /**
-             * Can point to an object that has inputs in mObjects.
-             * External objects can connect through this.
-             */
-            AudioObjectPtr mInput = nullptr;
             
             /**
              * Returns the audio service that instances of this graph will perform their DSP processing on.
@@ -71,21 +60,6 @@ namespace nap
             Graph& getResource() { return *mResource; }
 
             /**
-             * @return: the object that outputs the output channels of the graph.
-             */
-            AudioObjectInstance& getOutput() { return *mOutput; }
-            
-            /**
-             * @return: the object that outputs the output channels of the graph.
-             */
-            const AudioObjectInstance& getOutput() const { return *mOutput; }
-            
-            /**
-             * @return: the object that input can be connected to, if any. Otherwise nullptr.
-             */
-            AudioObjectInstance* getInput() const { return mInput; }
-            
-            /**
              * @return: an object within this graph by ID.
              */
             template <typename T>
@@ -107,8 +81,6 @@ namespace nap
 
         private:
             std::vector<std::unique_ptr<AudioObjectInstance>> mObjects;
-            AudioObjectInstance* mOutput = nullptr;
-            AudioObjectInstance* mInput = nullptr;
             Graph* mResource = nullptr;
         };
         

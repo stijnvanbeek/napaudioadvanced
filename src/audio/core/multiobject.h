@@ -53,7 +53,10 @@ namespace nap
              * Use this method to acquire one of the managed objects.
              * @return: a pointer to the object with the given index.
              */
-            AudioObjectInstance* getObject(unsigned int index);
+            template <typename T>
+            T* getObject(unsigned int index) { return rtti_cast<T>(getObjectNonTyped(index)); }
+            
+            AudioObjectInstance* getObjectNonTyped(unsigned int index);
             
             /**
              * @return: The number of managed objects.
@@ -66,14 +69,52 @@ namespace nap
              */
             bool setActive(AudioObjectInstance* object, bool isActive);
             
-        private:
+            /**
+             * Returns the mix of a certain channel of all objects.
+             */
             OutputPin* getOutputForChannel(int channel) override;
+            
+            /**
+             * Returns the number of channels per object.
+             */
             int getChannelCount() const override;
             
+        protected:
             std::vector<std::unique_ptr<AudioObjectInstance>> mObjects;
-            std::vector<SafeOwner<MixNode>> mMixers;
             
+        private:
+            std::vector<SafeOwner<MixNode>> mMixers;            
             AudioService* mAudioService = nullptr;
+        };
+        
+        
+        class NAPAPI MultiEffect : public MultiObject
+        {
+            RTTI_ENABLE(MultiObject)
+            
+        public:
+            MultiEffect() : MultiObject() { }
+            
+        private:
+            std::unique_ptr<AudioObjectInstance> createInstance() override;
+        };
+        
+        
+        class NAPAPI MultiEffectInstance : public MultiObjectInstance, public IMultiChannelInput
+        {
+            RTTI_ENABLE(MultiObjectInstance)
+        
+        public:
+            MultiEffectInstance(MultiEffect& resource) : MultiObjectInstance(resource) { }
+
+            // Inherited from IMultiChannelInput
+            int getInputChannelCount() const override;
+            void connect(unsigned int channel, OutputPin& pin) override;
+            
+            /**
+             * Connects the outputs of all objects of another MultiObject to the inputs of all this MultiEffect's objects.
+             */
+            void connect(MultiObjectInstance& multi);
         };
         
     }

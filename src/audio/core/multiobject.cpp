@@ -16,7 +16,7 @@ RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiObjectInstance)
     RTTI_CONSTRUCTOR(nap::audio::MultiObject&)
-    RTTI_FUNCTION("getObject", &nap::audio::MultiObjectInstance::getObject)
+    RTTI_FUNCTION("getObject", &nap::audio::MultiObjectInstance::getObjectNonTyped)
     RTTI_FUNCTION("getObjectCount", &nap::audio::MultiObjectInstance::getObjectCount)
     RTTI_FUNCTION("setActive", &nap::audio::MultiObjectInstance::setActive)
 RTTI_END_CLASS
@@ -61,7 +61,7 @@ namespace nap
         }
 
         
-        AudioObjectInstance* MultiObjectInstance::getObject(unsigned int index)
+        AudioObjectInstance* MultiObjectInstance::getObjectNonTyped(unsigned int index)
         {
             if (index < mObjects.size())
                 return mObjects[index].get();
@@ -101,7 +101,46 @@ namespace nap
         {
             return mMixers.size();
         }
+        
+        
+        std::unique_ptr<AudioObjectInstance> MultiEffect::createInstance()
+        {
+            return std::make_unique<MultiEffectInstance>(*this);
+        }
+        
+        
+        int MultiEffectInstance::getInputChannelCount() const
+        {
+            if (mObjects.empty())
+                return 0;
+            
+            auto first = dynamic_cast<IMultiChannelInput*>(mObjects.begin()->get());
+            if (first == nullptr)
+                return 0;
+            
+            return first->getInputChannelCount();
+        }
 
+
+
+        void MultiEffectInstance::connect(unsigned int channel, OutputPin& pin)
+        {
+            for (auto& object : mObjects)
+            {
+                auto inputObject = dynamic_cast<IMultiChannelInput*>(object.get());
+                inputObject->connect(channel, pin);
+            }
+        }
+        
+        
+        void MultiEffectInstance::connect(MultiObjectInstance& multi)
+        {
+            for (auto index = 0; index < getObjectCount(); ++index)
+            {
+                auto inputObject = dynamic_cast<IMultiChannelInput*>(mObjects[index].get());;
+                inputObject->connect(*multi.getObjectNonTyped(index & getObjectCount()));
+            }
+        }
 
 
     }

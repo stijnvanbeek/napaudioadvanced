@@ -57,30 +57,47 @@ namespace nap
             int getChannelCount() const override { return mNodes.size(); }
             
             /**
-             * If the managed nodes have (exactly) one input pin, this will be returned for the requested channel.
-             */
-            InputPinBase* getInputForChannel(int channel) override;
-            
-            /**
-             * If the managed nodes have (exactly) one input pin, the number of channels will be returned, otherwise zero.
-             */
-            int getInputChannelCount() const override;
-            
-            /**
              * Returns a raw pointer to the DSP node for the specified channel.
              * Returns nullptr if the given channel is out of bounds
              */
             template <typename T>
             T* getChannel(unsigned int channel) { return rtti_cast<T>(getChannelNonTyped(channel)); }
             
-            Node* getChannelNonTyped(unsigned int channel);
-            
-            
+            Node* getChannelNonTyped(unsigned int channel);            
             bool resize(unsigned int channelCount);
             
-        private:
+        protected:
             std::vector<SafeOwner<Node>> mNodes;
+
+        private:
+            virtual bool initNode(Node& newNode, utility::ErrorState& errorState) { return true; }
+            
             AudioService* mService  = nullptr;
+        };
+        
+        
+        class NAPAPI MultiChannelEffect : public MultiChannelObject
+        {
+            RTTI_ENABLE(MultiChannelObject)
+            
+        public:
+            MultiChannelEffect() = default;
+            std::unique_ptr<AudioObjectInstance> createInstance() override;
+        };
+        
+        
+        class NAPAPI MultiChannelEffectInstance : public MultiChannelObjectInstance, public IMultiChannelInput
+        {
+            RTTI_ENABLE(MultiChannelObjectInstance)
+            
+        public:
+            MultiChannelEffectInstance(MultiChannelEffect& resource) : MultiChannelObjectInstance(resource) { }
+            
+            void connect(unsigned int channel, OutputPin& pin) override { (*mNodes[channel]->getInputs().begin())->connect(pin); }
+            int getInputChannelCount() const override { return mNodes.size(); }
+            
+        private:
+            bool initNode(Node& newNode, utility::ErrorState& errorState) override;
         };
                 
     }

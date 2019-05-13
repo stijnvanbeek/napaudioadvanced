@@ -11,8 +11,6 @@
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::Graph)
     RTTI_CONSTRUCTOR(nap::audio::AudioService&)
     RTTI_PROPERTY("Objects", &nap::audio::Graph::mObjects, nap::rtti::EPropertyMetaData::Embedded)
-    RTTI_PROPERTY("Output", &nap::audio::Graph::mOutput, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("Input", &nap::audio::Graph::mInput, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::GraphInstance)
@@ -116,18 +114,7 @@ namespace nap
                     return false;
                 }
                 
-                if (objectResource == resource.mOutput.get())
-                    mOutput = instance.get();
-                if (objectResource == resource.mInput.get())
-                    mInput = instance.get();
-                
                 mObjects.emplace_back(std::move(instance));
-            }
-            
-            if (mOutput == nullptr)
-            {
-                errorState.fail("%s Graph output not found within the graph.", resource.mID.c_str());
-                return false;
             }
             
             return true;

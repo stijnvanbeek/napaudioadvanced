@@ -30,7 +30,12 @@ namespace nap
              * Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice.
              * When the voice is played this envelope will be triggered. When it has finished it emits a signal that will cause the voice to be disconnected and enter idle state again.
              */
-            ResourcePtr<Envelope> mEnvelope;
+            ResourcePtr<Envelope> mEnvelope = nullptr;
+            
+            /**
+             * Points to the object in the graph from which the output of this voice is being pulled
+             */
+            ResourcePtr<AudioObject> mOutput = nullptr;
             
         private:
         };
@@ -59,6 +64,16 @@ namespace nap
             const EnvelopeInstance& getEnvelope() const { return *mEnvelope; }
             
             /**
+             * @return: the object that outputs the output channels of the graph.
+             */
+            AudioObjectInstance& getOutput() { return *mOutput; }
+            
+            /**
+             * @return: the object that outputs the output channels of the graph.
+             */
+            const AudioObjectInstance& getOutput() const { return *mOutput; }
+            /**
+             
              * Starts playback of the voice by triggering the envelope
              */
             void play(TimeValue duration = 0);
@@ -97,6 +112,7 @@ namespace nap
             Slot<EnvelopeGenerator&> envelopeFinishedSlot = { this, &VoiceInstance::envelopeFinished };
             void envelopeFinished(EnvelopeGenerator&);
 
+            AudioObjectInstance* mOutput = nullptr;
             EnvelopeInstance* mEnvelope = nullptr;
             std::atomic<bool> mBusy = { false };
             DiscreteTimeValue mStartTime = 0;

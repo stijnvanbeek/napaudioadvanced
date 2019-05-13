@@ -13,9 +13,16 @@
 // RTTI
 RTTI_DEFINE_BASE(nap::audio::MultiChannelObject)
 
+RTTI_DEFINE_BASE(nap::audio::MultiChannelEffect)
+
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelObjectInstance)
     RTTI_FUNCTION("getChannel", &nap::audio::MultiChannelObjectInstance::getChannelNonTyped)
     RTTI_FUNCTION("resize", &nap::audio::MultiChannelObjectInstance::resize)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelEffectInstance)
+    RTTI_FUNCTION("getInputChannelCount", &nap::audio::MultiChannelEffectInstance::getInputChannelCount)
+    RTTI_FUNCTION("connect", &nap::audio::MultiChannelEffectInstance::tryConnect)
 RTTI_END_CLASS
 
 
@@ -45,33 +52,17 @@ namespace nap
                 if (!errorState.check(node->getOutputs().size() == 1, "Nodes in %s have to be mono", mID.c_str()))
                     return false;
                 
+                if (initNode(*node, errorState) == false)
+                {
+                    errorState.fail("Failed to init node.");
+                    return false;
+                }
+                
                 mNodes.emplace_back(std::move(node));
             }
             return true;
         }
         
-        
-        InputPinBase* MultiChannelObjectInstance::getInputForChannel(int channel)
-        {
-            auto& node = *mNodes[channel];
-            
-            // Only return an input pin when the node has 1 input pin, otherwise the behaviour would be undefined as to which input pin will be returned.
-            if (node.getInputs().size() == 1)
-                return *node.getInputs().begin();
-            else
-                return nullptr;
-        }
-        
-        
-        int MultiChannelObjectInstance::getInputChannelCount() const
-        {
-            auto& node = **mNodes.begin();
-            if (node.getInputs().size() == 1)
-                return mNodes.size();
-            else
-                return 0;
-        }
-
         
         Node* MultiChannelObjectInstance::getChannelNonTyped(unsigned int channel)
         {
@@ -101,11 +92,35 @@ namespace nap
                     return false;
                 }
                 
+                if (initNode(*node, errorState) == false)
+                {
+                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s: failed to init node.", mID.c_str());
+                    return false;
+                }
+                
                 mNodes.emplace_back(std::move(node));
             }
 
             return true;
         }
+        
+        
+        std::unique_ptr<AudioObjectInstance> MultiChannelEffect::createInstance()
+        {
+            return std::make_unique<MultiChannelEffectInstance>(*this);
+        }
+        
+        
+        bool MultiChannelEffectInstance::initNode(Node& newNode, utility::ErrorState& errorState)
+        {
+            if (!(newNode.getInputs().size() == 1))
+            {
+                nap::Logger::warn("Node has no mono input", mID.c_str());
+                return false;
+            }
+            return true;
+        }
+
 
     
     }
