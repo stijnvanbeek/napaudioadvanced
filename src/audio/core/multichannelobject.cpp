@@ -17,7 +17,7 @@ RTTI_DEFINE_BASE(nap::audio::MultiChannelEffect)
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelObjectInstance)
     RTTI_FUNCTION("getChannel", &nap::audio::MultiChannelObjectInstance::getChannelNonTyped)
-    RTTI_FUNCTION("resize", &nap::audio::MultiChannelObjectInstance::resize)
+    RTTI_FUNCTION("create", &nap::audio::MultiChannelObjectInstance::create)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelEffectInstance)
@@ -73,8 +73,10 @@ namespace nap
         }
 
 
-        bool MultiChannelObjectInstance::resize(unsigned int channelCount)
+        bool MultiChannelObjectInstance::create(unsigned int channelCount)
         {
+            mNodes.clear();
+            
             auto resource = rtti_cast<MultiChannelObject>(&getResource());
             for (auto channel = 0; channel < channelCount; ++channel)
             {

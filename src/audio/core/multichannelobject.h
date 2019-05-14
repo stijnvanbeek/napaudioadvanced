@@ -53,8 +53,10 @@ namespace nap
             
             bool init(AudioService& service, utility::ErrorState& errorState) override;
             
-            OutputPin* getOutputForChannel(int channel) override { return *mNodes[channel]->getOutputs().begin(); }
-            int getChannelCount() const override { return mNodes.size(); }
+            /**
+             * Disposes all of the old nodes and their connections and creates @channelCount new ones.
+             */
+            bool create(unsigned int channelCount);
             
             /**
              * Returns a raw pointer to the DSP node for the specified channel.
@@ -64,7 +66,10 @@ namespace nap
             T* getChannel(unsigned int channel) { return rtti_cast<T>(getChannelNonTyped(channel)); }
             
             Node* getChannelNonTyped(unsigned int channel);            
-            bool resize(unsigned int channelCount);
+
+            // Inherited from AudioObjectInstance
+            OutputPin* getOutputForChannel(int channel) override { return *mNodes[channel]->getOutputs().begin(); }
+            int getChannelCount() const override { return mNodes.size(); }
             
         protected:
             std::vector<SafeOwner<Node>> mNodes;
