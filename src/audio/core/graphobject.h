@@ -65,7 +65,7 @@ namespace nap
         public:
             GraphObjectInstance(GraphObject& resource) : AudioObjectInstance(resource) { }
 
-            // Initialize the component
+            // Initialize the object
             bool init(AudioService& audioService, utility::ErrorState& errorState) override;
 
             /**
