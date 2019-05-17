@@ -32,11 +32,6 @@ namespace nap
              */
             ResourcePtr<Envelope> mEnvelope = nullptr;
             
-            /**
-             * Points to the object in the graph from which the output of this voice is being pulled
-             */
-            ResourcePtr<AudioObject> mOutput = nullptr;
-            
         private:
         };
         
@@ -62,18 +57,8 @@ namespace nap
              * @return: the envelope controlling the overall amplitude of the voice
              */
             const EnvelopeInstance& getEnvelope() const { return *mEnvelope; }
-            
+
             /**
-             * @return: the object that outputs the output channels of the graph.
-             */
-            AudioObjectInstance& getOutput() { return *mOutput; }
-            
-            /**
-             * @return: the object that outputs the output channels of the graph.
-             */
-            const AudioObjectInstance& getOutput() const { return *mOutput; }
-            /**
-             
              * Starts playback of the voice by triggering the envelope
              */
             void play(TimeValue duration = 0);
@@ -112,7 +97,6 @@ namespace nap
             Slot<EnvelopeGenerator&> envelopeFinishedSlot = { this, &VoiceInstance::envelopeFinished };
             void envelopeFinished(EnvelopeGenerator&);
 
-            AudioObjectInstance* mOutput = nullptr;
             EnvelopeInstance* mEnvelope = nullptr;
             std::atomic<bool> mBusy = { false };
             DiscreteTimeValue mStartTime = 0;

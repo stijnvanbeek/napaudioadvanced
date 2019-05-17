@@ -23,7 +23,7 @@ namespace nap
         /**
          * Instance of a object that generates audio output for one or more channels
          */
-        class NAPAPI AudioObjectInstance : public rtti::Object, public IMultiChannelOutput
+        class NAPAPI AudioObjectInstance : public rtti::Object, public IMultiChannelInput, public IMultiChannelOutput
         {
             RTTI_ENABLE()
             
@@ -46,6 +46,11 @@ namespace nap
              */
             template <typename T>
             T* getResource() { return rtti_cast<T>(&mResource); }
+            
+            /**
+             * If multichannel input is implemented for this object it returns its input interface, otherwise nullptr.
+             */
+            IMultiChannelInput* getInput() { return dynamic_cast<IMultiChannelInput*>(this); }
             
         private:
             AudioObject& mResource;

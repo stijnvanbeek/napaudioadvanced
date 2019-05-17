@@ -5,7 +5,6 @@
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::Voice)
     RTTI_CONSTRUCTOR(nap::audio::AudioService&)
-    RTTI_PROPERTY("Output", &nap::audio::Voice::mOutput, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Envelope", &nap::audio::Voice::mEnvelope, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
@@ -40,13 +39,6 @@ namespace nap
             if (!GraphInstance::init(resource, errorState))
                 return false;
 
-            mOutput = getObject<AudioObjectInstance>(resource.mOutput->mID.c_str());
-            if (mOutput == nullptr)
-            {
-                errorState.fail("%s output not found", resource.mID.c_str());
-                return false;
-            }
-            
             mEnvelope = getObject<EnvelopeInstance>(resource.mEnvelope->mID.c_str());
             if (mEnvelope == nullptr)
             {

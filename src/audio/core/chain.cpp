@@ -1,7 +1,23 @@
 #include "chain.h"
 
-// Audio includes
-#include <audio/core/multiobject.h>
+RTTI_BEGIN_CLASS(nap::audio::Chain)
+    RTTI_PROPERTY("Objects", &nap::audio::Chain::mObjects, nap::rtti::EPropertyMetaData::Embedded)
+    RTTI_PROPERTY("Input", &nap::audio::Chain::mInput, nap::rtti::EPropertyMetaData::Default)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::ChainInstance)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS(nap::audio::MultiChainBase)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS(nap::audio::MultiChain)
+    RTTI_PROPERTY("ChainCount", &nap::audio::MultiChain::mChainCount, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("IsActive", &nap::audio::MultiChain::mIsActive, nap::rtti::EPropertyMetaData::Default)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChainInstance)
+RTTI_END_CLASS
 
 namespace nap
 {
@@ -19,19 +35,17 @@ namespace nap
         {
             auto resource = getResource<Chain>();
             
+            if (resource->mObjects.empty())
+            {
+                errorState.fail("Chain can not initialize empty: %s", resource->mID.c_str());
+                return false;
+            }
+            
             for (auto& objectResource : resource->mObjects)
             {
-                auto newObject = objectResource->instantiate<AudioObjectInstance>(audioService, errorState);
+                auto newObject = instantiateObjectInChain(*objectResource, audioService, errorState);
                 if (newObject == nullptr)
-                {
-                    errorState.fail("Failed to create object in chain: %s", objectResource->mID.c_str());
                     return false;
-                }
-                if (!newObject->init(audioService, errorState))
-                {
-                    errorState.fail("Failed to initialize object in chain: %s", objectResource->mID.c_str());
-                    return false;
-                }
                 if (!mObjects.empty())
                 {
                     auto previous = mObjects.back().get();
@@ -39,6 +53,11 @@ namespace nap
                         return false;
                 }
                 mObjects.emplace_back(std::move(newObject));
+            }
+            
+            if (resource->mInput != nullptr)
+            {
+                mObjects[0]->connect(*resource->mInput->getInstance());
             }
             
             return true;
@@ -67,54 +86,83 @@ namespace nap
         }
 
 
-        
-        std::unique_ptr<AudioObjectInstance> EffectChain::createInstance()
+        std::unique_ptr<AudioObjectInstance> ChainInstance::instantiateObjectInChain(AudioObject& resource, AudioService& audioService, utility::ErrorState& errorState)
         {
-            return std::make_unique<EffectChainInstance>(*this);
+            auto newObject = resource.instantiate<AudioObjectInstance>(audioService, errorState);
+            if (newObject == nullptr)
+            {
+                errorState.fail("Failed to create object in chain: %s", resource.mID.c_str());
+                return nullptr;
+            }
+            return newObject;
+        }
+        
+        
+        std::unique_ptr<AudioObjectInstance> MultiChainBase::createInstance()
+        {
+            return std::make_unique<MultiChainInstance>(*this);
         }
 
-
-        bool EffectChainInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        
+        std::unique_ptr<AudioObjectInstance> MultiChainInstance::instantiateObjectInChain(AudioObject& resource, AudioService& audioService, utility::ErrorState& errorState)
         {
-            if (!ChainInstance::init(audioService, errorState))
-                return false;
+            auto chainResource = getResource<MultiChainBase>();
+            auto multiResource = rtti_cast<MultiObjectBase>(&resource);
             
-            auto first = getObjectNonTyped(0);
-            mInput = dynamic_cast<IMultiChannelInput*>(first);
-            if (mInput == nullptr)
+            if (multiResource == nullptr)
             {
-                errorState.fail("First object in chain has no input: %s", first->getResource().mID.c_str());
-                return false;
+                errorState.fail("Object inside MultiChain is not a MultiObject: %s", resource.mID.c_str());
+                return nullptr;
             }
             
-            return true;
+            // InstanceCount and IsActive properties of the MultiObjects in the chain are overwritten by properties of the chain itself.
+            multiResource->mInstanceCount = chainResource->mChainCount;
+            multiResource->mIsActive = chainResource->mIsActive;
+            auto newObject = resource.instantiate<MultiObjectInstance>(audioService, errorState);
+            if (newObject == nullptr)
+            {
+                errorState.fail("Failed to create object in chain: %s", resource.mID.c_str());
+                return nullptr;
+            }
+            return newObject;
         }
         
         
-        std::unique_ptr<AudioObjectInstance> MultiEffectChain::createInstance()
+        bool MultiChainInstance::connectObjectsInChain(AudioObjectInstance& source, AudioObjectInstance& destination, utility::ErrorState& errorState)
         {
-            return std::make_unique<MultiEffectChainInstance>(*this);
-        }
-
-        
-        bool MultiEffectChainInstance::connectObjectsInChain(AudioObjectInstance& source, AudioObjectInstance& destination, utility::ErrorState& errorState)
-        {
-            auto sourceMulti = rtti_cast<MultiEffectInstance>(&source);
-            if (sourceMulti == nullptr)
-            {
-                errorState.fail("Object in MultiEffectChain is no MultiObject: %s", sourceMulti->getResource().mID.c_str());
-                return false;
-            }
-            auto destinationMulti = rtti_cast<MultiEffectInstance>(&destination);
-            if (destinationMulti == nullptr)
-            {
-                errorState.fail("Object in MultiEffectChain is no MultiObject: %s", destinationMulti->getResource().mID.c_str());
-                return false;
-            }
+            auto sourceMulti = rtti_cast<MultiObjectInstance>(&source);
+            auto destinationMulti = rtti_cast<MultiObjectInstance>(&destination);
             destinationMulti->connect(*sourceMulti);
             return true;
         }
-
+        
+        
+        bool MultiChainInstance::addChain(utility::ErrorState& errorState)
+        {
+            AudioObjectInstance* previous = nullptr;
+            for (auto i = 0; i < getObjectCount(); ++i)
+            {
+                auto multi = getObject<MultiObjectInstance>(i);
+                auto newObject = multi->addObjectNonTyped(errorState);
+                if (newObject == nullptr)
+                {
+                    errorState.fail("Unable to create now object %s", getResource().mID.c_str());
+                    return false;
+                }
+                if (previous != nullptr)
+                    newObject->connect(*previous);
+                previous = newObject;
+            }
+            return true;
+        }
+        
+        
+        void MultiChainInstance::setChainActive(int index, bool isActive)
+        {
+            back<MultiObjectInstance>()->setActive(back<MultiObjectInstance>()->getObjectNonTyped(index), isActive);
+        }
+        
+        
     }
     
 }

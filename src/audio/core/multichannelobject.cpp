@@ -13,16 +13,9 @@
 // RTTI
 RTTI_DEFINE_BASE(nap::audio::MultiChannelObject)
 
-RTTI_DEFINE_BASE(nap::audio::MultiChannelEffect)
-
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelObjectInstance)
     RTTI_FUNCTION("getChannel", &nap::audio::MultiChannelObjectInstance::getChannelNonTyped)
     RTTI_FUNCTION("create", &nap::audio::MultiChannelObjectInstance::create)
-RTTI_END_CLASS
-
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelEffectInstance)
-    RTTI_FUNCTION("getInputChannelCount", &nap::audio::MultiChannelEffectInstance::getInputChannelCount)
-    RTTI_FUNCTION("connect", &nap::audio::MultiChannelEffectInstance::tryConnect)
 RTTI_END_CLASS
 
 
@@ -107,24 +100,6 @@ namespace nap
         }
         
         
-        std::unique_ptr<AudioObjectInstance> MultiChannelEffect::createInstance()
-        {
-            return std::make_unique<MultiChannelEffectInstance>(*this);
-        }
-        
-        
-        bool MultiChannelEffectInstance::initNode(Node& newNode, utility::ErrorState& errorState)
-        {
-            if (!(newNode.getInputs().size() == 1))
-            {
-                nap::Logger::warn("Node has no mono input", mID.c_str());
-                return false;
-            }
-            return true;
-        }
-
-
-    
     }
     
 }

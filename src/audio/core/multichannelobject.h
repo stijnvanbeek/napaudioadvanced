@@ -70,7 +70,9 @@ namespace nap
             // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return *mNodes[channel]->getOutputs().begin(); }
             int getChannelCount() const override { return mNodes.size(); }
-            
+            void connect(unsigned int channel, OutputPin& pin) override { (*mNodes[channel]->getInputs().begin())->connect(pin); }
+            int getInputChannelCount() const override { return mNodes.size(); }
+
         protected:
             std::vector<SafeOwner<Node>> mNodes;
 
@@ -81,30 +83,6 @@ namespace nap
         };
         
         
-        class NAPAPI MultiChannelEffect : public MultiChannelObject
-        {
-            RTTI_ENABLE(MultiChannelObject)
-            
-        public:
-            MultiChannelEffect() = default;
-            std::unique_ptr<AudioObjectInstance> createInstance() override;
-        };
-        
-        
-        class NAPAPI MultiChannelEffectInstance : public MultiChannelObjectInstance, public IMultiChannelInput
-        {
-            RTTI_ENABLE(MultiChannelObjectInstance)
-            
-        public:
-            MultiChannelEffectInstance(MultiChannelEffect& resource) : MultiChannelObjectInstance(resource) { }
-            
-            void connect(unsigned int channel, OutputPin& pin) override { (*mNodes[channel]->getInputs().begin())->connect(pin); }
-            int getInputChannelCount() const override { return mNodes.size(); }
-            
-        private:
-            bool initNode(Node& newNode, utility::ErrorState& errorState) override;
-        };
-                
     }
         
 }

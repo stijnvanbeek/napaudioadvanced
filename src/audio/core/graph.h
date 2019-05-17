@@ -37,6 +37,16 @@ namespace nap
             std::vector<AudioObjectPtr> mObjects;
             
             /**
+             * Pointer to an audio object in the graph that will be polled for output in order to present audio output.
+             */
+            ResourcePtr<AudioObject> mOutput = nullptr;
+            
+            /**
+             * Pointer to an effect object in the graph where audio input will be connected to.
+             */
+            ResourcePtr<AudioObject> mInput = nullptr;
+            
+            /**
              * Returns the audio service that instances of this graph will perform their DSP processing on.
              */
             AudioService& getAudioService() { return mAudioService; }
@@ -73,6 +83,18 @@ namespace nap
              */
             AudioObjectInstance* getObjectNonTyped(const std::string& mID);
             
+            /**
+             * Returns the output object of the graph as specified in the resource
+             */
+            AudioObjectInstance& getOutput() { return *mOutput; }
+            const AudioObjectInstance& getOutput() const { return *mOutput; }
+
+            /**
+             * Returns the input object of the graph as specified in the resource
+             */
+            AudioObjectInstance* getInput() { return mInput; }
+            const AudioObjectInstance* getInput() const { return mOutput; }
+
         protected:
             /**
              * @return: all objects within the graph.
@@ -81,6 +103,8 @@ namespace nap
 
         private:
             std::vector<std::unique_ptr<AudioObjectInstance>> mObjects;
+            AudioObjectInstance* mOutput = nullptr;
+            AudioObjectInstance* mInput = nullptr;
             Graph* mResource = nullptr;
         };
         
