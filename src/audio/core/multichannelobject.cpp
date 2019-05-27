@@ -25,6 +25,30 @@ namespace nap
     namespace audio
     {
         
+        std::unique_ptr<AudioObjectInstance> MultiChannel::createInstance()
+        {
+            return std::make_unique<MultiChannelInstance>(*this);
+        }
+
+        
+        bool MultiChannelInstance::init(AudioService& service, utility::ErrorState& errorState)
+        {
+            auto resource = getResource<MultiChannel>();
+            
+            for (auto channel = 0; channel < resource->mChannelCount; ++channel)
+            {
+                auto channelInstance = resource->mChannel->instantiate<AudioObjectInstance>(service, errorState);
+                if (channelInstance == nullptr)
+                {
+                    errorState.fail("Failed to instantiate channel %s for %s", resource->mChannel->mID.c_str(), resource->mID.c_str());
+                    return false;
+                }
+                mChannels.emplace_back(std::move(channelInstance));
+            }
+            
+            return true;
+        }
+        
         
         std::unique_ptr<AudioObjectInstance> MultiChannelObject::createInstance()
         {
