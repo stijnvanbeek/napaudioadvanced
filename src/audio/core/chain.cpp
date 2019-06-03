@@ -118,7 +118,7 @@ namespace nap
             // InstanceCount and IsActive properties of the MultiObjects in the chain are overwritten by properties of the chain itself.
             multiResource->mInstanceCount = chainResource->mChainCount;
             multiResource->mIsActive = chainResource->mIsActive;
-            std::unique_ptr<MultiObjectInstance> newObject = resource.instantiate<MultiObjectInstance>(audioService, errorState);
+            auto newObject = resource.instantiate<AudioObjectInstance>(audioService, errorState);
             if (newObject == nullptr)
             {
                 errorState.fail("Failed to create object in chain: %s", resource.mID.c_str());
