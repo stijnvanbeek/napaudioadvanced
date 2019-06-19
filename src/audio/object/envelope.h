@@ -43,6 +43,7 @@ namespace nap
             RTTI_ENABLE(AudioObjectInstance)
         public:
             EnvelopeInstance() : AudioObjectInstance() { }
+            EnvelopeInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Inherited from AudioObjectInstance
             bool init(EnvelopeGenerator::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState);

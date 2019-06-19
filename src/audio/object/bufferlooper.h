@@ -60,10 +60,9 @@ namespace nap
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
-            BufferLooperInstance() : AudioObjectInstance()
-            {
-            }
-            
+            BufferLooperInstance() : AudioObjectInstance() { }
+            BufferLooperInstance(const std::string& name) : AudioObjectInstance(name) { }
+
             bool init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, AudioService& service, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }

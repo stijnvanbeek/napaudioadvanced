@@ -44,6 +44,41 @@ namespace nap
             return true;
         }
         
+        
+        OutputPin* GraphObjectInstance::getOutputForChannel(int channel)
+        {
+            if (mGraphInstance.getOutput() == nullptr)
+                return nullptr;
+            else
+                return mGraphInstance.getOutput()->getOutputForChannel(channel);
+        }
+        
+        
+        int GraphObjectInstance::getChannelCount() const
+        {
+            if (mGraphInstance.getOutput() == nullptr)
+                return 0;
+            else
+                return mGraphInstance.getOutput()->getChannelCount();
+        }
+        
+        
+        void GraphObjectInstance::connect(unsigned int channel, OutputPin& pin)
+        {
+            if (mGraphInstance.getInput() != nullptr)
+                mGraphInstance.getInput()->connect(channel, pin);
+        }
+        
+        
+        int GraphObjectInstance::getInputChannelCount() const
+        {
+            if (mGraphInstance.getInput() != nullptr)
+                return mGraphInstance.getInput()->getInputChannelCount();
+            else
+                return 0;
+        }
+
+        
     }
 
 }

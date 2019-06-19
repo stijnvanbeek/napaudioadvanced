@@ -140,13 +140,37 @@ namespace nap
         }
         
         
-        AudioObjectInstance* GraphInstance::getObjectNonTyped(const std::string &mID)
+        AudioObjectInstance* GraphInstance::getObjectNonTyped(const std::string &name)
         {
             for (auto& object : mObjects)
-                if (object->getName() == mID)
+                if (object->getName() == name)
                     return object.get();
             return nullptr;
         }
+        
+        
+        AudioObjectInstance& GraphInstance::addObject(std::unique_ptr<AudioObjectInstance> object)
+        {
+            mObjects.emplace_back(std::move(object));
+            return *mObjects.back();
+        }
+        
+        
+        AudioObjectInstance& GraphInstance::addInput(std::unique_ptr<AudioObjectInstance> object)
+        {
+            mInput = object.get();
+            mObjects.emplace_back(std::move(object));
+            return *mObjects.back();
+        }
+        
+        
+        AudioObjectInstance& GraphInstance::addOutput(std::unique_ptr<AudioObjectInstance> object)
+        {
+            mOutput = object.get();
+            mObjects.emplace_back(std::move(object));
+            return *mObjects.back();
+        }
+
         
     }
     

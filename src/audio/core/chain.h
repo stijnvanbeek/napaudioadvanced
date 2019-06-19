@@ -38,7 +38,8 @@ namespace nap
             
         public:
             ChainInstance() : AudioObjectInstance() { }
-            
+            ChainInstance(const std::string& name) : AudioObjectInstance(name) { }
+
             OutputPin* getOutputForChannel(int channel) override { return mObjects.back()->getOutputForChannel(channel); }
             int getChannelCount() const override { return mObjects.back()->getChannelCount(); }
             void connect(unsigned int channel, OutputPin& pin) override { mObjects[0]->connect(channel, pin); }

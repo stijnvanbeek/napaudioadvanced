@@ -30,7 +30,7 @@ namespace nap
             
         public:
             PolyphonicObject() : AudioObject() { }
-            
+
             /**
              * This points to the voice graph resource defining the patch for a single voice in the polyphonic system.
              */
@@ -67,7 +67,8 @@ namespace nap
             
         public:
             PolyphonicObjectInstance() : AudioObjectInstance() { }
-            
+            PolyphonicObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
+
             // Initialize the object
             bool init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, AudioService& audioService, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override;

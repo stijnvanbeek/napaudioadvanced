@@ -47,7 +47,8 @@ namespace nap
             
         public:
             MultiObjectInstance() : AudioObjectInstance() { }
-            
+            MultiObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
+
             // Initialize the object
             bool init(AudioObject& objectResource, int instanceCount, bool isActive, AudioService& audioService, utility::ErrorState& errorState);
             

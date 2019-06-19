@@ -42,6 +42,7 @@ namespace nap
 
         public:
             GraphObjectInstance() : AudioObjectInstance() { }
+            GraphObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Initialize the object
             bool init(Graph& graph, AudioService& audioService, utility::ErrorState& errorState);
@@ -57,21 +58,28 @@ namespace nap
              * Non typed version of @getObject().
              */
             AudioObjectInstance* getObjectNonTyped(const std::string& mID) { return mGraphInstance.getObjectNonTyped(mID); }
+            
+            /**
+             * Adds an object to the graph. The graph takes over ownership.
+             */
+            AudioObjectInstance& addObject(std::unique_ptr<AudioObjectInstance> object) { return mGraphInstance.addObject(std::move(object)); }
+            
+            /**
+             * Adds an object to the graph and marks it to be the graph's input. The graph takes over ownership of the object.
+             */
+            AudioObjectInstance& addInput(std::unique_ptr<AudioObjectInstance> object)  { return mGraphInstance.addInput(std::move(object)); }
+            
+            /**
+             * Adds an object to the graph and marks it to be the graph's output. The graph takes over ownership of the object.
+             */
+            AudioObjectInstance& addOutput(std::unique_ptr<AudioObjectInstance> object) { return mGraphInstance.addOutput(std::move(object)); }
 
-            OutputPin* getOutputForChannel(int channel) override { return mGraphInstance.getOutput().getOutputForChannel(channel); }
-            int getChannelCount() const override { return mGraphInstance.getOutput().getChannelCount(); }
-            void connect(unsigned int channel, OutputPin& pin) override
-            {
-                if (mGraphInstance.getInput() != nullptr)
-                    mGraphInstance.getInput()->connect(channel, pin);
-            }
-            int getInputChannelCount() const override
-            {
-                if (mGraphInstance.getInput() != nullptr)
-                    return mGraphInstance.getInput()->getInputChannelCount();
-                else
-                    return 0;
-            }
+
+            // Multichannel implementation
+            OutputPin* getOutputForChannel(int channel) override;
+            int getChannelCount() const override;
+            void connect(unsigned int channel, OutputPin& pin) override;
+            int getInputChannelCount() const override;
             
         private:
             GraphInstance mGraphInstance;

@@ -88,12 +88,12 @@ namespace nap
             // We cache the channel numbers of the output mixer that the voice will be connected to within the voice object.
             // We do that here already and not in the enqueued task to avoid allocations on the audio thread.
             voice->mConnectedToChannels.clear();
-            for (auto channel = 0; channel < std::min<int>(mMixNodes.size(), voice->getOutput().getChannelCount()); ++channel)
+            for (auto channel = 0; channel < std::min<int>(mMixNodes.size(), voice->getOutput()->getChannelCount()); ++channel)
                 voice->mConnectedToChannels.emplace_back(channel);
 
             mAudioService->enqueueTask([&, voice](){
                 for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
-                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput().getOutputForChannel(i));
+                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i));
             });
         }
 
@@ -114,7 +114,7 @@ namespace nap
 
             mAudioService->enqueueTask([&, voice](){
                 for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
-                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput().getOutputForChannel(i % voice->getOutput().getChannelCount()));
+                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i % voice->getOutput()->getChannelCount()));
             });
         }
 
@@ -161,7 +161,7 @@ namespace nap
                 // Means the envelope calling voiceFinished() is probably in the deletion queue and this Polyphonic already dead? Why does the slot not disconnect itself though..
                 
                 // this function is called from the audio thread, so we don't have to call AudioService::enqueueTask() to schedule disconnection on the audio thread
-                mMixNodes[voice.mConnectedToChannels[channel]]->inputs.disconnect(*voice.getOutput().getOutputForChannel(channel % voice.getOutput().getChannelCount()));
+                mMixNodes[voice.mConnectedToChannels[channel]]->inputs.disconnect(*voice.getOutput()->getOutputForChannel(channel % voice.getOutput()->getChannelCount()));
             }
             voice.free();            
         }

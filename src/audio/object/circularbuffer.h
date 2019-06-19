@@ -47,7 +47,8 @@ namespace nap
             RTTI_ENABLE(AudioObjectInstance)
         public:
             CircularBufferInstance() : AudioObjectInstance() { }
-            
+            CircularBufferInstance(const std::string& name) : AudioObjectInstance(name) { }
+
             // Inherited from AudioObjectInstance
             bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }

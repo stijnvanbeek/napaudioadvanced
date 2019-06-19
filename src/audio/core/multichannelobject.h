@@ -99,8 +99,9 @@ namespace nap
             
         public:
             MultiChannelObjectInstance() : AudioObjectInstance() { }
-            
-            bool init(NodeFactory nodeFactory, int channelCount, AudioService& service, utility::ErrorState& errorState);
+            MultiChannelObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
+
+            bool init(NodeFactory nodeFactory, int channelCount, AudioService& service, utility::ErrorState& errorState);
             
             /**
              * Disposes all of the old nodes and their connections and creates @channelCount new ones.
