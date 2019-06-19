@@ -10,7 +10,7 @@ RTTI_BEGIN_CLASS(nap::audio::BufferLooper::Settings)
     RTTI_PROPERTY("CrossFadeTime", &nap::audio::BufferLooper::Settings::mCrossFadeTime, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_STRUCT
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::BufferLooper)
+RTTI_BEGIN_CLASS(nap::audio::BufferLooper)
     RTTI_PROPERTY("Settings", &nap::audio::BufferLooper::mSettings, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("ChannelCount", &nap::audio::BufferLooper::mChannelCount, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("AutoPlay", &nap::audio::BufferLooper::mAutoPlay, nap::rtti::EPropertyMetaData::Default)

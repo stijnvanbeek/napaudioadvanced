@@ -15,7 +15,7 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::Graph)
     RTTI_PROPERTY("Input", &nap::audio::Graph::mInput, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::GraphInstance)
+RTTI_BEGIN_CLASS(nap::audio::GraphInstance)
     RTTI_FUNCTION("getObject", &nap::audio::GraphInstance::getObjectNonTyped)
 RTTI_END_CLASS
 

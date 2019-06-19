@@ -59,11 +59,12 @@ namespace nap
         /**
          * Instance of Graph that manages a number of different audio objects, connected together to represent a DSP network to perform a specific task of mono or multichannel audio processing.
          */
-        class NAPAPI GraphInstance : rtti::Object
+        class NAPAPI GraphInstance
         {
             RTTI_ENABLE()
         public:
             GraphInstance() = default;
+            virtual ~GraphInstance() = default;
             
             bool init(Graph& resource, utility::ErrorState& errorState);
             
