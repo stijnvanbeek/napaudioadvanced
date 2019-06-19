@@ -15,37 +15,25 @@ namespace nap
     {
         
         /**
-         * Baseclass for MultiObject that serves the sole purpose of creating MultiObject descendants without properties.
+         * Audio object that owns multiple instances of an audio object and mixes their output
          */
-        class NAPAPI MultiObjectBase : public AudioObject
+        class NAPAPI MultiObject : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
-            
+
         public:
-            MultiObjectBase() : AudioObject() { }
-            
+            MultiObject() : AudioObject() { }
+
             int mInstanceCount = 1; ///< Property: 'InstanceCount' Number of instances of the object that will be created on initialization.
             bool mIsActive = true; ///< Property: 'IsActive' Indicates wether the objects within the MultiObject are active at initialization. Active means: connected to the output mixers.
             
-        private:
-            std::unique_ptr<AudioObjectInstance> createInstance() override;
-        };
-    
-
-        /**
-         * Audio object that owns multiple instances of an audio object and mixes their output
-         */
-        class NAPAPI MultiObject : public MultiObjectBase
-        {
-            RTTI_ENABLE(MultiObjectBase)
-
-        public:
-            MultiObject() : MultiObjectBase() { }
-
             /**
              * Pointer to the audio object resource that this object uses.
              */
             ResourcePtr<AudioObject> mObject = nullptr;
+            
+        private:
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
         };
         
         
@@ -58,10 +46,10 @@ namespace nap
             RTTI_ENABLE(AudioObjectInstance)
             
         public:
-            MultiObjectInstance(MultiObjectBase& resource) : AudioObjectInstance(resource) { }
+            MultiObjectInstance() : AudioObjectInstance() { }
             
             // Initialize the object
-            bool init(AudioService& audioService, utility::ErrorState& errorState) override;
+            bool init(AudioObject& objectResource, int instanceCount, bool isActive, AudioService& audioService, utility::ErrorState& errorState);
             
             /**
              * Use this method to acquire one of the managed objects.
@@ -129,14 +117,12 @@ namespace nap
             void connect(MultiObjectInstance& multi);
             
         protected:
-            virtual AudioObject* getObjectResource();
-            
-        protected:
             std::vector<std::unique_ptr<AudioObjectInstance>> mObjects;
             
         private:
             std::vector<SafeOwner<MixNode>> mMixers;            
             AudioService* mAudioService = nullptr;
+            AudioObject* mObjectResource = nullptr;
         };
         
 

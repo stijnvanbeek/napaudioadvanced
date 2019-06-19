@@ -38,7 +38,7 @@ namespace nap
             
         private:
             // Inherited from AudioObject
-            std::unique_ptr<AudioObjectInstance> createInstance();
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
         };
 
         
@@ -46,10 +46,10 @@ namespace nap
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
-            CircularBufferInstance(CircularBuffer& resource) : AudioObjectInstance(resource) { }
+            CircularBufferInstance() : AudioObjectInstance() { }
             
             // Inherited from AudioObjectInstance
-            bool init(AudioService& audioService, utility::ErrorState& errorState) override;
+            bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }
             int getChannelCount() const override { return 0; }
             

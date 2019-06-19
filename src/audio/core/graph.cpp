@@ -143,7 +143,7 @@ namespace nap
         AudioObjectInstance* GraphInstance::getObjectNonTyped(const std::string &mID)
         {
             for (auto& object : mObjects)
-                if (object->getResource().mID == mID)
+                if (object->getName() == mID)
                     return object.get();
             return nullptr;
         }

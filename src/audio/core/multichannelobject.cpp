@@ -13,7 +13,7 @@
 // RTTI
 RTTI_DEFINE_BASE(nap::audio::MultiChannelObject)
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelObjectInstance)
+RTTI_BEGIN_CLASS(nap::audio::MultiChannelObjectInstance)
     RTTI_FUNCTION("getChannel", &nap::audio::MultiChannelObjectInstance::getChannelNonTyped)
     RTTI_FUNCTION("create", &nap::audio::MultiChannelObjectInstance::create)
 RTTI_END_CLASS
@@ -25,22 +25,24 @@ namespace nap
     namespace audio
     {
         
-        std::unique_ptr<AudioObjectInstance> MultiChannel::createInstance()
+        std::unique_ptr<AudioObjectInstance> MultiChannel::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
-            return std::make_unique<MultiChannelInstance>(*this);
+            auto instance = std::make_unique<MultiChannelInstance>();
+            if (!instance->init(*mChannel, mChannelCount, service, errorState))
+                return nullptr;
+            
+            return instance;
         }
 
         
-        bool MultiChannelInstance::init(AudioService& service, utility::ErrorState& errorState)
+        bool MultiChannelInstance::init(AudioObject& channelResource, int channelCount, AudioService& service, utility::ErrorState& errorState)
         {
-            auto resource = getResource<MultiChannel>();
-            
-            for (auto channel = 0; channel < resource->mChannelCount; ++channel)
+            for (auto channel = 0; channel < channelCount; ++channel)
             {
-                auto channelInstance = resource->mChannel->instantiate<AudioObjectInstance>(service, errorState);
+                auto channelInstance = channelResource.instantiate<AudioObjectInstance>(service, errorState);
                 if (channelInstance == nullptr)
                 {
-                    errorState.fail("Failed to instantiate channel %s for %s", resource->mChannel->mID.c_str(), resource->mID.c_str());
+                    errorState.fail("Failed to instantiate channel %s for %s", channelResource.mID.c_str(), getName().c_str());
                     return false;
                 }
                 mChannels.emplace_back(std::move(channelInstance));
@@ -50,23 +52,32 @@ namespace nap
         }
         
         
-        std::unique_ptr<AudioObjectInstance> MultiChannelObject::createInstance()
+        std::unique_ptr<AudioObjectInstance> MultiChannelObject::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
-            return std::make_unique<MultiChannelObjectInstance>(*this);            
+            auto instance = std::make_unique<MultiChannelObjectInstance>();
+            MultiChannelObjectInstance::NodeFactory nodeFactory = [&](int channel, AudioService& audioService, utility::ErrorState& aErrorState)
+            {
+                return createNode(channel, audioService, aErrorState);
+            };
+            
+            if (!instance->init(nodeFactory, getChannelCount(), service, errorState))
+                return nullptr;
+            
+            return instance;
         }
         
         
-        bool MultiChannelObjectInstance::init(AudioService& service, utility::ErrorState& errorState)
+        bool MultiChannelObjectInstance::init(NodeFactory nodeFactory, int channelCount, AudioService& service, utility::ErrorState& errorState)
         {
             mService = &service;
-            auto resource = rtti_cast<MultiChannelObject>(&getResource());
-            for (auto channel = 0; channel < resource->getChannelCount(); ++channel)
+            mNodeFactory = nodeFactory;
+            for (auto channel = 0; channel < channelCount; ++channel)
             {
-                auto node = resource->createNode(channel, service, errorState);
-                if (!errorState.check(node != nullptr, "Error creating node in %s", mID.c_str()))
+                auto node = nodeFactory(channel, service, errorState);
+                if (!errorState.check(node != nullptr, "Error creating node in %s", getName().c_str()))
                     return false;
                 
-                if (!errorState.check(node->getOutputs().size() == 1, "Nodes in %s have to be mono", mID.c_str()))
+                if (!errorState.check(node->getOutputs().size() == 1, "Nodes in %s have to be mono", getName().c_str()))
                     return false;
                 
                 if (initNode(*node, errorState) == false)
@@ -94,26 +105,25 @@ namespace nap
         {
             mNodes.clear();
             
-            auto resource = rtti_cast<MultiChannelObject>(&getResource());
             for (auto channel = 0; channel < channelCount; ++channel)
             {
                 utility::ErrorState errorState;
-                auto node = resource->createNode(channel, *mService, errorState);
+                auto node = mNodeFactory(channel, *mService, errorState);
                 if (node == nullptr)
                 {
-                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s", mID.c_str());
+                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s", getName().c_str());
                     return false;
                 }
                 
                 if (!(node->getOutputs().size() == 1))
                 {
-                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s: node is not mono", mID.c_str());
+                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s: node is not mono", getName().c_str());
                     return false;
                 }
                 
                 if (initNode(*node, errorState) == false)
                 {
-                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s: failed to init node.", mID.c_str());
+                    nap::Logger::warn("Failed to resize MultiChannelObjectInstance %s: failed to init node.", getName().c_str());
                     return false;
                 }
                 

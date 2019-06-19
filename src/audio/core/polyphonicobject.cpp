@@ -11,8 +11,7 @@ RTTI_BEGIN_CLASS(nap::audio::PolyphonicObject)
     RTTI_PROPERTY("ChannelCount", &nap::audio::PolyphonicObject::mChannelCount, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::PolyphonicObjectInstance)
-    RTTI_CONSTRUCTOR(nap::audio::PolyphonicObject&)
+RTTI_BEGIN_CLASS(nap::audio::PolyphonicObjectInstance)
     RTTI_FUNCTION("findFreeVoice", &nap::audio::PolyphonicObjectInstance::findFreeVoice)
     RTTI_FUNCTION("play", &nap::audio::PolyphonicObjectInstance::play)
     RTTI_FUNCTION("playOnChannels", &nap::audio::PolyphonicObjectInstance::playOnChannels)
@@ -26,28 +25,33 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> PolyphonicObject::createInstance()
+        std::unique_ptr<AudioObjectInstance> PolyphonicObject::createInstance(AudioService& audioService, utility::ErrorState& errorState)
         {
-            return std::make_unique<PolyphonicObjectInstance>(*this);
+            auto instance = std::make_unique<PolyphonicObjectInstance>();
+            if (!instance->init(*mVoice, mVoiceCount, mVoiceStealing, mChannelCount, audioService, errorState))
+                return nullptr;
+            
+            return instance;
         }
 
 
-        bool PolyphonicObjectInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        bool PolyphonicObjectInstance::init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, AudioService& audioService, utility::ErrorState& errorState)
         {
-            auto resource = rtti_cast<PolyphonicObject>(&getResource());
             mAudioService = &audioService;
 
-            for (auto i = 0; i < resource->mVoiceCount; ++i)
+            for (auto i = 0; i < voiceCount; ++i)
             {
                 mVoices.emplace_back(std::make_unique<VoiceInstance>());
-                if (!mVoices.back()->init(*resource->mVoice, errorState))
+                if (!mVoices.back()->init(voice, errorState))
                     return false;
                 mVoices.back()->finishedSignal.connect(voiceFinishedSlot);
             }
 
             // Create the mix nodes to mix output of all the voices
-            for (auto i = 0; i < resource->mChannelCount; ++i)
+            for (auto i = 0; i < channelCount; ++i)
                 mMixNodes.emplace_back(mAudioService->makeSafe<MixNode>(audioService.getNodeManager()));
+            
+            mVoiceStealing = voiceStealing;
 
             return true;
         }
@@ -59,7 +63,7 @@ namespace nap
                 if (voice->try_use())
                     return voice.get();
 
-            if (rtti_cast<PolyphonicObject>(&getResource())->mVoiceStealing)
+            if (mVoiceStealing)
             {
                 DiscreteTimeValue time = mVoices[0]->getStartTime();
                 auto result = mVoices[0].get();

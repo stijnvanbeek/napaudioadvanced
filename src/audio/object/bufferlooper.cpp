@@ -22,9 +22,13 @@ namespace nap
     namespace audio
     {
         
-        std::unique_ptr<AudioObjectInstance> BufferLooper::createInstance()
+        std::unique_ptr<AudioObjectInstance> BufferLooper::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
-            return std::make_unique<BufferLooperInstance>(*this);
+            auto instance = std::make_unique<BufferLooperInstance>();
+            if (!instance->init(mSettings, mChannelCount, mAutoPlay, service, errorState))
+                return nullptr;
+            
+            return instance;
         }
         
         
@@ -74,6 +78,15 @@ namespace nap
 
         bool BufferLooper::init(utility::ErrorState& errorState)
         {
+
+            return true;
+        }
+
+
+        bool BufferLooperInstance::init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, AudioService& service, utility::ErrorState& errorState)
+        {
+            mSettings = settings;
+            
             if (!mSettings.init(errorState))
                 return false;
             
@@ -81,10 +94,10 @@ namespace nap
             mBufferPlayer->mID = "BufferPlayer";
             mBufferPlayer->mAutoPlay = false;
             mBufferPlayer->mBufferResource = mSettings.mBufferResource;
-            mBufferPlayer->mChannelCount = mChannelCount;
+            mBufferPlayer->mChannelCount = channelCount;
             if (!mBufferPlayer->init(errorState))
             {
-                errorState.fail("Failed to initialize BufferLooper " + mID);
+                errorState.fail("Failed to initialize BufferLooper " + getName());
                 return false;
             }
             
@@ -110,7 +123,7 @@ namespace nap
             decay.mMode = RampMode::Linear;
             
             mEnvelope = std::make_unique<Envelope>();
-            mEnvelope->mID = "Envelope";            
+            mEnvelope->mID = "Envelope";
             mEnvelope->mSegments.emplace_back(attack);
             mEnvelope->mSegments.emplace_back(sustain);
             mEnvelope->mSegments.emplace_back(decay);
@@ -118,22 +131,22 @@ namespace nap
             mEnvelope->mEqualPowerTranslate = true;
             if (!mEnvelope->init(errorState))
             {
-                errorState.fail("Failed to initialize BufferLooper " + mID);
+                errorState.fail("Failed to initialize BufferLooper " + getName());
                 return false;
             }
             
             mGain = std::make_unique<Gain>();
             mGain->mID = "Gain";
-            mGain->mChannelCount = mChannelCount;
+            mGain->mChannelCount = channelCount;
             mGain->mInputs.emplace_back(mBufferPlayer.get());
             mGain->mInputs.emplace_back(mEnvelope.get());
             if (!mGain->init(errorState))
             {
-                errorState.fail("Failed to initialize BufferLooper " + mID);
+                errorState.fail("Failed to initialize BufferLooper " + getName());
                 return false;
             }
             
-            mVoice = std::make_unique<Voice>(*mAudioService);
+            mVoice = std::make_unique<Voice>(service);
             mVoice->mID = "Voice";
             mVoice->mObjects.emplace_back(mBufferPlayer.get());
             mVoice->mObjects.emplace_back(mGain.get());
@@ -142,34 +155,25 @@ namespace nap
             mVoice->mOutput = mGain.get();
             if (!mVoice->init(errorState))
             {
-                errorState.fail("Failed to initialize BufferLooper " + mID);
+                errorState.fail("Failed to initialize BufferLooper " + getName());
                 return false;
             }
-
+            
             mPolyphonic = std::make_unique<PolyphonicObject>();
             mPolyphonic->mID = "Polyphonic";
             mPolyphonic->mVoice = mVoice.get();
-            mPolyphonic->mChannelCount = mChannelCount;
+            mPolyphonic->mChannelCount = channelCount;
             mPolyphonic->mVoiceCount = 2;
             mPolyphonic->mVoiceStealing = false;
             if (!mPolyphonic->init(errorState))
             {
-                errorState.fail("Failed to initialize BufferLooper " + mID);
+                errorState.fail("Failed to initialize BufferLooper " + getName());
                 return false;
             }
 
-            return true;
-        }
-
-
-        bool BufferLooperInstance::init(AudioService& service, utility::ErrorState& errorState)
-        {
-            mResource = getResource<BufferLooper>();
+            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicObjectInstance>(service, errorState);
             
-            mSettings = mResource->mSettings;
-            mPolyphonic = mResource->getPolyphonic().instantiate<PolyphonicObjectInstance>(service, errorState);
-            
-            if (mResource->mAutoPlay)
+            if (autoPlay)
                 start();
             
             return true;
@@ -200,7 +204,7 @@ namespace nap
         
         void BufferLooperInstance::startVoice(bool fromStart)
         {
-            auto voice = mPolyphonic->findFreeVoice();
+            auto voice = mPolyphonicInstance->findFreeVoice();
             assert(voice != nullptr);
             mVoices.emplace(voice);
             auto bufferPlayer = voice->getObject<MultiChannelObjectInstance>("BufferPlayer");
@@ -231,7 +235,7 @@ namespace nap
                 }
             }
             
-            mPolyphonic->play(voice);
+            mPolyphonicInstance->play(voice);
         }
         
         

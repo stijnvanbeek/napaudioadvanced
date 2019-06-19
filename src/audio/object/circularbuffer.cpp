@@ -25,42 +25,43 @@ namespace nap
     namespace audio
     {
         
-        std::unique_ptr<AudioObjectInstance> CircularBuffer::createInstance()
+        std::unique_ptr<AudioObjectInstance> CircularBuffer::createInstance(AudioService& audioService, utility::ErrorState& errorState)
         {
-            return std::make_unique<CircularBufferInstance>(*this);
+            if (mInput == nullptr)
+            {
+                errorState.fail("%s: Input not specified", mID.c_str());
+                return nullptr;
+            }
+            
+            auto instance = std::make_unique<CircularBufferInstance>();
+            if (!instance->init(*mInput->getInstance(), mChannelRouting, mRootProcess, mBufferSize, audioService, errorState))
+                return nullptr;
+            
+            return instance;
         }
 
     
-        bool CircularBufferInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        bool CircularBufferInstance::init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState)
         {
-            auto resource = rtti_cast<CircularBuffer>(&getResource());
-            
-            if (resource->mInput == nullptr)
-            {
-                errorState.fail("%s: Input not specified", resource->mID.c_str());
-                return false;
-            }
-            
-            auto channelCount = resource->mChannelRouting.size();
-            auto input = resource->mInput->getInstance();
+            auto channelCount = channelRouting.size();
             
             for (auto channel = 0; channel < channelCount; ++channel)
-                if (resource->mChannelRouting[channel] >= input->getChannelCount())
+                if (channelRouting[channel] >= input.getChannelCount())
                 {
-                    errorState.fail("%s: Trying to rout input channel that is out of bounds.", resource->mID.c_str());
+                    errorState.fail("%s: Trying to rout input channel that is out of bounds.", getName().c_str());
                     return false;
                 }
             
             for (auto channel = 0; channel < channelCount; ++channel)
             {
-                if (resource->mChannelRouting[channel] < 0)
+                if (channelRouting[channel] < 0)
                 {
-                    errorState.fail("%s: Trying to rout negative channel number.", resource->mID.c_str());
+                    errorState.fail("%s: Trying to rout negative channel number.", getName().c_str());
                     return false;
                 }
                 
-                auto node = audioService.makeSafe<CircularBufferNode>(audioService.getNodeManager(), resource->mBufferSize, resource->mRootProcess);
-                node->audioInput.connect(*input->getOutputForChannel(resource->mChannelRouting[channel]));
+                auto node = audioService.makeSafe<CircularBufferNode>(audioService.getNodeManager(), bufferSize, rootProcess);
+                node->audioInput.connect(*input.getOutputForChannel(channelRouting[channel]));
                 mNodes.emplace_back(std::move(node));
             }
             return true;

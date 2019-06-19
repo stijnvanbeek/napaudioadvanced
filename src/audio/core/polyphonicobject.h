@@ -54,7 +54,7 @@ namespace nap
             int mChannelCount = 1;
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance() override;
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
         };
 
         
@@ -66,10 +66,10 @@ namespace nap
             RTTI_ENABLE(AudioObjectInstance)
             
         public:
-            PolyphonicObjectInstance(PolyphonicObject& resource) : AudioObjectInstance(resource) { }
+            PolyphonicObjectInstance() : AudioObjectInstance() { }
             
             // Initialize the object
-            bool init(AudioService& audioService, utility::ErrorState& errorState) override;
+            bool init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, AudioService& audioService, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override;
             int getChannelCount() const override;
             
@@ -112,6 +112,7 @@ namespace nap
             std::vector<SafeOwner<MixNode>> mMixNodes;
             
             AudioService* mAudioService = nullptr;
+            bool mVoiceStealing = true;
         };
         
     }

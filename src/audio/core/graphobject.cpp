@@ -12,8 +12,7 @@ RTTI_BEGIN_CLASS(nap::audio::GraphObject)
     RTTI_PROPERTY("Graph", &nap::audio::GraphObject::mGraph, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::GraphObjectInstance)
-    RTTI_CONSTRUCTOR(nap::audio::GraphObject&)
+RTTI_BEGIN_CLASS(nap::audio::GraphObjectInstance)
     RTTI_FUNCTION("getObject", &nap::audio::GraphObjectInstance::getObjectNonTyped)
 RTTI_END_CLASS
 
@@ -24,16 +23,19 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> GraphObject::createInstance()
+        std::unique_ptr<AudioObjectInstance> GraphObject::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
-            return std::make_unique<GraphObjectInstance>(*this);
+            auto instance = std::make_unique<GraphObjectInstance>();
+            if (!instance->init(*mGraph, service, errorState))
+                return nullptr;
+            
+            return instance;
         }
 
 
-        bool GraphObjectInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        bool GraphObjectInstance::init(Graph& graph, AudioService& audioService, utility::ErrorState& errorState)
         {
-            GraphObject* resource = rtti_cast<GraphObject>(&getResource());
-            if (!mGraphInstance.init(*resource->mGraph, errorState))
+            if (!mGraphInstance.init(graph, errorState))
             {
                 errorState.fail("Fail to init graph.");
                 return false;
