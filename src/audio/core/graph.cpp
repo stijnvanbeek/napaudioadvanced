@@ -87,7 +87,7 @@ namespace nap
         
         bool GraphInstance::init(Graph& resource, utility::ErrorState& errorState)
         {
-            mResource = &resource;
+            mAudioService = &resource.getAudioService();
             
             // Build object graph as utility to sort all the audio object resources in dependency order
             std::vector<AudioObject*> objects;
