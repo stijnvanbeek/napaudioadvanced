@@ -86,9 +86,9 @@ namespace nap
         std::unique_ptr<T> AudioObject::instantiate(AudioService& service, utility::ErrorState& errorState)
         {
             auto instance = createInstance(service, errorState);
-            instance->mName = mID;
             if (instance == nullptr)
                 return nullptr;
+            instance->mName = mID;
             mInstance = instance.release();
             return std::unique_ptr<T>(rtti_cast<T>(mInstance));
         }

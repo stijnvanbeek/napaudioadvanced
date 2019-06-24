@@ -25,7 +25,7 @@ namespace nap
             auto instance = std::make_unique<ChainInstance>();
             for (auto& object : mObjects)
             {
-                if (instance->addObject(*object, audioService, errorState))
+                if (!instance->addObject(*object, audioService, errorState))
                 {
                     errorState.fail("Failed to add object to chain: %s", object->mID.c_str());
                     return nullptr;
@@ -50,9 +50,12 @@ namespace nap
         
         bool ChainInstance::addObject(std::unique_ptr<AudioObjectInstance> object, utility::ErrorState& errorState)
         {
-            auto previous = mObjects.back().get();
-            if (!connectObjectsInChain(*previous, *object, errorState))
-                return false;
+            if (!mObjects.empty())
+            {
+                auto previous = mObjects.back().get();
+                if (!connectObjectsInChain(*previous, *object, errorState))
+                    return false;
+            }
             mObjects.emplace_back(std::move(object));
             return true;
         }
