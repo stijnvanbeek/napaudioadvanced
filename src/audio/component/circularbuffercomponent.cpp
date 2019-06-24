@@ -35,7 +35,6 @@ namespace nap
             }
             
             auto audioService = getEntityInstance()->getCore()->getService<AudioService>();
-            auto& nodeManager = audioService->getNodeManager();
             
             auto channelCount = resource->mChannelRouting.size();
             

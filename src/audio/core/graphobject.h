@@ -26,13 +26,13 @@ namespace nap
             /**
              * Pointer to the graph resource that this object uses.
              */
-            ResourcePtr<Graph> mGraph;
-
+            ResourcePtr<Graph> mGraph = nullptr;
+            
         private:
             std::unique_ptr<AudioObjectInstance> createInstance() override;
         };
-
-
+        
+        
         /**
          * Instance of audio object that uses a graph to process it's output.
          */
@@ -43,7 +43,7 @@ namespace nap
         public:
             GraphObjectInstance(GraphObject& resource) : AudioObjectInstance(resource) { }
 
-            // Initialize the component
+            // Initialize the object
             bool init(AudioService& audioService, utility::ErrorState& errorState) override;
 
             /**
@@ -58,15 +58,24 @@ namespace nap
              */
             AudioObjectInstance* getObjectNonTyped(const std::string& mID) { return mGraphInstance.getObjectNonTyped(mID); }
 
-            OutputPin* getOutputForChannel(int channel) override;
-            int getChannelCount() const override;
-            InputPinBase* getInputForChannel(int channel) override;
-            int getInputChannelCount() const override;
-
+            OutputPin* getOutputForChannel(int channel) override { return mGraphInstance.getOutput().getOutputForChannel(channel); }
+            int getChannelCount() const override { return mGraphInstance.getOutput().getChannelCount(); }
+            void connect(unsigned int channel, OutputPin& pin) override
+            {
+                if (mGraphInstance.getInput() != nullptr)
+                    mGraphInstance.getInput()->connect(channel, pin);
+            }
+            int getInputChannelCount() const override
+            {
+                if (mGraphInstance.getInput() != nullptr)
+                    return mGraphInstance.getInput()->getInputChannelCount();
+                else
+                    return 0;
+            }
+            
         private:
             GraphInstance mGraphInstance;
-        };
-
+        };                
 
     }
 

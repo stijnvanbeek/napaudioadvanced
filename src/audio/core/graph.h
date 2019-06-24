@@ -23,6 +23,7 @@ namespace nap
         
         /**
          * The Graph manages a number of different audio objects that are connected together to represent a DSP network to perform a specific task of mono or multichannel audio processing.
+         * Internally it resolves links between the objects and manages order of initialization accordingly.
          */
         class NAPAPI Graph : public Resource
         {
@@ -36,16 +37,14 @@ namespace nap
             std::vector<AudioObjectPtr> mObjects;
             
             /**
-             * Has to point to one of the objects in mObjects.
-             * This is normally the "root" of the graph's network and is used to poll output from the graph.
+             * Pointer to an audio object in the graph that will be polled for output in order to present audio output.
              */
-            AudioObjectPtr mOutput = nullptr;
+            ResourcePtr<AudioObject> mOutput = nullptr;
             
             /**
-             * Can point to an object that has inputs in mObjects.
-             * External objects can connect through this.
+             * Pointer to an effect object in the graph where audio input will be connected to.
              */
-            AudioObjectPtr mInput = nullptr;
+            ResourcePtr<AudioObject> mInput = nullptr;
             
             /**
              * Returns the audio service that instances of this graph will perform their DSP processing on.
@@ -71,21 +70,6 @@ namespace nap
             Graph& getResource() { return *mResource; }
 
             /**
-             * @return: the object that outputs the output channels of the graph.
-             */
-            AudioObjectInstance& getOutput() { return *mOutput; }
-            
-            /**
-             * @return: the object that outputs the output channels of the graph.
-             */
-            const AudioObjectInstance& getOutput() const { return *mOutput; }
-            
-            /**
-             * @return: the object that input can be connected to, if any. Otherwise nullptr.
-             */
-            AudioObjectInstance* getInput() const { return mInput; }
-            
-            /**
              * @return: an object within this graph by ID.
              */
             template <typename T>
@@ -99,6 +83,18 @@ namespace nap
              */
             AudioObjectInstance* getObjectNonTyped(const std::string& mID);
             
+            /**
+             * Returns the output object of the graph as specified in the resource
+             */
+            AudioObjectInstance& getOutput() { return *mOutput; }
+            const AudioObjectInstance& getOutput() const { return *mOutput; }
+
+            /**
+             * Returns the input object of the graph as specified in the resource
+             */
+            AudioObjectInstance* getInput() { return mInput; }
+            const AudioObjectInstance* getInput() const { return mOutput; }
+
         protected:
             /**
              * @return: all objects within the graph.

@@ -17,6 +17,7 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::GraphObjectInstance)
     RTTI_FUNCTION("getObject", &nap::audio::GraphObjectInstance::getObjectNonTyped)
 RTTI_END_CLASS
 
+
 namespace nap
 {
 
@@ -32,41 +33,15 @@ namespace nap
         bool GraphObjectInstance::init(AudioService& audioService, utility::ErrorState& errorState)
         {
             GraphObject* resource = rtti_cast<GraphObject>(&getResource());
-            return mGraphInstance.init(*resource->mGraph, errorState);
-        }
-
-
-        OutputPin* GraphObjectInstance::getOutputForChannel(int channel)
-        {
-            return mGraphInstance.getOutput().getOutputForChannel(channel);
-        }
-
-
-        int GraphObjectInstance::getChannelCount() const
-        {
-            return mGraphInstance.getOutput().getChannelCount();
-        }
-
-        
-        InputPinBase* GraphObjectInstance::getInputForChannel(int channel)
-        {
-            auto input = mGraphInstance.getInput();
-            if (input)
-                return input->getInputForChannel(channel);
-            else
-                return nullptr;
+            if (!mGraphInstance.init(*resource->mGraph, errorState))
+            {
+                errorState.fail("Fail to init graph.");
+                return false;
+            }
+            
+            return true;
         }
         
-        
-        int GraphObjectInstance::getInputChannelCount() const
-        {
-            auto input = mGraphInstance.getInput();
-            if (input)
-                return input->getInputChannelCount();
-            else
-                return 0;
-        }
-
     }
 
 }

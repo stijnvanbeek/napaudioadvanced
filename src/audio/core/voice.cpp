@@ -39,10 +39,7 @@ namespace nap
             if (!GraphInstance::init(resource, errorState))
                 return false;
 
-            for (auto& object : getObjects())
-                if (&object->getResource() == resource.mEnvelope.get())
-                    mEnvelope = rtti_cast<EnvelopeInstance>(object.get());
-
+            mEnvelope = getObject<EnvelopeInstance>(resource.mEnvelope->mID.c_str());
             if (mEnvelope == nullptr)
             {
                 errorState.fail("%s envelope not found", resource.mID.c_str());

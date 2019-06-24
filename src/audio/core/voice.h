@@ -30,7 +30,7 @@ namespace nap
              * Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice.
              * When the voice is played this envelope will be triggered. When it has finished it emits a signal that will cause the voice to be disconnected and enter idle state again.
              */
-            ResourcePtr<Envelope> mEnvelope;
+            ResourcePtr<Envelope> mEnvelope = nullptr;
             
         private:
         };
@@ -57,7 +57,7 @@ namespace nap
              * @return: the envelope controlling the overall amplitude of the voice
              */
             const EnvelopeInstance& getEnvelope() const { return *mEnvelope; }
-            
+
             /**
              * Starts playback of the voice by triggering the envelope
              */

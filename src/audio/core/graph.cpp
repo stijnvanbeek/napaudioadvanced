@@ -116,18 +116,24 @@ namespace nap
                     return false;
                 }
                 
-                if (objectResource == resource.mOutput.get())
-                    mOutput = instance.get();
-                if (objectResource == resource.mInput.get())
-                    mInput = instance.get();
-                
                 mObjects.emplace_back(std::move(instance));
             }
-            
+                        
+            mOutput = getObject<AudioObjectInstance>(resource.mOutput->mID);
             if (mOutput == nullptr)
             {
-                errorState.fail("%s Graph output not found within the graph.", resource.mID.c_str());
+                errorState.fail("Output not found: %s", resource.mOutput->mID.c_str());
                 return false;
+            }
+            
+            if (resource.mInput != nullptr)
+            {
+                mInput = getObject<AudioObjectInstance>(resource.mInput->mID);
+                if (mInput == nullptr)
+                {
+                    errorState.fail("Input not found: %s", resource.mInput->mID.c_str());
+                    return false;
+                }
             }
             
             return true;
