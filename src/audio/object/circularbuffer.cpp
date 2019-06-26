@@ -37,7 +37,7 @@ namespace nap
             if (!instance->init(*mInput->getInstance(), mChannelRouting, mRootProcess, mBufferSize, audioService, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
 
     

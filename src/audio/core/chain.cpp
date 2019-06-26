@@ -35,7 +35,7 @@ namespace nap
             if (mInput != nullptr)
                 instance->AudioObjectInstance::connect(*mInput->getInstance());
             
-            return instance;
+            return std::move(instance);
         }
         
         

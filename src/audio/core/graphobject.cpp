@@ -29,7 +29,7 @@ namespace nap
             if (!instance->init(*mGraph, service, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
 
 

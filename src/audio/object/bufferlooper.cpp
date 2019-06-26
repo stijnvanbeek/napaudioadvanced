@@ -28,7 +28,7 @@ namespace nap
             if (!instance->init(mSettings, mChannelCount, mAutoPlay, service, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
         
         

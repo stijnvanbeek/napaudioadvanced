@@ -36,7 +36,7 @@ namespace nap
                 errorState.fail("Failed to initialize %s", mID.c_str());
                 return nullptr;
             }
-            return instance;
+            return std::move(instance);
         }
         
         

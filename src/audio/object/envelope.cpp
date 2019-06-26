@@ -24,7 +24,7 @@ namespace nap
             if (!instance->init(mSegments, mAutoTrigger, audioService, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
 
 

@@ -31,7 +31,7 @@ namespace nap
             if (!instance->init(*mChannel, mChannelCount, service, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
 
         
@@ -63,7 +63,7 @@ namespace nap
             if (!instance->init(nodeFactory, getChannelCount(), service, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
         
         
