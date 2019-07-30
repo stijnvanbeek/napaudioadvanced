@@ -8,7 +8,7 @@ RTTI_BEGIN_CLASS(nap::audio::BufferLooper::Settings)
     RTTI_PROPERTY("LoopEnd", &nap::audio::BufferLooper::Settings::mLoopEnd, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Transpose", &nap::audio::BufferLooper::Settings::mTranspose, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("CrossFadeTime", &nap::audio::BufferLooper::Settings::mCrossFadeTime, nap::rtti::EPropertyMetaData::Required)
-RTTI_END_STRUCT
+RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS(nap::audio::BufferLooper)
     RTTI_PROPERTY("Settings", &nap::audio::BufferLooper::mSettings, nap::rtti::EPropertyMetaData::Default)
@@ -78,7 +78,7 @@ namespace nap
 
         bool BufferLooper::init(utility::ErrorState& errorState)
         {
-
+            
             return true;
         }
 
@@ -186,6 +186,13 @@ namespace nap
         }
         
         
+        void BufferLooperInstance::start(BufferLooper::Settings& settings)
+        {
+            mSettings = settings;
+            startVoice(true);
+        }
+
+        
         void BufferLooperInstance::stop()
         {
             for (auto voice : mVoices)
@@ -209,6 +216,13 @@ namespace nap
             mVoices.emplace(voice);
             auto bufferPlayer = voice->getObject<MultiChannelObjectInstance>("BufferPlayer");
             auto& envelope = voice->getEnvelope();
+            
+            for (auto channel = 0; channel < bufferPlayer->getChannelCount(); ++channel)
+            {
+                auto bufferPlayerChannel = bufferPlayer->getChannel<BufferPlayerNode>(channel);
+                bufferPlayerChannel->stop();
+                bufferPlayerChannel->setBuffer(mSettings.mBufferResource->getBuffer());
+            }
             
             envelope.getSegmentFinishedSignal().disconnect(segmentFinishedSlot); // We need to disconnect first to avoid connecting to the same signal twice.
             envelope.getSegmentFinishedSignal().connect(segmentFinishedSlot);
