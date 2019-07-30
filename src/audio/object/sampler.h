@@ -12,7 +12,7 @@ namespace nap
         {
             RTTI_ENABLE(AudioObject)
         public:
-            class SamplerSettings
+            class Settings
             {
             public:
                 bool init(utility::ErrorState& errorState);
@@ -26,7 +26,7 @@ namespace nap
             
             bool init(utility::ErrorState& errorState) override;
             
-            SamplerSettings mSettings;                                         ///< property: 'Settings' All the playback settings
+            Settings mSettings;                                         ///< property: 'Settings' All the playback settings
             int mChannelCount = 1;                                      ///< property: 'ChannelCount' Number of channels
             
         private:
@@ -43,17 +43,17 @@ namespace nap
             SamplerInstance() : AudioObjectInstance() { }
             SamplerInstance(const std::string& name) : AudioObjectInstance(name) { }
             
-            bool init(Sampler::SamplerSettings& settings, int channelCount, AudioService& service, utility::ErrorState& errorState);
+            bool init(Sampler::Settings& settings, int channelCount, AudioService& service, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
             
-            VoiceInstance* play(Sampler::SamplerSettings& settings, TimeValue duration);
+            VoiceInstance* play(Sampler::Settings& settings, TimeValue duration);
             void stop(VoiceInstance* voice, TimeValue release = 0);
             
-            Sampler::SamplerSettings& getSettings() { return mSettings; }
+            Sampler::Settings& getSettings() { return mSettings; }
             
         private:
-            Sampler::SamplerSettings mSettings;
+            Sampler::Settings mSettings;
             
             std::unique_ptr<PolyphonicObjectInstance> mPolyphonicInstance = nullptr;
             

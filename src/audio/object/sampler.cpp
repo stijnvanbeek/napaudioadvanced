@@ -1,8 +1,8 @@
 #include "sampler.h"
 
-RTTI_BEGIN_CLASS(nap::audio::Sampler::SamplerSettings)
-    RTTI_PROPERTY("SampleSettings", &nap::audio::Sampler::SamplerSettings::mSampleSettings, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("Envelope", &nap::audio::Sampler::SamplerSettings::mEnvelope, nap::rtti::EPropertyMetaData::Default)
+RTTI_BEGIN_CLASS(nap::audio::Sampler::Settings)
+    RTTI_PROPERTY("SampleSettings", &nap::audio::Sampler::Settings::mSampleSettings, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("Envelope", &nap::audio::Sampler::Settings::mEnvelope, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS(nap::audio::Sampler)
@@ -23,7 +23,7 @@ namespace nap
     {
         
         
-        bool Sampler::SamplerSettings::init(utility::ErrorState& errorState)
+        bool Sampler::Settings::init(utility::ErrorState& errorState)
         {
             if (!mSampleSettings.init(errorState))
                 return false;
@@ -48,7 +48,7 @@ namespace nap
         }
 
         
-        bool SamplerInstance::init(Sampler::SamplerSettings& settings, int channelCount, AudioService& service, utility::ErrorState& errorState)
+        bool SamplerInstance::init(Sampler::Settings& settings, int channelCount, AudioService& service, utility::ErrorState& errorState)
         {
             mSettings = settings;
             
@@ -120,7 +120,7 @@ namespace nap
         }
 
         
-        VoiceInstance* SamplerInstance::play(Sampler::SamplerSettings& settings, TimeValue duration)
+        VoiceInstance* SamplerInstance::play(Sampler::Settings& settings, TimeValue duration)
         {
             auto voice = mPolyphonicInstance->findFreeVoice();
             assert(voice != nullptr);
