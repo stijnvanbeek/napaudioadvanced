@@ -1,6 +1,6 @@
 #include "bufferlooper.h"
 
-RTTI_BEGIN_CLASS(nap::audio::BufferLooper::Settings)
+RTTI_BEGIN_STRUCT(nap::audio::BufferLooper::Settings)
     RTTI_PROPERTY("Buffer", &nap::audio::BufferLooper::Settings::mBufferResource, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Loop", &nap::audio::BufferLooper::Settings::mLoop, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("Start", &nap::audio::BufferLooper::Settings::mStart, nap::rtti::EPropertyMetaData::Required)
@@ -8,7 +8,7 @@ RTTI_BEGIN_CLASS(nap::audio::BufferLooper::Settings)
     RTTI_PROPERTY("LoopEnd", &nap::audio::BufferLooper::Settings::mLoopEnd, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Transpose", &nap::audio::BufferLooper::Settings::mTranspose, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("CrossFadeTime", &nap::audio::BufferLooper::Settings::mCrossFadeTime, nap::rtti::EPropertyMetaData::Required)
-RTTI_END_CLASS
+RTTI_END_STRUCT
 
 RTTI_BEGIN_CLASS(nap::audio::BufferLooper)
     RTTI_PROPERTY("Settings", &nap::audio::BufferLooper::mSettings, nap::rtti::EPropertyMetaData::Default)

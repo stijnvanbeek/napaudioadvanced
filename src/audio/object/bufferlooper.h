@@ -20,7 +20,7 @@ namespace nap
             RTTI_ENABLE(AudioObject)
             
         public:
-            class Settings
+            class NAPAPI Settings
             {
             public:
                 bool init(utility::ErrorState& errorState);

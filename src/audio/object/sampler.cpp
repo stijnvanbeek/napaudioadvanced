@@ -1,19 +1,16 @@
 #include "sampler.h"
 
-RTTI_BEGIN_CLASS(nap::audio::Sampler::Settings)
-    RTTI_PROPERTY("SampleSettings", &nap::audio::Sampler::Settings::mSampleSettings, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("Envelope", &nap::audio::Sampler::Settings::mEnvelope, nap::rtti::EPropertyMetaData::Default)
-RTTI_END_CLASS
-
 RTTI_BEGIN_CLASS(nap::audio::Sampler)
-    RTTI_PROPERTY("Settings", &nap::audio::Sampler::mSettings, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("SamplerEntries", &nap::audio::Sampler::mSampleEntries, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("EnvelopeData", &nap::audio::Sampler::mEnvelopeData, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("ChannelCount", &nap::audio::Sampler::mChannelCount, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS(nap::audio::SamplerInstance)
     RTTI_FUNCTION("play", &nap::audio::SamplerInstance::play)
     RTTI_FUNCTION("stop", &nap::audio::SamplerInstance::stop)
-    RTTI_FUNCTION("getSettings", &nap::audio::SamplerInstance::getSettings)
+    RTTI_FUNCTION("getEnvelopeData", &nap::audio::SamplerInstance::getEnvelopeData)
+    RTTI_FUNCTION("getSamplerEntries", &nap::audio::SamplerInstance::getSamplerEntries)
 RTTI_END_CLASS
 
 namespace nap
@@ -21,15 +18,6 @@ namespace nap
     
     namespace audio
     {
-        
-        
-        bool Sampler::Settings::init(utility::ErrorState& errorState)
-        {
-            if (!mSampleSettings.init(errorState))
-                return false;
-            
-            return true;
-        }
         
         
         bool Sampler::init(utility::ErrorState& errorState)
@@ -41,24 +29,27 @@ namespace nap
         std::unique_ptr<AudioObjectInstance> Sampler::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<SamplerInstance>();
-            if (!instance->init(mSettings, mChannelCount, service, errorState))
+            if (!instance->init(mSampleEntries, mEnvelopeData, mChannelCount, service, errorState))
                 return nullptr;
             
             return instance;
         }
 
         
-        bool SamplerInstance::init(Sampler::Settings& settings, int channelCount, AudioService& service, utility::ErrorState& errorState)
+        bool SamplerInstance::init(Sampler::SamplerEntries& samplerEntries, EnvelopeGenerator::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState)
         {
-            mSettings = settings;
+            mSamplerEntries = samplerEntries;
+            mEnvelopeData = envelopeData;
             
-            if (!mSettings.init(errorState))
-                return false;
+            for (auto& entry : mSamplerEntries)
+                if (!entry.init(errorState))
+                    return false;
             
             mBufferLooper = std::make_unique<BufferLooper>();
             mBufferLooper->mID = "BufferLooper";
             mBufferLooper->mAutoPlay = false;
-            mBufferLooper->mSettings = mSettings.mSampleSettings;
+            if (!mSamplerEntries.empty())
+                mBufferLooper->mSettings = mSamplerEntries[0];
             mBufferLooper->mChannelCount = channelCount;
             if (!mBufferLooper->init(errorState))
             {
@@ -69,7 +60,7 @@ namespace nap
 
             mEnvelope = std::make_unique<Envelope>();
             mEnvelope->mID = "Envelope";
-            mEnvelope->mSegments = settings.mEnvelope;
+            mEnvelope->mSegments = mEnvelopeData;
             mEnvelope->mAutoTrigger = false;
             mEnvelope->mEqualPowerTranslate = true;
             if (!mEnvelope->init(errorState))
@@ -120,15 +111,18 @@ namespace nap
         }
 
         
-        VoiceInstance* SamplerInstance::play(Sampler::Settings& settings, TimeValue duration)
+        VoiceInstance* SamplerInstance::play(unsigned int samplerEntryIndex, TimeValue duration)
         {
+            if (samplerEntryIndex > mSamplerEntries.size())
+                return nullptr;
+            
             auto voice = mPolyphonicInstance->findFreeVoice();
             assert(voice != nullptr);
             auto bufferLooper = voice->getObject<BufferLooperInstance>("BufferLooper");
             auto& envelope = voice->getEnvelope();
             
-            bufferLooper->start(settings.mSampleSettings);
-            envelope.setEnvelopeData(settings.mEnvelope);
+            bufferLooper->start(mSamplerEntries[samplerEntryIndex]);
+            envelope.setEnvelopeData(mEnvelopeData);
             mPolyphonicInstance->play(voice, duration);
             
             return voice;

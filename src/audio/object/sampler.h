@@ -11,22 +11,17 @@ namespace nap
         class NAPAPI Sampler : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
+            
         public:
-            class Settings
-            {
-            public:
-                bool init(utility::ErrorState& errorState);
-                
-                BufferLooper::Settings mSampleSettings;
-                EnvelopeGenerator::Envelope mEnvelope;
-            };
+            using SamplerEntries = std::vector<BufferLooper::Settings>;
             
         public:
             Sampler() : AudioObject() { }
             
             bool init(utility::ErrorState& errorState) override;
             
-            Settings mSettings;                                         ///< property: 'Settings' All the playback settings
+            SamplerEntries mSampleEntries;                              ///< property: 'SampleEntries' Default set of different playback settings
+            EnvelopeGenerator::Envelope mEnvelopeData;                  ///< property: 'Envelope' Default envelope settings
             int mChannelCount = 1;                                      ///< property: 'ChannelCount' Number of channels
             
         private:
@@ -43,17 +38,19 @@ namespace nap
             SamplerInstance() : AudioObjectInstance() { }
             SamplerInstance(const std::string& name) : AudioObjectInstance(name) { }
             
-            bool init(Sampler::Settings& settings, int channelCount, AudioService& service, utility::ErrorState& errorState);
+            bool init(Sampler::SamplerEntries& sampleEntries, EnvelopeGenerator::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
             
-            VoiceInstance* play(Sampler::Settings& settings, TimeValue duration);
+            VoiceInstance* play(unsigned int samplerEntryIndex, TimeValue duration);
             void stop(VoiceInstance* voice, TimeValue release = 0);
             
-            Sampler::Settings& getSettings() { return mSettings; }
+            const Sampler::SamplerEntries& getSamplerEntries() const { return mSamplerEntries; }
+            EnvelopeGenerator::Envelope& getEnvelopeData() { return mEnvelopeData; }
             
         private:
-            Sampler::Settings mSettings;
+            Sampler::SamplerEntries mSamplerEntries;
+            EnvelopeGenerator::Envelope mEnvelopeData;
             
             std::unique_ptr<PolyphonicObjectInstance> mPolyphonicInstance = nullptr;
             
@@ -63,7 +60,6 @@ namespace nap
             std::unique_ptr<Gain> mGain = nullptr;
             std::unique_ptr<Voice> mVoice = nullptr;
             std::unique_ptr<PolyphonicObject> mPolyphonic = nullptr;
-
         };
         
         
