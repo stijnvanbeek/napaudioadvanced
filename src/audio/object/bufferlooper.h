@@ -20,7 +20,7 @@ namespace nap
             RTTI_ENABLE(AudioObject)
             
         public:
-            class Settings
+            class NAPAPI Settings
             {
             public:
                 bool init(utility::ErrorState& errorState);
@@ -59,6 +59,7 @@ namespace nap
         class NAPAPI BufferLooperInstance : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
+            
         public:
             BufferLooperInstance() : AudioObjectInstance() { }
             BufferLooperInstance(const std::string& name) : AudioObjectInstance(name) { }
@@ -68,6 +69,7 @@ namespace nap
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
 
             void start();
+            void start(BufferLooper::Settings& settings);
             void stop();
             
         private:

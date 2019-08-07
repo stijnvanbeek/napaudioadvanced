@@ -8,6 +8,7 @@ RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::EnvelopeInstance)
     RTTI_FUNCTION("trigger", &nap::audio::EnvelopeInstance::trigger)
+    RTTI_FUNCTION("triggerSection", &nap::audio::EnvelopeInstance::triggerSection)
     RTTI_FUNCTION("stop", &nap::audio::EnvelopeInstance::stop)
     RTTI_FUNCTION("setSegmentData", &nap::audio::EnvelopeInstance::setSegmentData)
 RTTI_END_CLASS

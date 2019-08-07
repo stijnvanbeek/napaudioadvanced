@@ -49,7 +49,7 @@ namespace nap
         {
             auto absoluteDuration = 0.f;
             auto relativeDuration = 0.f;
-            for (auto i = startSegment; i < endSegment; ++i)
+            for (auto i = startSegment; i <= endSegment; ++i)
             {
                 auto& segment = mEnvelope[i];
                 if (!segment.mDurationRelative)
@@ -98,10 +98,16 @@ namespace nap
             {
                 mCurrentSegment = mNewCurrentSegment.load();
                 mEndSegment = mNewEndSegment.load();
-                if (mCurrentSegment == mEndSegment)
-                    mValue.ramp(0.f, mFadeOutTime.load() * getNodeManager().getSamplesPerMillisecond(), RampMode::Linear);
+                
+                auto fadeOutTime = mFadeOutTime.load();
+                if (fadeOutTime != 0.f)
+                {
+                    mFadeOutTime.store(0.f);
+                    mValue.ramp(0.f, fadeOutTime * getNodeManager().getSamplesPerMillisecond(), RampMode::Linear);
+                }
                 else {
-                    playSegment(mCurrentSegment);
+                    if (mCurrentSegment <= mEndSegment)
+                        playSegment(mCurrentSegment);
                 }
             }
         }

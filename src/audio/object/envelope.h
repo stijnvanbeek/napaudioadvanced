@@ -59,6 +59,21 @@ namespace nap
             {
                 mEnvelopeGenerator->trigger(totalDuration);
             }
+            
+            
+            /**
+             * Triggers a section of an envelope.
+             * @param totalDuration: if this value is greater than the total of all durations of segments that have durationRelative = false
+             * @param startSegment: the start segment of the envelope section to be played
+             * @param endSegment: the end segment of the envelope section to be played
+             * @param startValue: the startValue of the line when the section is triggered.
+             * @param totalDuration: if this value is greater than the total of all durations of segments that have durationRelative = false
+             the resting time wille be divided over the segments with durationRelative = true, using their duration values as denominator.
+             */
+            void triggerSection(int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0)
+            {
+                mEnvelopeGenerator->trigger(startSegment, endSegment, startValue, totalDuration);
+            }
 
             /**
              * Stops playing the envelope by fading to zero within @rampTime.
@@ -70,6 +85,11 @@ namespace nap
              * If the index out of bounds no action will be taken.
              */
             void setSegmentData(unsigned int segmentIndex, TimeValue duration, ControllerValue destination, bool durationRelative, bool exponential, bool useTranslator);
+            
+            /**
+             * Assigns new envelope data
+             */
+            void setEnvelopeData(const EnvelopeGenerator::Envelope& envelope) { mEnvelopeGenerator->getEnvelope() = envelope; }
 
             /**
              * Returns the current output value of the envelope generator.
