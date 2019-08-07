@@ -10,7 +10,6 @@ namespace nap
     namespace audio
     {
         
-        template <typename NodeType>
         class NodeObject : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
@@ -19,28 +18,35 @@ namespace nap
             NodeObject() : AudioObject() { }
             
         private:
-            virtual std::unique_ptr<AudioObjectInstance> createInstance();
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
+            
+            virtual SafeOwner<Node> createNode(AudioService& service) = 0;
         };
         
         
-        template <typename NodeType>
-        class NodeObjectInstance : public AudioObjectInstance, public NodeType
+        class NodeObjectInstance : public AudioObjectInstance
         {
-            RTTI_ENABLE(AudioObjectInstance, NodeType)
+            RTTI_ENABLE(AudioObjectInstance)
             
         public:
+            NodeObjectInstance(SafeOwner<Node> node) : AudioObjectInstance(), mNode(std::move(node)) { }
+            NodeObjectInstance(const std::string& name, SafeOwner<Node> node) : AudioObjectInstance(name), mNode(std::move(node)) { }
             
-            bool init(AudioService& service, utility::ErrorState& errorState) = 0;
+            template <typename T>
+            T* getNode() { return rtti_cast<T>(getNodeNonTyped()); }
+            
+            Node* getNodeNonTyped() { return mNode.getRaw(); }
+            
+            // Inherited from AudioObjectInstance
+            OutputPin* getOutputForChannel(int channel) override;
+            int getChannelCount() const override { return mNode->getOutputs().size();; }
+            void connect(unsigned int channel, OutputPin& pin) override;
+            int getInputChannelCount() const override { return mNode->getInputs().size(); }
             
         private:
+            SafeOwner<Node> mNode = nullptr;
         };
         
-        
-        template <typename NodeType>
-        std::unique_ptr<AudioObjectInstance> NodeObject<NodeType>::createInstance()
-        {
-            return std::make_unique<NodeObjectInstance<NodeType>>();
-        }
         
     }
     

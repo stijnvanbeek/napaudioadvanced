@@ -18,29 +18,22 @@ namespace nap
     namespace audio
     {
 
-        void Envelope::initEqualPoweTable(AudioService& audioService)
+        std::unique_ptr<AudioObjectInstance> Envelope::createInstance(AudioService& audioService, utility::ErrorState& errorState)
         {
-            if (mEqualPowerTable == nullptr)
-                mEqualPowerTable = audioService.makeSafe<EqualPowerTranslator<ControllerValue>>(256);
+            auto instance = std::make_unique<EnvelopeInstance>();
+            if (!instance->init(mSegments, mAutoTrigger, audioService, errorState))
+                return nullptr;
+            
+            return std::move(instance);
         }
 
 
-        std::unique_ptr<AudioObjectInstance> Envelope::createInstance()
+        bool EnvelopeInstance::init(EnvelopeGenerator::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState)
         {
-            return std::make_unique<EnvelopeInstance>(*this);
-        }
+            mEqualPowerTable = audioService.makeSafe<EqualPowerTranslator<ControllerValue>>(256);
+            mEnvelopeGenerator = audioService.makeSafe<EnvelopeGenerator>(audioService.getNodeManager(), segments, mEqualPowerTable.get());
 
-
-        bool EnvelopeInstance::init(AudioService& audioService, utility::ErrorState& errorState)
-        {
-            auto resource = rtti_cast<Envelope>(&getResource());
-            
-            // Called here because audio service is available. Lazy initialization.
-            resource->initEqualPoweTable(audioService);
-            
-            mEnvelopeGenerator = audioService.makeSafe<EnvelopeGenerator>(audioService.getNodeManager(), resource->mSegments, resource->getEqualPowerTable());
-
-            if (resource->mAutoTrigger)
+            if (autoTrigger)
                 mEnvelopeGenerator->trigger();
 
             return true;

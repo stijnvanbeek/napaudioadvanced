@@ -59,53 +59,73 @@ namespace nap
         /**
          * Instance of Graph that manages a number of different audio objects, connected together to represent a DSP network to perform a specific task of mono or multichannel audio processing.
          */
-        class NAPAPI GraphInstance : rtti::Object
+        class NAPAPI GraphInstance
         {
             RTTI_ENABLE()
+            
         public:
             GraphInstance() = default;
+            virtual ~GraphInstance() = default;
             
             bool init(Graph& resource, utility::ErrorState& errorState);
             
-            Graph& getResource() { return *mResource; }
-
             /**
              * @return: an object within this graph by ID.
              */
             template <typename T>
-            T* getObject(const std::string& mID)
+            T* getObject(const std::string& name)
             {
-                return rtti_cast<T>(getObjectNonTyped(mID));
+                return rtti_cast<T>(getObjectNonTyped(name));
             }
             
             /**
              * Non typed version of getObject() for use in python.
              */
-            AudioObjectInstance* getObjectNonTyped(const std::string& mID);
+            AudioObjectInstance* getObjectNonTyped(const std::string& name);
             
             /**
              * Returns the output object of the graph as specified in the resource
              */
-            AudioObjectInstance& getOutput() { return *mOutput; }
-            const AudioObjectInstance& getOutput() const { return *mOutput; }
+            AudioObjectInstance* getOutput() { return mOutput; }
+            const AudioObjectInstance* getOutput() const { return mOutput; }
 
             /**
              * Returns the input object of the graph as specified in the resource
              */
             AudioObjectInstance* getInput() { return mInput; }
             const AudioObjectInstance* getInput() const { return mOutput; }
+            
+            /**
+             * Adds an object to the graph. The graph takes over ownership.
+             */
+            AudioObjectInstance& addObject(std::unique_ptr<AudioObjectInstance> object);
+            
+            /**
+             * Adds an object to the graph and marks it to be the graph's input. The graph takes over ownership of the object.
+             */
+            AudioObjectInstance& addInput(std::unique_ptr<AudioObjectInstance> object);
+            
+            /**
+             * Adds an object to the graph and marks it to be the graph's output. The graph takes over ownership of the object.
+             */
+            AudioObjectInstance& addOutput(std::unique_ptr<AudioObjectInstance> object);
 
         protected:
             /**
              * @return: all objects within the graph.
              */
             const std::vector<std::unique_ptr<AudioObjectInstance>>& getObjects() const { return mObjects; }
+            
+            /**
+             * @return: the audio service that this graph runs on.
+             */
+            AudioService& getAudioService() { return *mAudioService; }
 
         private:
             std::vector<std::unique_ptr<AudioObjectInstance>> mObjects;
             AudioObjectInstance* mOutput = nullptr;
             AudioObjectInstance* mInput = nullptr;
-            Graph* mResource = nullptr;
+            AudioService* mAudioService = nullptr;
         };
         
         

@@ -15,7 +15,7 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::Graph)
     RTTI_PROPERTY("Input", &nap::audio::Graph::mInput, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::GraphInstance)
+RTTI_BEGIN_CLASS(nap::audio::GraphInstance)
     RTTI_FUNCTION("getObject", &nap::audio::GraphInstance::getObjectNonTyped)
 RTTI_END_CLASS
 
@@ -87,7 +87,7 @@ namespace nap
         
         bool GraphInstance::init(Graph& resource, utility::ErrorState& errorState)
         {
-            mResource = &resource;
+            mAudioService = &resource.getAudioService();
             
             // Build object graph as utility to sort all the audio object resources in dependency order
             std::vector<AudioObject*> objects;
@@ -140,13 +140,37 @@ namespace nap
         }
         
         
-        AudioObjectInstance* GraphInstance::getObjectNonTyped(const std::string &mID)
+        AudioObjectInstance* GraphInstance::getObjectNonTyped(const std::string &name)
         {
             for (auto& object : mObjects)
-                if (object->getResource().mID == mID)
+                if (object->getName() == name)
                     return object.get();
             return nullptr;
         }
+        
+        
+        AudioObjectInstance& GraphInstance::addObject(std::unique_ptr<AudioObjectInstance> object)
+        {
+            mObjects.emplace_back(std::move(object));
+            return *mObjects.back();
+        }
+        
+        
+        AudioObjectInstance& GraphInstance::addInput(std::unique_ptr<AudioObjectInstance> object)
+        {
+            mInput = object.get();
+            mObjects.emplace_back(std::move(object));
+            return *mObjects.back();
+        }
+        
+        
+        AudioObjectInstance& GraphInstance::addOutput(std::unique_ptr<AudioObjectInstance> object)
+        {
+            mOutput = object.get();
+            mObjects.emplace_back(std::move(object));
+            return *mObjects.back();
+        }
+
         
     }
     

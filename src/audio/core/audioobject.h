@@ -23,37 +23,28 @@ namespace nap
         /**
          * Instance of a object that generates audio output for one or more channels
          */
-        class NAPAPI AudioObjectInstance : public rtti::Object, public IMultiChannelInput, public IMultiChannelOutput
+        class NAPAPI AudioObjectInstance : public IMultiChannelInput, public IMultiChannelOutput
         {
             RTTI_ENABLE()
+            friend class AudioObject;
             
         public:
-            AudioObjectInstance(AudioObject& resource) : mResource(resource) { }
-            
-            /**
-             * This method has to be overwritten by all descendants to initialize the instance.
-             * Normally it will create all the Nodes owned by this instance and connect them.
-             */
-            virtual bool init(AudioService& service, utility::ErrorState& errorState) = 0;
-            
-            /**
-             * @return: the resource this instance is created from.
-             */
-            AudioObject& getResource() { return mResource; }
-            
-            /**
-             * @return: the resource this instance is created from cast to type T.
-             */
-            template <typename T>
-            T* getResource() { return rtti_cast<T>(&mResource); }
+            AudioObjectInstance() = default;
+            AudioObjectInstance(const std::string& name) : mName(name) { }
             
             /**
              * If multichannel input is implemented for this object it returns its input interface, otherwise nullptr.
              */
             IMultiChannelInput* getInput() { return dynamic_cast<IMultiChannelInput*>(this); }
             
+            /**
+             * If this object is instantiated from a resource this returns the mID of the resource.
+             * Otherwise it returns an empty string.
+             */
+            const std::string& getName() const { return mName; }
+            
         private:
-            AudioObject& mResource;
+            std::string mName = ""; // This is the mID of the resource that spawned the object. If the object has not been spawned by a resource this string remains empty.
         };
         
         
@@ -85,7 +76,7 @@ namespace nap
             /**
              * This methods need to be overwritten by all descendants to return an instance of this resource.
              */
-            virtual std::unique_ptr<AudioObjectInstance> createInstance() { return nullptr; }
+            virtual std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) = 0;
             
             AudioObjectInstance* mInstance = nullptr;
         };
@@ -94,12 +85,12 @@ namespace nap
         template <typename T>
         std::unique_ptr<T> AudioObject::instantiate(AudioService& service, utility::ErrorState& errorState)
         {
-            auto instance = createInstance();
-            mInstance = instance.release();
-            if (errorState.check(mInstance->init(service, errorState), "Failed to instantiate object %s", mID.c_str()))
-                return std::unique_ptr<T>(rtti_cast<T>(mInstance));
-            else
+            auto instance = createInstance(service, errorState);
+            if (instance == nullptr)
                 return nullptr;
+            instance->mName = mID;
+            mInstance = instance.release();
+            return std::unique_ptr<T>(rtti_cast<T>(mInstance));
         }
         
         

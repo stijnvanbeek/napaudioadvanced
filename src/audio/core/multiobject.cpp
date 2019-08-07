@@ -9,17 +9,13 @@
 
 
 // RTTI
-RTTI_BEGIN_CLASS(nap::audio::MultiObjectBase)
-RTTI_END_CLASS
-
 RTTI_BEGIN_CLASS(nap::audio::MultiObject)
     RTTI_PROPERTY("Object", &nap::audio::MultiObject::mObject, nap::rtti::EPropertyMetaData::Embedded)
     RTTI_PROPERTY("InstanceCount", &nap::audio::MultiObject::mInstanceCount, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("IsActive", &nap::audio::MultiObject::mIsActive, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiObjectInstance)
-    RTTI_CONSTRUCTOR(nap::audio::MultiObjectBase&)
+RTTI_BEGIN_CLASS(nap::audio::MultiObjectInstance)
     RTTI_FUNCTION("getObject", &nap::audio::MultiObjectInstance::getObjectNonTyped)
     RTTI_FUNCTION("getObjectCount", &nap::audio::MultiObjectInstance::getObjectCount)
     RTTI_FUNCTION("setActive", &nap::audio::MultiObjectInstance::setActive)
@@ -32,26 +28,28 @@ namespace nap
     {
         
 
-        std::unique_ptr<AudioObjectInstance> MultiObjectBase::createInstance()
+        std::unique_ptr<AudioObjectInstance> MultiObject::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
-            return std::make_unique<MultiObjectInstance>(*this);
+            auto instance = std::make_unique<MultiObjectInstance>();
+            if (!instance->init(*mObject, mInstanceCount, mIsActive, service, errorState))
+            {
+                errorState.fail("Failed to initialize %s", mID.c_str());
+                return nullptr;
+            }
+            return std::move(instance);
         }
         
         
-        bool MultiObjectInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        bool MultiObjectInstance::init(AudioObject& objectResource, int instanceCount, bool isActive, AudioService& audioService, utility::ErrorState& errorState)
         {
             mAudioService = &audioService;
             
-            MultiObjectBase* resource = rtti_cast<MultiObjectBase>(&getResource());
-            
             // Instantiate the objects.
-            AudioObject* objectResource = getObjectResource();
-            if (objectResource == nullptr)
-                return false;
+            mObjectResource = &objectResource;
             
-            for (auto i = 0; i < resource->mInstanceCount; ++i)
+            for (auto i = 0; i < instanceCount; ++i)
             {
-                auto instance = objectResource->instantiate<AudioObjectInstance>(audioService, errorState);
+                auto instance = mObjectResource->instantiate<AudioObjectInstance>(audioService, errorState);
                 if (instance == nullptr)
                     return false;
                 mObjects.emplace_back(std::move(instance));
@@ -62,7 +60,7 @@ namespace nap
             if (mObjects.empty())
             {
                 // Create a dummy object instance to acquire the channel count..
-                auto instance = objectResource->instantiate<AudioObjectInstance>(audioService, errorState);
+                auto instance = mObjectResource->instantiate<AudioObjectInstance>(audioService, errorState);
                 if (instance == nullptr)
                     return false;
                 channelCount = instance->getChannelCount();
@@ -80,7 +78,7 @@ namespace nap
             // Connect the objects that are active
             for (auto i = 0; i < mObjects.size(); ++i)
             {
-                if (resource->mIsActive)
+                if (isActive)
                 {
                     auto object = mObjects[i].get();
                     for (auto channel = 0; channel < mMixers.size(); ++channel)
@@ -97,17 +95,16 @@ namespace nap
             if (index < mObjects.size())
                 return mObjects[index].get();
             
-            nap::Logger::warn("MultiObjectInstance %s: index for getObject() out of bounds", mID.c_str());
+            nap::Logger::warn("MultiObjectInstance %s: index for getObject() out of bounds", getName().c_str());
             return nullptr;
         }
         
         
         AudioObjectInstance* MultiObjectInstance::addObjectNonTyped(utility::ErrorState& errorState)
         {
-            auto objectResource = getObjectResource();
-            if (objectResource == nullptr)
+            if (mObjectResource == nullptr)
                 return nullptr;
-            auto instance = objectResource->instantiate<AudioObjectInstance>(*mAudioService, errorState);
+            auto instance = mObjectResource->instantiate<AudioObjectInstance>(*mAudioService, errorState);
             if (instance == nullptr)
                 return nullptr;
             auto result = instance.get();
@@ -174,16 +171,6 @@ namespace nap
         }
         
         
-        AudioObject* MultiObjectInstance::getObjectResource()
-        {
-            auto resource = getResource<MultiObject>();
-            if (resource == nullptr)
-                return nullptr;
-            return resource->mObject.get();
-        }
-
-
-
     }
     
 }

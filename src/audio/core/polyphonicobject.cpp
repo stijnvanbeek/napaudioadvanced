@@ -11,8 +11,7 @@ RTTI_BEGIN_CLASS(nap::audio::PolyphonicObject)
     RTTI_PROPERTY("ChannelCount", &nap::audio::PolyphonicObject::mChannelCount, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::PolyphonicObjectInstance)
-    RTTI_CONSTRUCTOR(nap::audio::PolyphonicObject&)
+RTTI_BEGIN_CLASS(nap::audio::PolyphonicObjectInstance)
     RTTI_FUNCTION("findFreeVoice", &nap::audio::PolyphonicObjectInstance::findFreeVoice)
     RTTI_FUNCTION("play", &nap::audio::PolyphonicObjectInstance::play)
     RTTI_FUNCTION("playOnChannels", &nap::audio::PolyphonicObjectInstance::playOnChannels)
@@ -26,28 +25,33 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> PolyphonicObject::createInstance()
+        std::unique_ptr<AudioObjectInstance> PolyphonicObject::createInstance(AudioService& audioService, utility::ErrorState& errorState)
         {
-            return std::make_unique<PolyphonicObjectInstance>(*this);
+            auto instance = std::make_unique<PolyphonicObjectInstance>();
+            if (!instance->init(*mVoice, mVoiceCount, mVoiceStealing, mChannelCount, audioService, errorState))
+                return nullptr;
+            
+            return std::move(instance);
         }
 
 
-        bool PolyphonicObjectInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        bool PolyphonicObjectInstance::init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, AudioService& audioService, utility::ErrorState& errorState)
         {
-            auto resource = rtti_cast<PolyphonicObject>(&getResource());
             mAudioService = &audioService;
 
-            for (auto i = 0; i < resource->mVoiceCount; ++i)
+            for (auto i = 0; i < voiceCount; ++i)
             {
                 mVoices.emplace_back(std::make_unique<VoiceInstance>());
-                if (!mVoices.back()->init(*resource->mVoice, errorState))
+                if (!mVoices.back()->init(voice, errorState))
                     return false;
                 mVoices.back()->finishedSignal.connect(voiceFinishedSlot);
             }
 
             // Create the mix nodes to mix output of all the voices
-            for (auto i = 0; i < resource->mChannelCount; ++i)
+            for (auto i = 0; i < channelCount; ++i)
                 mMixNodes.emplace_back(mAudioService->makeSafe<MixNode>(audioService.getNodeManager()));
+            
+            mVoiceStealing = voiceStealing;
 
             return true;
         }
@@ -59,7 +63,7 @@ namespace nap
                 if (voice->try_use())
                     return voice.get();
 
-            if (rtti_cast<PolyphonicObject>(&getResource())->mVoiceStealing)
+            if (mVoiceStealing)
             {
                 DiscreteTimeValue time = mVoices[0]->getStartTime();
                 auto result = mVoices[0].get();
@@ -84,12 +88,12 @@ namespace nap
             // We cache the channel numbers of the output mixer that the voice will be connected to within the voice object.
             // We do that here already and not in the enqueued task to avoid allocations on the audio thread.
             voice->mConnectedToChannels.clear();
-            for (auto channel = 0; channel < std::min<int>(mMixNodes.size(), voice->getOutput().getChannelCount()); ++channel)
+            for (auto channel = 0; channel < std::min<int>(mMixNodes.size(), voice->getOutput()->getChannelCount()); ++channel)
                 voice->mConnectedToChannels.emplace_back(channel);
 
             mAudioService->enqueueTask([&, voice](){
                 for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
-                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput().getOutputForChannel(i));
+                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i));
             });
         }
 
@@ -110,7 +114,7 @@ namespace nap
 
             mAudioService->enqueueTask([&, voice](){
                 for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
-                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput().getOutputForChannel(i % voice->getOutput().getChannelCount()));
+                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i % voice->getOutput()->getChannelCount()));
             });
         }
 
@@ -157,7 +161,7 @@ namespace nap
                 // Means the envelope calling voiceFinished() is probably in the deletion queue and this Polyphonic already dead? Why does the slot not disconnect itself though..
                 
                 // this function is called from the audio thread, so we don't have to call AudioService::enqueueTask() to schedule disconnection on the audio thread
-                mMixNodes[voice.mConnectedToChannels[channel]]->inputs.disconnect(*voice.getOutput().getOutputForChannel(channel % voice.getOutput().getChannelCount()));
+                mMixNodes[voice.mConnectedToChannels[channel]]->inputs.disconnect(*voice.getOutput()->getOutputForChannel(channel % voice.getOutput()->getChannelCount()));
             }
             voice.free();            
         }

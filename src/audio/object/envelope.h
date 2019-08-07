@@ -29,14 +29,9 @@ namespace nap
             bool mAutoTrigger = false; ///< If true the envelope will be triggered automatically on initialization.
             bool mEqualPowerTranslate = false; ///< Indicated wether the output will be translated using an equal power table.
 
-            SafePtr<EqualPowerTranslator<ControllerValue>> getEqualPowerTable() { return mEqualPowerTable.get(); }
-            void initEqualPoweTable(AudioService& audioService); // lazy initialization
-
         private:
             // Inherited from AudioObject
-            std::unique_ptr<AudioObjectInstance> createInstance();
-
-            SafeOwner<EqualPowerTranslator<ControllerValue>> mEqualPowerTable = nullptr;
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
         };
 
 
@@ -47,10 +42,12 @@ namespace nap
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
-            EnvelopeInstance(Envelope& resource) : AudioObjectInstance(resource) { }
+            EnvelopeInstance() : AudioObjectInstance() { }
+            EnvelopeInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Inherited from AudioObjectInstance
-            bool init(AudioService& audioService, utility::ErrorState& errorState) override;
+            bool init(EnvelopeGenerator::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState);
+            
             OutputPin* getOutputForChannel(int channel) override { return &mEnvelopeGenerator->output; }
             int getChannelCount() const override { return 1; }
 
@@ -91,6 +88,7 @@ namespace nap
             
         private:
             SafeOwner<EnvelopeGenerator> mEnvelopeGenerator = nullptr;
+            SafeOwner<EqualPowerTranslator<ControllerValue>> mEqualPowerTable = nullptr;
         };
 
 

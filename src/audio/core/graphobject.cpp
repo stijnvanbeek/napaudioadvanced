@@ -12,8 +12,7 @@ RTTI_BEGIN_CLASS(nap::audio::GraphObject)
     RTTI_PROPERTY("Graph", &nap::audio::GraphObject::mGraph, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::GraphObjectInstance)
-    RTTI_CONSTRUCTOR(nap::audio::GraphObject&)
+RTTI_BEGIN_CLASS(nap::audio::GraphObjectInstance)
     RTTI_FUNCTION("getObject", &nap::audio::GraphObjectInstance::getObjectNonTyped)
 RTTI_END_CLASS
 
@@ -24,16 +23,19 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> GraphObject::createInstance()
+        std::unique_ptr<AudioObjectInstance> GraphObject::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
-            return std::make_unique<GraphObjectInstance>(*this);
+            auto instance = std::make_unique<GraphObjectInstance>();
+            if (!instance->init(*mGraph, service, errorState))
+                return nullptr;
+            
+            return std::move(instance);
         }
 
 
-        bool GraphObjectInstance::init(AudioService& audioService, utility::ErrorState& errorState)
+        bool GraphObjectInstance::init(Graph& graph, AudioService& audioService, utility::ErrorState& errorState)
         {
-            GraphObject* resource = rtti_cast<GraphObject>(&getResource());
-            if (!mGraphInstance.init(*resource->mGraph, errorState))
+            if (!mGraphInstance.init(graph, errorState))
             {
                 errorState.fail("Fail to init graph.");
                 return false;
@@ -41,6 +43,41 @@ namespace nap
             
             return true;
         }
+        
+        
+        OutputPin* GraphObjectInstance::getOutputForChannel(int channel)
+        {
+            if (mGraphInstance.getOutput() == nullptr)
+                return nullptr;
+            else
+                return mGraphInstance.getOutput()->getOutputForChannel(channel);
+        }
+        
+        
+        int GraphObjectInstance::getChannelCount() const
+        {
+            if (mGraphInstance.getOutput() == nullptr)
+                return 0;
+            else
+                return mGraphInstance.getOutput()->getChannelCount();
+        }
+        
+        
+        void GraphObjectInstance::connect(unsigned int channel, OutputPin& pin)
+        {
+            if (mGraphInstance.getInput() != nullptr)
+                mGraphInstance.getInput()->connect(channel, pin);
+        }
+        
+        
+        int GraphObjectInstance::getInputChannelCount() const
+        {
+            if (mGraphInstance.getInput() != nullptr)
+                return mGraphInstance.getInput()->getInputChannelCount();
+            else
+                return 0;
+        }
+
         
     }
 

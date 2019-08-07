@@ -42,7 +42,7 @@ namespace nap
             };
             
         public:
-            BufferLooper(AudioService& audioService) : AudioObject(), mAudioService(&audioService) { }
+            BufferLooper() : AudioObject() { }
             
             bool init(utility::ErrorState& errorState) override;
             
@@ -50,21 +50,9 @@ namespace nap
             int mChannelCount = 1;                                      ///< property: 'ChannelCount' Number of channels
             bool mAutoPlay = true;                                      ///< property: 'AutoPlay' Indicates wether playback will be started on init
             
-            PolyphonicObject& getPolyphonic() { return *mPolyphonic; }
-            
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance() override;
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
             
-            AudioService* mAudioService = nullptr;
-            TimeValue mLoopSustainDuration = 0.f; // The duration between the two loop points.
-            TimeValue mFirstSustainDuration = 0.f; // The duration between the start point and the loop end point.
-            
-            // private resources
-            std::unique_ptr<Envelope> mEnvelope = nullptr;
-            std::unique_ptr<BufferPlayer> mBufferPlayer = nullptr;
-            std::unique_ptr<Gain> mGain = nullptr;
-            std::unique_ptr<Voice> mVoice = nullptr;
-            std::unique_ptr<PolyphonicObject> mPolyphonic = nullptr;
         };
         
         
@@ -72,13 +60,12 @@ namespace nap
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
-            BufferLooperInstance(AudioObject& resource) : AudioObjectInstance(resource)
-            {
-            }
-            
-            bool init(AudioService& service, utility::ErrorState& errorState) override;
-            OutputPin* getOutputForChannel(int channel) override { return mPolyphonic->getOutputForChannel(channel); }
-            int getChannelCount() const override { return mPolyphonic->getChannelCount(); }
+            BufferLooperInstance() : AudioObjectInstance() { }
+            BufferLooperInstance(const std::string& name) : AudioObjectInstance(name) { }
+
+            bool init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, AudioService& service, utility::ErrorState& errorState);
+            OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
+            int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
 
             void start();
             void stop();
@@ -91,14 +78,18 @@ namespace nap
             
             void startVoice(bool fromStart);
 
-            std::unique_ptr<PolyphonicObjectInstance> mPolyphonic = nullptr;
+            std::unique_ptr<PolyphonicObjectInstance> mPolyphonicInstance = nullptr;
             std::set<VoiceInstance*> mVoices;
-            BufferLooper* mResource = nullptr;
+            
+            // private resources
+            std::unique_ptr<Envelope> mEnvelope = nullptr;
+            std::unique_ptr<BufferPlayer> mBufferPlayer = nullptr;
+            std::unique_ptr<Gain> mGain = nullptr;
+            std::unique_ptr<Voice> mVoice = nullptr;
+            std::unique_ptr<PolyphonicObject> mPolyphonic = nullptr;
         };
         
         
-        using BufferLooperObjectCreator = rtti::ObjectCreator<BufferLooper, AudioService>;
-
     }
     
 }

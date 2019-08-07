@@ -10,7 +10,6 @@
 #include <audio/service/audioservice.h>
 #include <audio/core/graph.h>
 #include <audio/core/voice.h>
-#include <audio/object/bufferlooper.h>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AdvancedAudioService)
 	RTTI_CONSTRUCTOR(nap::ServiceConfiguration*)
@@ -38,7 +37,6 @@ namespace nap
             assert(audioService);
             factory.addObjectCreator(std::make_unique<GraphObjectCreator>(*audioService));
             factory.addObjectCreator(std::make_unique<VoiceObjectCreator>(*audioService));
-            factory.addObjectCreator(std::make_unique<BufferLooperObjectCreator>(*audioService));
         }
 
 

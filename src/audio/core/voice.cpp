@@ -55,7 +55,7 @@ namespace nap
         void VoiceInstance::play(TimeValue duration)
         {
             mEnvelope->trigger(duration);
-            mStartTime = getResource().getAudioService().getNodeManager().getSampleTime();
+            mStartTime = getAudioService().getNodeManager().getSampleTime();
         }
         
         

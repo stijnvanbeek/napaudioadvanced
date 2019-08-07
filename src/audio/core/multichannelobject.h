@@ -21,7 +21,7 @@ namespace nap
         public:
             MultiChannel() = default;
             
-            std::unique_ptr<AudioObjectInstance> createInstance() override;
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
             
             ResourcePtr<AudioObject> mChannel = nullptr;
             int mChannelCount = 1; ///< Property: 'ChannelCount' The number of channels
@@ -35,9 +35,9 @@ namespace nap
             RTTI_ENABLE(AudioObjectInstance)
             
         public:
-            MultiChannelInstance(MultiChannel& resource) : AudioObjectInstance(resource) { }
+            MultiChannelInstance() : AudioObjectInstance() { }
             
-            bool init(AudioService& service, utility::ErrorState& errorState) override;
+            bool init(AudioObject& channel, int channelCount, AudioService& service, utility::ErrorState& errorState);
             
             /**
              * Returns a raw pointer to the DSP node for the specified channel.
@@ -71,7 +71,7 @@ namespace nap
         public:
             MultiChannelObject() = default;
             
-            std::unique_ptr<AudioObjectInstance> createInstance() override;
+            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
             
         private:
             /**
@@ -95,9 +95,13 @@ namespace nap
             RTTI_ENABLE(AudioObjectInstance)
             
         public:
-            MultiChannelObjectInstance(MultiChannelObject& resource) : AudioObjectInstance(resource) { }
+            using NodeFactory = std::function<SafeOwner<Node>(int, AudioService&, utility::ErrorState&)>;
             
-            bool init(AudioService& service, utility::ErrorState& errorState) override;
+        public:
+            MultiChannelObjectInstance() : AudioObjectInstance() { }
+            MultiChannelObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
+
+            bool init(NodeFactory nodeFactory, int channelCount, AudioService& service, utility::ErrorState& errorState);
             
             /**
              * Disposes all of the old nodes and their connections and creates @channelCount new ones.
@@ -126,6 +130,7 @@ namespace nap
             virtual bool initNode(Node& newNode, utility::ErrorState& errorState) { return true; }
             
             AudioService* mService  = nullptr;
+            NodeFactory mNodeFactory = nullptr;
         };
         
         
