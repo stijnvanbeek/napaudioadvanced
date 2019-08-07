@@ -9,7 +9,7 @@ namespace nap
         std::unique_ptr<AudioObjectInstance> NodeObject::createInstance(AudioService& service, utility::ErrorState& errorState)
         {
             auto result = std::make_unique<NodeObjectInstance>(createNode(service));
-            return result;
+            return std::move(result);
         }
 
         
