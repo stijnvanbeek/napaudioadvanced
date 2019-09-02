@@ -18,16 +18,16 @@ namespace nap
             RTTI_ENABLE(Node)
         public:
             CircularBufferNode(NodeManager& nodeManager, unsigned int bufferSize, bool rootProcess = true);
-            virtual ~CircularBufferNode();
+            ~CircularBufferNode() override;
             
             InputPin audioInput = { this };
-            
+
             inline const SampleValue& getSample(const DiscreteTimeValue& absolutePosition) const { return mBuffer[wrap(absolutePosition, mBuffer.size())]; }
             DiscreteTimeValue getAbsolutePosition(unsigned int relativePosition) const { return wrap(mWritePosition - relativePosition, mBuffer.size()); }
             
         private:
             void process() override;
-             
+
             SampleBuffer mBuffer;
             DiscreteTimeValue mWritePosition = 0;
             

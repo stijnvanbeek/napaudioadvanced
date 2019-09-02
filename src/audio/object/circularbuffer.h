@@ -49,8 +49,10 @@ namespace nap
             CircularBufferInstance() : AudioObjectInstance() { }
             CircularBufferInstance(const std::string& name) : AudioObjectInstance(name) { }
 
-            // Inherited from AudioObjectInstance
             bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(int channelCount, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState);
+
+            // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }
             int getChannelCount() const override { return 0; }
             
