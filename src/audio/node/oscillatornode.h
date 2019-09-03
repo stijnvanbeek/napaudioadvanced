@@ -64,7 +64,7 @@ namespace nap
             
         public:
             /**
-             * Constructor takes the waveform of the oscillator
+             * Constructor takes the waveform of the oscillator.
              */
             OscillatorNode(NodeManager& aManager, SafePtr<WaveTable> aWave);
             
