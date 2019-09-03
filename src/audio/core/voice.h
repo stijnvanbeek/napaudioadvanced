@@ -94,8 +94,8 @@ namespace nap
             void free();
             
             // Responds to the signal emitted by the envelope generator of the main envelope by emitting the finishedSignal.
-            Slot<EnvelopeGenerator&> envelopeFinishedSlot = { this, &VoiceInstance::envelopeFinished };
-            void envelopeFinished(EnvelopeGenerator&);
+            Slot<EnvelopeNode&> envelopeFinishedSlot = {this, &VoiceInstance::envelopeFinished };
+            void envelopeFinished(EnvelopeNode&);
 
             EnvelopeInstance* mEnvelope = nullptr;
             std::atomic<bool> mBusy = { false };

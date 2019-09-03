@@ -12,15 +12,15 @@ RTTI_BEGIN_ENUM(nap::audio::RampMode)
     RTTI_ENUM_VALUE(nap::audio::RampMode::Exponential, "Exponential")
 RTTI_END_ENUM
 
-RTTI_BEGIN_STRUCT(nap::audio::EnvelopeGenerator::Segment)
-    RTTI_PROPERTY("Duration", &nap::audio::EnvelopeGenerator::Segment::mDuration, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("Destination", &nap::audio::EnvelopeGenerator::Segment::mDestination, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("DurationRelative", &nap::audio::EnvelopeGenerator::Segment::mDurationRelative, nap::rtti::EPropertyMetaData::Default)
-    RTTI_PROPERTY("RampMode", &nap::audio::EnvelopeGenerator::Segment::mMode, nap::rtti::EPropertyMetaData::Default)
-    RTTI_PROPERTY("Translate", &nap::audio::EnvelopeGenerator::Segment::mTranslate, nap::rtti::EPropertyMetaData::Default)
+RTTI_BEGIN_STRUCT(nap::audio::EnvelopeNode::Segment)
+    RTTI_PROPERTY("Duration", &nap::audio::EnvelopeNode::Segment::mDuration, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("Destination", &nap::audio::EnvelopeNode::Segment::mDestination, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("DurationRelative", &nap::audio::EnvelopeNode::Segment::mDurationRelative, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("RampMode", &nap::audio::EnvelopeNode::Segment::mMode, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Translate", &nap::audio::EnvelopeNode::Segment::mTranslate, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_STRUCT
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::EnvelopeGenerator)
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::EnvelopeNode)
 RTTI_END_CLASS
 
 
@@ -30,22 +30,19 @@ namespace nap
     namespace audio
     {
 
-        EnvelopeGenerator::EnvelopeGenerator(NodeManager& manager, Envelope& envelope, SafePtr<Translator<ControllerValue>> translator) : Node(manager)
+        EnvelopeNode::EnvelopeNode(NodeManager& manager, const Envelope& envelope, SafePtr<Translator<ControllerValue>> translator) : Node(manager), mEnvelope(envelope), mTranslator(translator)
         {
-            assert(translator != nullptr);
-            mEnvelope = envelope;
-            mTranslator = translator;
             mValue.destinationReachedSignal.connect(rampFinishedSlot);
         }
 
 
-        void EnvelopeGenerator::trigger(TimeValue totalDuration)
+        void EnvelopeNode::trigger(TimeValue totalDuration)
         {
             trigger(0, mEnvelope.size() - 1, 0, totalDuration);
         }
 
 
-        void EnvelopeGenerator::trigger(int startSegment, int endSegment, ControllerValue startValue, TimeValue totalDuration)
+        void EnvelopeNode::trigger(int startSegment, int endSegment, ControllerValue startValue, TimeValue totalDuration)
         {
             auto absoluteDuration = 0.f;
             auto relativeDuration = 0.f;
@@ -68,7 +65,7 @@ namespace nap
         }
 
 
-        void EnvelopeGenerator::stop(TimeValue rampTime)
+        void EnvelopeNode::stop(TimeValue rampTime)
         {
             mNewCurrentSegment.store(mNewEndSegment.load());
             mFadeOutTime.store(rampTime);
@@ -76,7 +73,7 @@ namespace nap
         }
 
 
-        void EnvelopeGenerator::playSegment(int index)
+        void EnvelopeNode::playSegment(int index)
         {
             auto envelope = mEnvelope;
 
@@ -92,7 +89,7 @@ namespace nap
         }
 
 
-        void EnvelopeGenerator::update()
+        void EnvelopeNode::updateEnvelope()
         {
             if (mIsDirty.check())
             {
@@ -113,12 +110,12 @@ namespace nap
         }
 
 
-        void EnvelopeGenerator::process()
+        void EnvelopeNode::process()
         {
-            update();
+            updateEnvelope();
             auto& outputBuffer = getOutputBuffer(output);
 
-            if (mTranslate)
+            if (mTranslate && mTranslator != nullptr)
             {
                 for (auto i = 0; i < outputBuffer.size(); ++i)
                 {
@@ -135,7 +132,7 @@ namespace nap
         }
 
 
-        void EnvelopeGenerator::rampFinished(ControllerValue value)
+        void EnvelopeNode::rampFinished(ControllerValue value)
         {
             segmentFinishedSignal(*this);
             if (mCurrentSegment < mEndSegment)

@@ -25,7 +25,7 @@ namespace nap
         public:
             Envelope() = default;
 
-            EnvelopeGenerator::Envelope mSegments; ///< The segments that define the envelope's shape.
+            EnvelopeNode::Envelope mSegments; ///< The segments that define the envelope's shape.
             bool mAutoTrigger = false; ///< If true the envelope will be triggered automatically on initialization.
             bool mEqualPowerTranslate = false; ///< Indicated wether the output will be translated using an equal power table.
 
@@ -46,7 +46,7 @@ namespace nap
             EnvelopeInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Inherited from AudioObjectInstance
-            bool init(EnvelopeGenerator::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(EnvelopeNode::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState);
             
             OutputPin* getOutputForChannel(int channel) override { return &mEnvelopeGenerator->output; }
             int getChannelCount() const override { return 1; }
@@ -89,7 +89,7 @@ namespace nap
             /**
              * Assigns new envelope data
              */
-            void setEnvelopeData(const EnvelopeGenerator::Envelope& envelope) { mEnvelopeGenerator->getEnvelope() = envelope; }
+            void setEnvelopeData(const EnvelopeNode::Envelope& envelope) { mEnvelopeGenerator->getEnvelope() = envelope; }
 
             /**
              * Returns the current output value of the envelope generator.
@@ -99,15 +99,15 @@ namespace nap
             /**
              * Returns a signal that will be emitted when the total envelope shape has finished and the generator outputs zero again.
              */
-            nap::Signal<EnvelopeGenerator&>& getEnvelopeFinishedSignal() { return mEnvelopeGenerator->envelopeFinishedSignal; }
+            nap::Signal<EnvelopeNode&>& getEnvelopeFinishedSignal() { return mEnvelopeGenerator->envelopeFinishedSignal; }
 
             /**
              * Returns a sginal that will be emitted when one segment of the envelope has finished playing. The semgent index of the ENvelopeGenerator still contains the number of the segment that has just finished.
              */
-            nap::Signal<EnvelopeGenerator&>& getSegmentFinishedSignal() { return mEnvelopeGenerator->segmentFinishedSignal; }
+            nap::Signal<EnvelopeNode&>& getSegmentFinishedSignal() { return mEnvelopeGenerator->segmentFinishedSignal; }
             
         private:
-            SafeOwner<EnvelopeGenerator> mEnvelopeGenerator = nullptr;
+            SafeOwner<EnvelopeNode> mEnvelopeGenerator = nullptr;
             SafeOwner<EqualPowerTranslator<ControllerValue>> mEqualPowerTable = nullptr;
         };
 

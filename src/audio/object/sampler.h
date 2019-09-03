@@ -21,7 +21,7 @@ namespace nap
             bool init(utility::ErrorState& errorState) override;
             
             SamplerEntries mSampleEntries;                              ///< property: 'SampleEntries' Default set of different playback settings
-            EnvelopeGenerator::Envelope mEnvelopeData;                  ///< property: 'Envelope' Default envelope settings
+            EnvelopeNode::Envelope mEnvelopeData;                  ///< property: 'Envelope' Default envelope settings
             int mChannelCount = 1;                                      ///< property: 'ChannelCount' Number of channels
             
         private:
@@ -38,7 +38,7 @@ namespace nap
             SamplerInstance() : AudioObjectInstance() { }
             SamplerInstance(const std::string& name) : AudioObjectInstance(name) { }
             
-            bool init(Sampler::SamplerEntries& sampleEntries, EnvelopeGenerator::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState);
+            bool init(Sampler::SamplerEntries& sampleEntries, EnvelopeNode::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
             
@@ -46,11 +46,11 @@ namespace nap
             void stop(VoiceInstance* voice, TimeValue release = 0);
             
             const Sampler::SamplerEntries& getSamplerEntries() const { return mSamplerEntries; }
-            EnvelopeGenerator::Envelope& getEnvelopeData() { return mEnvelopeData; }
+            EnvelopeNode::Envelope& getEnvelopeData() { return mEnvelopeData; }
             
         private:
             Sampler::SamplerEntries mSamplerEntries;
-            EnvelopeGenerator::Envelope mEnvelopeData;
+            EnvelopeNode::Envelope mEnvelopeData;
             
             std::unique_ptr<PolyphonicObjectInstance> mPolyphonicInstance = nullptr;
             

@@ -101,21 +101,21 @@ namespace nap
                 return false;
             }
             
-            EnvelopeGenerator::Segment attack;
+            EnvelopeNode::Segment attack;
             attack.mDestination = 1.f;
             attack.mDuration = 0.f;
             attack.mDurationRelative = false;
             attack.mTranslate = true;
             attack.mMode = RampMode::Linear;
             
-            EnvelopeGenerator::Segment sustain;
+            EnvelopeNode::Segment sustain;
             sustain.mDestination = 1.f;
             sustain.mDuration = mSettings.getFirstSustainDuration();
             sustain.mDurationRelative = false;
             sustain.mTranslate = false;
             sustain.mMode = RampMode::Linear;
             
-            EnvelopeGenerator::Segment decay;
+            EnvelopeNode::Segment decay;
             decay.mDestination = 0.f;
             decay.mDuration = mSettings.mCrossFadeTime;
             decay.mDurationRelative = false;
@@ -200,7 +200,7 @@ namespace nap
         }
         
         
-        void BufferLooperInstance::segmentFinished(EnvelopeGenerator& envelope)
+        void BufferLooperInstance::segmentFinished(EnvelopeNode& envelope)
         {
             if (envelope.getCurrentSegment() == 1)
             {

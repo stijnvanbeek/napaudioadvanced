@@ -79,7 +79,7 @@ namespace nap
         }
 
         
-        void VoiceInstance::envelopeFinished(EnvelopeGenerator&)
+        void VoiceInstance::envelopeFinished(EnvelopeNode&)
         {
             finishedSignal(*this);
             mBusy = false;
