@@ -1,8 +1,5 @@
 #include "circularbuffernode.h"
 
-// Std includes
-#include <stdlib.h>
-
 // Nap includes
 #include <audio/core/audionodemanager.h>
 
@@ -46,14 +43,15 @@ namespace nap
                 }
             }
             else {
-                for (auto i = 0; i < inputBuffer->size(); ++i)
+                for (float i : *inputBuffer)
                 {
-                    mBuffer[wrap(mWritePosition, mBuffer.size())] = (*inputBuffer)[i];
+                    mBuffer[wrap(mWritePosition, mBuffer.size())] = i;
                     mWritePosition++;
                 }
             }
         }
-        
+
+
     }
     
 }

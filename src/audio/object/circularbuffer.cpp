@@ -66,8 +66,20 @@ namespace nap
             }
             return true;
         }
-        
-        
+
+
+        bool CircularBufferInstance::init(int channelCount, bool rootProcess, int bufferSize, AudioService &audioService,
+                                          utility::ErrorState &errorState) {
+            for (auto channel = 0; channel < channelCount; ++channel)
+            {
+                auto node = audioService.makeSafe<CircularBufferNode>(audioService.getNodeManager(), bufferSize, rootProcess);
+                mNodes.emplace_back(std::move(node));
+            }
+
+            return true;
+        }
+
+
         CircularBufferNode* CircularBufferInstance::getChannel(unsigned int channel)
         {
             if (channel >= mNodes.size())
@@ -75,7 +87,7 @@ namespace nap
             return mNodes[channel].getRaw();
         }
 
-        
+
     }
         
 }

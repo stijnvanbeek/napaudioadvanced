@@ -32,7 +32,7 @@ namespace nap
             if (!instance->init(mSampleEntries, mEnvelopeData, mChannelCount, service, errorState))
                 return nullptr;
             
-            return instance;
+            return std::move(instance);
         }
 
         
