@@ -4,7 +4,7 @@
 #include <nap/resourceptr.h>
 
 // Audio includes
-#include <audio/core/multichannelobject.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/inputnode.h>
 #include <audio/utility/safeptr.h>
 
@@ -17,22 +17,19 @@ namespace nap
         /**
          * Multichannel oscillator object.
          */
-        class Input : public MultiChannelObject
+        class Input : public MultiChannel<InputNode>
         {
-            RTTI_ENABLE(MultiChannelObject)
+            RTTI_ENABLE(MultiChannel<InputNode>)
             
         public:
             std::vector<int> mChannels = { 0 }; ///< property: 'Channels' Defines what audio input channels to receive data from. The size of this array determines the number of channels that this component will output.
             
         private:
-            SafeOwner<Node> createNode(int channel, AudioService& audioService, utility::ErrorState& errorState) override
+            bool initNode(int channel, InputNode& node, utility::ErrorState& errorState) override
             {
-                SafeOwner<InputNode> node = audioService.makeSafe<InputNode>(audioService.getNodeManager());
-                node->setInputChannel(mChannels[channel % mChannels.size()]);                
-                return std::move(node);
+                node.setInputChannel(mChannels[channel % mChannels.size()]);
+                return true;
             }
-            
-            int getChannelCount() const override { return mChannels.size(); }
         };
         
        

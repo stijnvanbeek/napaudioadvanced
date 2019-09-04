@@ -12,16 +12,15 @@ namespace nap
     namespace audio
     {
         
-        SafeOwner<Node> Gain::createNode(int channel, AudioService& audioService, utility::ErrorState& errorState)
+        bool Gain::initNode(int channel, GainNode& node, utility::ErrorState& errorState)
         {
-            auto node = audioService.makeSafe<GainNode>(audioService.getNodeManager(), mGain[channel % mGain.size()]);
             for (auto& input : mInputs)
                 if (input != nullptr)
                 {
-                    node->inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
+                    node.inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
                 }
-            
-            return std::move(node);
+
+            return true;
         }
     }
     

@@ -15,18 +15,16 @@ namespace nap
     namespace audio
     {
         
-        SafeOwner<Node> Filter::createNode(int channel, AudioService& audioService, utility::ErrorState& errorState)
+        bool Filter::initNode(int channel, FilterNode& node, utility::ErrorState& errorState)
         {
-            auto node = audioService.makeSafe<FilterNode>(audioService.getNodeManager());
-            node->setMode(mMode);
-            node->setFrequency(mFrequency[channel % mFrequency.size()]);
-            node->setResonance(mResonance[channel % mResonance.size()]);
-            node->setBand(mBand[channel % mBand.size()]);
-            node->setGain(mGain[channel % mGain.size()]);
+            node.setMode(mMode);
+            node.setFrequency(mFrequency[channel % mFrequency.size()]);
+            node.setResonance(mResonance[channel % mResonance.size()]);
+            node.setBand(mBand[channel % mBand.size()]);
+            node.setGain(mGain[channel % mGain.size()]);
             if (mInput != nullptr)
-                node->audioInput.connect(*mInput->getInstance()->getOutputForChannel(channel % mInput->getInstance()->getChannelCount()));
-            
-            return std::move(node);
+                node.audioInput.connect(*mInput->getInstance()->getOutputForChannel(channel % mInput->getInstance()->getChannelCount()));
+            return true;
         }
     }
     

@@ -1,7 +1,7 @@
 #pragma once
 
 // Audio includes
-#include <audio/core/multichannelobject.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/gainnode.h>
 #include <nap/resourceptr.h>
 
@@ -15,9 +15,9 @@ namespace nap
          * Multichannel audio object to apply a gain to the input channels.
          * Multiple audio inputs will be multiplied with each other and with a scalar.
          */
-        class Gain : public MultiChannelObject
+        class Gain : public MultiChannel<GainNode>
         {
-            RTTI_ENABLE(MultiChannelObject)
+            RTTI_ENABLE(MultiChannel<GainNode>)
             
         public:
             Gain() = default;
@@ -27,9 +27,7 @@ namespace nap
             std::vector<ResourcePtr<AudioObject>> mInputs; ///< property: Inputs array of objects used as inputs.
             
         private:
-            SafeOwner<Node> createNode(int channel, AudioService& service, utility::ErrorState& errorState) override;
-            
-            int getChannelCount() const override { return mChannelCount; }
+            bool initNode(int channel, GainNode& node, utility::ErrorState& errorState) override;
         };
         
         

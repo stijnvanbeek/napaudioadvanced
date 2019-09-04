@@ -214,12 +214,12 @@ namespace nap
             auto voice = mPolyphonicInstance->findFreeVoice();
             assert(voice != nullptr);
             mVoices.emplace(voice);
-            auto bufferPlayer = voice->getObject<MultiChannelObjectInstance>("BufferPlayer");
+            auto bufferPlayer = voice->getObject<MultiChannelInstance<BufferPlayerNode>>("BufferPlayer");
             auto& envelope = voice->getEnvelope();
             
             for (auto channel = 0; channel < bufferPlayer->getChannelCount(); ++channel)
             {
-                auto bufferPlayerChannel = bufferPlayer->getChannel<BufferPlayerNode>(channel);
+                auto bufferPlayerChannel = bufferPlayer->getChannel(channel);
                 bufferPlayerChannel->stop();
                 bufferPlayerChannel->setBuffer(mSettings.mBufferResource->getBuffer());
             }
@@ -236,7 +236,7 @@ namespace nap
                 envelope.setSegmentData(2, mSettings.mCrossFadeTime * speed, 0.f, false, false, true);
                 for (auto channel = 0; channel < getChannelCount(); ++channel)
                 {
-                    bufferPlayer->getChannel<BufferPlayerNode>(channel)->play(channel, mSettings.mBufferResource->toSamples(mSettings.mStart), speed);
+                    bufferPlayer->getChannel(channel)->play(channel, mSettings.mBufferResource->toSamples(mSettings.mStart), speed);
                 }
             }
             else {
@@ -245,7 +245,7 @@ namespace nap
                 envelope.setSegmentData(2, mSettings.mCrossFadeTime * speed, 0.f, false, false, true);
                 for (auto channel = 0; channel < getChannelCount(); ++channel)
                 {
-                    bufferPlayer->getChannel<BufferPlayerNode>(channel)->play(channel, mSettings.mBufferResource->toSamples(mSettings.mStart), speed);
+                    bufferPlayer->getChannel(channel)->play(channel, mSettings.mBufferResource->toSamples(mSettings.mStart), speed);
                 }
             }
             

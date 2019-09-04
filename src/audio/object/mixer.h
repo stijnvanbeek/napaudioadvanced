@@ -4,7 +4,7 @@
 #include <nap/resourceptr.h>
 
 // Audio includes
-#include <audio/core/multichannelobject.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/mixnode.h>
 
 namespace nap
@@ -13,9 +13,9 @@ namespace nap
     namespace audio
     {
         
-        class Mixer : public MultiChannelObject
+        class Mixer : public MultiChannel<MixNode>
         {
-            RTTI_ENABLE(MultiChannelObject)
+            RTTI_ENABLE(MultiChannel<MixNode>)
             
         public:
             Mixer() = default;
@@ -24,19 +24,15 @@ namespace nap
             std::vector<ResourcePtr<AudioObject>> mInputs;
             
         private:
-            SafeOwner<Node> createNode(int channel, AudioService& service, utility::ErrorState& errorState) override
+            bool initNode(int channel, MixNode& node, utility::ErrorState& errorState) override
             {
-                auto node = service.makeSafe<MixNode>(service.getNodeManager());
                 for (auto& input : mInputs)
                     if (input != nullptr)
                     {
-                        node->inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
+                        node.inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
                     }
-                
-                return std::move(node);
+                return true;
             }
-            
-            int getChannelCount() const override { return mChannelCount; }
         };
         
         

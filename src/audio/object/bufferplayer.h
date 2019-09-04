@@ -5,7 +5,7 @@
 
 // Audio includes
 #include <audio/utility/safeptr.h>
-#include <audio/core/multichannelobject.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/bufferplayernode.h>
 #include <audio/resource/audiobufferresource.h>
 
@@ -18,9 +18,9 @@ namespace nap
         /**
          * AudioObject to play back audio contained by an AudioBufferResource.
          */
-        class BufferPlayer : public MultiChannelObject
+        class NAPAPI BufferPlayer : public MultiChannel<BufferPlayerNode>
         {
-            RTTI_ENABLE(MultiChannelObject)
+            RTTI_ENABLE(MultiChannel<BufferPlayerNode>)
             
         public:
             BufferPlayer() = default;
@@ -30,8 +30,7 @@ namespace nap
             bool mAutoPlay = true; /**<  If true, the object will start playing back immediately after initialization. */
             
         private:
-            SafeOwner<Node> createNode(int channel, AudioService& audioService, utility::ErrorState& errorState) override;
-            int getChannelCount() const override { return mChannelCount; }
+            bool initNode(int channel, BufferPlayerNode& node, utility::ErrorState& errorState) override;
         };
         
         
