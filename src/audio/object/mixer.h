@@ -15,12 +15,11 @@ namespace nap
         
         class Mixer : public MultiChannel<MixNode>
         {
-            RTTI_ENABLE(MultiChannel<MixNode>)
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             Mixer() = default;
             
-            int mChannelCount = 1;
             std::vector<ResourcePtr<AudioObject>> mInputs;
             
         private:

@@ -116,7 +116,7 @@ namespace nap
         template <typename NodeType>
         class NAPAPI MultiChannelInstance : public MultiChannelInstanceBase
         {
-        RTTI_ENABLE(MultiChannelInstanceBase)
+            RTTI_ENABLE(MultiChannelInstanceBase)
 
         public:
             using NodeCreationFunction = std::function<std::unique_ptr<NodeType>()>;

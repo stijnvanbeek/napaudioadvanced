@@ -20,12 +20,11 @@ namespace nap
          */
         class NAPAPI BufferPlayer : public MultiChannel<BufferPlayerNode>
         {
-            RTTI_ENABLE(MultiChannel<BufferPlayerNode>)
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             BufferPlayer() = default;
             
-            int mChannelCount = 1; /**< Number of channels that will be played back from the source buffer */
             ResourcePtr<AudioBufferResource> mBufferResource = nullptr; /**< Resource containing the buffer that will be played. */
             bool mAutoPlay = true; /**<  If true, the object will start playing back immediately after initialization. */
             

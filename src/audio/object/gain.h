@@ -17,12 +17,11 @@ namespace nap
          */
         class Gain : public MultiChannel<GainNode>
         {
-            RTTI_ENABLE(MultiChannel<GainNode>)
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             Gain() = default;
             
-            int mChannelCount = 1; ///< property: 'ChannelCount' the number of output channels
             std::vector<ControllerValue> mGain = { 1.f }; ///< property: 'Gain' array of gain values per output channel. If the size of the array is less than the number of channels it will be repeated.
             std::vector<ResourcePtr<AudioObject>> mInputs; ///< property: Inputs array of objects used as inputs.
             

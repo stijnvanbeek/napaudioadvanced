@@ -19,7 +19,7 @@ namespace nap
          */
         class Input : public MultiChannel<InputNode>
         {
-            RTTI_ENABLE(MultiChannel<InputNode>)
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             std::vector<int> mChannels = { 0 }; ///< property: 'Channels' Defines what audio input channels to receive data from. The size of this array determines the number of channels that this component will output.

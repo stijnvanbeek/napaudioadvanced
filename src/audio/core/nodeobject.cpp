@@ -9,7 +9,7 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelBase)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelInstanceBase)
-    RTTI_FUNCTION("getChannelRaw", &nap::audio::MultiChannelInstanceBase::getChannelNonTyped)
+    RTTI_FUNCTION("getChannel", &nap::audio::MultiChannelInstanceBase::getChannelNonTyped)
 RTTI_END_CLASS
 
 namespace nap

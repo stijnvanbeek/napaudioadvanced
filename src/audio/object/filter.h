@@ -16,7 +16,7 @@ namespace nap
          */
         class Filter : public MultiChannel<FilterNode>
         {
-            RTTI_ENABLE(MultiChannel<FilterNode>)
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             Filter() = default;
@@ -26,7 +26,6 @@ namespace nap
             std::vector<ControllerValue> mResonance = { 0.f };
             std::vector<ControllerValue> mBand = { 100.f };
             std::vector<ControllerValue> mGain = { 1.f };
-            int mChannelCount = 1; ///< property: 'ChannelCount' the number of delays and output channels
             ResourcePtr<AudioObject> mInput; ///< property: "Input" @AudioObject whose output channels will be used as inputs for the delay channels.
             
         private:

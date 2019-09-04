@@ -16,12 +16,11 @@ namespace nap
          */
         class NAPAPI DelayObject : public MultiChannel<DelayNode>
         {
-            RTTI_ENABLE(MultiChannel<DelayNode>)
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             DelayObject() = default;
             
-            int mChannelCount = 1; ///< property: 'ChannelCount' the number of delays and output channels
             std::vector<TimeValue> mTime = { 0.f }; ///< property: 'Time' array of delay time values per output channel. If the size of the array is less than the number of channels it will be repeated.
             std::vector<ControllerValue> mFeedback = { 0.f }; ///< property: 'Time' array of feedback values per output channel. If the size of the array is less than the number of channels it will be repeated.
             std::vector<TimeValue> mDryWet = { 0.f }; ///< property: 'DryWet' array of dry wet balance levels per output channel. If the size of the array is less than the number of channels it will be repeated.
