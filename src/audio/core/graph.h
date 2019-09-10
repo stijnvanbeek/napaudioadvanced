@@ -66,7 +66,10 @@ namespace nap
         public:
             GraphInstance() = default;
             virtual ~GraphInstance() = default;
-            
+
+            GraphInstance(const GraphInstance&) = delete;
+            GraphInstance& operator=(const GraphInstance&) = delete;
+
             bool init(Graph& resource, utility::ErrorState& errorState);
             
             /**

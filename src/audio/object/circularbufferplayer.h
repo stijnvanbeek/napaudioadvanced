@@ -17,7 +17,7 @@ namespace nap
         /**
          * AudioObject to play back audio contained by a CircularBufferComponent.
          */
-        class CircularBufferPlayer : public MultiChannelObject
+        class NAPAPI CircularBufferPlayer : public MultiChannelObject
         {
             RTTI_ENABLE(MultiChannelObject)
             

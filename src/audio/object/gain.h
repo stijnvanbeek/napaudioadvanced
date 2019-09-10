@@ -15,7 +15,7 @@ namespace nap
          * Multichannel audio object to apply a gain to the input channels.
          * Multiple audio inputs will be multiplied with each other and with a scalar.
          */
-        class Gain : public MultiChannelObject
+        class NAPAPI Gain : public MultiChannelObject
         {
             RTTI_ENABLE(MultiChannelObject)
             
