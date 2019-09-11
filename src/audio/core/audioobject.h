@@ -31,7 +31,10 @@ namespace nap
         public:
             AudioObjectInstance() = default;
             AudioObjectInstance(const std::string& name) : mName(name) { }
-            
+
+            AudioObjectInstance(const AudioObjectInstance&) = delete;
+            AudioObjectInstance& operator=(const AudioObjectInstance&) = delete;
+
             /**
              * If multichannel input is implemented for this object it returns its input interface, otherwise nullptr.
              */
