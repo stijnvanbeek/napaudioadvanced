@@ -135,6 +135,10 @@ namespace nap
              */
             SafePtr<NodeType> getChannel(unsigned int channel) { return channel < mChannels.size() ? mChannels[channel].get() : nullptr; }
 
+            /**
+             * Clear the processing channels.
+             */
+            void clear() { mChannels.clear(); }
 
             // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return *mChannels[channel]->getOutputs().begin(); }
