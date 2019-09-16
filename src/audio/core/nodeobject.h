@@ -71,9 +71,9 @@ namespace nap
             void connect(unsigned int channel, OutputPin& pin) override;
             int getInputChannelCount() const override { return mNode->getInputs().size(); }
 
-            SafePtr<NodeType> get() { return mNode->get(); }
-            NodeType* getRaw() { return mNode->getRaw(); }
-            Node* getNonTyped() override { return mNode->getRaw(); }
+            SafePtr<NodeType> get() { return mNode.get(); }
+            NodeType* getRaw() { return mNode.getRaw(); }
+            Node* getNonTyped() override { return mNode.getRaw(); }
 
         private:
             SafeOwner<NodeType> mNode = nullptr;
@@ -135,6 +135,10 @@ namespace nap
              */
             SafePtr<NodeType> getChannel(unsigned int channel) { return channel < mChannels.size() ? mChannels[channel].get() : nullptr; }
 
+            /**
+             * Clear the processing channels.
+             */
+            void clear() { mChannels.clear(); }
 
             // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return *mChannels[channel]->getOutputs().begin(); }
@@ -151,7 +155,7 @@ namespace nap
         OutputPin* NodeObjectInstance<NodeType>::getOutputForChannel(int channel)
         {
             auto i = 0;
-            for (auto& output : this->getOutputs())
+            for (auto& output : mNode->getOutputs())
             {
                 if (i == channel)
                     return output;
@@ -165,7 +169,7 @@ namespace nap
         void NodeObjectInstance<NodeType>::connect(unsigned int channel, OutputPin& pin)
         {
             auto i = 0;
-            for (auto& input : this->getInputs())
+            for (auto& input : mNode->getInputs())
             {
                 if (i == channel)
                 {
