@@ -29,10 +29,10 @@ namespace nap
         }
 
 
-        bool EnvelopeInstance::init(EnvelopeGenerator::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState)
+        bool EnvelopeInstance::init(EnvelopeNode::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState)
         {
             mEqualPowerTable = audioService.makeSafe<EqualPowerTranslator<ControllerValue>>(256);
-            mEnvelopeGenerator = audioService.makeSafe<EnvelopeGenerator>(audioService.getNodeManager(), segments, mEqualPowerTable.get());
+            mEnvelopeGenerator = audioService.makeSafe<EnvelopeNode>(audioService.getNodeManager(), segments, mEqualPowerTable.get());
 
             if (autoTrigger)
                 mEnvelopeGenerator->trigger();

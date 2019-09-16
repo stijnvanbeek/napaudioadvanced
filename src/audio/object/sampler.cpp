@@ -36,7 +36,7 @@ namespace nap
         }
 
         
-        bool SamplerInstance::init(Sampler::SamplerEntries& samplerEntries, EnvelopeGenerator::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState)
+        bool SamplerInstance::init(Sampler::SamplerEntries& samplerEntries, EnvelopeNode::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState)
         {
             mSamplerEntries = samplerEntries;
             mEnvelopeData = envelopeData;

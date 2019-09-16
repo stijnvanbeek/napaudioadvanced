@@ -1,38 +1,22 @@
 #pragma once
 
-// Nap includes
-#include <nap/resourceptr.h>
-
 // Audio includes
-#include <audio/utility/safeptr.h>
-#include <audio/core/multichannelobject.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/circularbufferplayernode.h>
 
 namespace nap
 {
-    
+
     namespace audio
     {
-        
-        /**
-         * AudioObject to play back audio contained by a CircularBufferComponent.
-         */
-        class NAPAPI CircularBufferPlayer : public MultiChannelObject
-        {
-            RTTI_ENABLE(MultiChannelObject)
+
+        class CircularBufferPlayer : public MultiChannel<CircularBufferPlayerNode> {
+            RTTI_ENABLE(MultiChannelBase)
             
         public:
             CircularBufferPlayer() = default;
-            
-            int mChannelCount = 1; ////< property: 'ChannelCount' Number of channels that will be played back from the source buffer */
-            
-        private:
-            SafeOwner<Node> createNode(int channel, AudioService& audioService, utility::ErrorState& errorState) override;
-            int getChannelCount() const override { return mChannelCount; }
         };
-        
-        
-    }
-    
-}
 
+    }
+
+}

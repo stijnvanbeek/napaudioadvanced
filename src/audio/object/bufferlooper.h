@@ -75,8 +75,8 @@ namespace nap
         private:
             BufferLooper::Settings mSettings;
             
-            Slot<EnvelopeGenerator&> segmentFinishedSlot = { this, &BufferLooperInstance::segmentFinished };
-            void segmentFinished(EnvelopeGenerator& envelope);
+            Slot<EnvelopeNode&> segmentFinishedSlot = {this, &BufferLooperInstance::segmentFinished };
+            void segmentFinished(EnvelopeNode& envelope);
             
             void startVoice(bool fromStart);
 

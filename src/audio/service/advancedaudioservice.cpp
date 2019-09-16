@@ -10,6 +10,7 @@
 #include <audio/service/audioservice.h>
 #include <audio/core/graph.h>
 #include <audio/core/voice.h>
+#include <audio/object/oscillator.h>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AdvancedAudioService)
 	RTTI_CONSTRUCTOR(nap::ServiceConfiguration*)
@@ -37,6 +38,7 @@ namespace nap
             assert(audioService);
             factory.addObjectCreator(std::make_unique<GraphObjectCreator>(*audioService));
             factory.addObjectCreator(std::make_unique<VoiceObjectCreator>(*audioService));
+            factory.addObjectCreator(std::make_unique<WaveTableResourceObjectCreator >(*audioService));
         }
 
 

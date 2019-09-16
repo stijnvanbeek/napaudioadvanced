@@ -1,46 +1,25 @@
 #include "nodeobject.h"
 
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::NodeObjectInstanceBase)
+        RTTI_FUNCTION("get", &nap::audio::NodeObjectInstanceBase::getNonTyped)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelBase)
+    RTTI_PROPERTY("ChannelCount", &nap::audio::MultiChannelBase::mChannelCount, nap::rtti::EPropertyMetaData::Default)
+RTTI_END_CLASS
+
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::MultiChannelInstanceBase)
+    RTTI_FUNCTION("getChannel", &nap::audio::MultiChannelInstanceBase::getChannelNonTyped)
+RTTI_END_CLASS
+
 namespace nap
 {
     
     namespace audio
     {
-        
-        std::unique_ptr<AudioObjectInstance> NodeObject::createInstance(AudioService& service, utility::ErrorState& errorState)
-        {
-            auto result = std::make_unique<NodeObjectInstance>(createNode(service));
-            return std::move(result);
-        }
 
-        
-        OutputPin* NodeObjectInstance::getOutputForChannel(int channel)
-        {
-            auto i = 0;
-            for (auto& output : mNode->getOutputs())
-            {
-                if (i == channel)
-                    return output;
-                i++;
-            }
-            return nullptr;
-        }
-        
-        
-        void NodeObjectInstance::connect(unsigned int channel, OutputPin& pin)
-        {
-            auto i = 0;
-            for (auto& input : mNode->getInputs())
-            {
-                if (i == channel)
-                {
-                    input->connect(pin);
-                    return;
-                }
-                i++;
-            }
-        }
-        
-        
+
+
     }
     
 }
