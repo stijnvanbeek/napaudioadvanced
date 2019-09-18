@@ -22,14 +22,13 @@ namespace nap
             
             void process() override;
             void setCutoffFrequency(ControllerValue frequency);
-            ControllerValue getCutoffFrequency() const { return mNewCutoff; }
+            ControllerValue getCutoffFrequency() const { return mCutOff; }
             void setRampTime(TimeValue value);
             
         private:
             LinearSmoothedValue<ControllerValue> a0 = { 0, 64 };
             LinearSmoothedValue<ControllerValue> b1 = { 0, 64 };
             ControllerValue mCutOff = 0.5;
-            ControllerValue mNewCutoff = 0.5;
             ControllerValue mTemp = 0.f;
         };
         
@@ -45,7 +44,7 @@ namespace nap
             
             void process() override;
             void setCutoffFrequency(ControllerValue frequency);
-            ControllerValue getCutoffFrequency() const { return mNewCutoff; }
+            ControllerValue getCutoffFrequency() const { return mCutOff; }
             void setRampTime(TimeValue value);
             
         private:
@@ -53,7 +52,6 @@ namespace nap
             LinearSmoothedValue<ControllerValue> a1 = { 0, 64 };
             LinearSmoothedValue<ControllerValue> b1 = { 0, 64 };
             ControllerValue mCutOff = 0.5;
-            ControllerValue mNewCutoff = 0.5;
             ControllerValue mTemp1 = 0.f;
             ControllerValue mTemp2 = 0.f;
         };

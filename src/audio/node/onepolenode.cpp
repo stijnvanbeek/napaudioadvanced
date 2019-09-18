@@ -22,15 +22,6 @@ namespace nap
         
         void OnePoleLowPassNode::process()
         {
-            if (mNewCutoff != mCutOff)
-            {
-                mCutOff = mNewCutoff;
-                auto c = mCutOff / getNodeManager().getSampleRate();
-                auto x = pow(M_E, -2 * M_PI * c);
-                a0.setValue(1.0 - x);
-                b1.setValue(x);
-            }
-            
             auto& outputBuffer = getOutputBuffer(output);
             auto& inputBuffer = *input.pull();
             
@@ -42,9 +33,13 @@ namespace nap
         }
         
         
-        void OnePoleLowPassNode::setCutoffFrequency(ControllerValue frequency)
+        void OnePoleLowPassNode::setCutoffFrequency(ControllerValue cutoff)
         {
-            mNewCutoff = frequency;
+            mCutOff = cutoff;
+            auto c = mCutOff / getNodeManager().getSampleRate();
+            auto x = pow(M_E, -2 * M_PI * c);
+            a0.setValue(1.0 - x);
+            b1.setValue(x);
         }
         
         
@@ -60,16 +55,6 @@ namespace nap
         
         void OnePoleHighPassNode::process()
         {
-            if (mNewCutoff != mCutOff)
-            {
-                mCutOff = mNewCutoff;
-                auto c = mCutOff / getNodeManager().getSampleRate();
-                auto x = pow(M_E, -2 * M_PI * c);
-                a0.setValue((1.0 + x) / 2.0);
-                a1.setValue(-(1.0 + x) / 2.0);
-                b1.setValue(x);
-            }
-            
             auto& outputBuffer = getOutputBuffer(output);
             auto& inputBuffer = *input.pull();
             
@@ -82,9 +67,14 @@ namespace nap
         }
         
         
-        void OnePoleHighPassNode::setCutoffFrequency(ControllerValue frequency)
+        void OnePoleHighPassNode::setCutoffFrequency(ControllerValue cutoff)
         {
-            mNewCutoff = frequency;
+            mCutOff = cutoff;
+            auto c = mCutOff / getNodeManager().getSampleRate();
+            auto x = pow(M_E, -2 * M_PI * c);
+            a0.setValue((1.0 + x) / 2.0);
+            a1.setValue(-(1.0 + x) / 2.0);
+            b1.setValue(x);
         }
         
         
