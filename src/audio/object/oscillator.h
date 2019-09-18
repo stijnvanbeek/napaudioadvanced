@@ -33,7 +33,7 @@ namespace nap
         /**
          * Multichannel oscillator object.
          */
-        class Oscillator : public MultiChannel<OscillatorNode>
+        class NAPAPI Oscillator : public MultiChannel<OscillatorNode>
         {
             RTTI_ENABLE(MultiChannelBase)
             

@@ -13,7 +13,7 @@ namespace nap
     namespace audio
     {
         
-        class Mixer : public MultiChannel<MixNode>
+        class NAPAPI Mixer : public MultiChannel<MixNode>
         {
             RTTI_ENABLE(MultiChannelBase)
             

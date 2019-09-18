@@ -14,7 +14,7 @@ namespace nap
         /**
          * Multichannel audio object to apply a filter to the input channels.
          */
-        class Filter : public MultiChannel<FilterNode>
+        class NAPAPI Filter : public MultiChannel<FilterNode>
         {
             RTTI_ENABLE(MultiChannelBase)
             

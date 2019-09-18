@@ -91,7 +91,7 @@ namespace nap
 
 
         template <typename NodeType>
-        class NAPAPI MultiChannel : public MultiChannelBase
+        class MultiChannel : public MultiChannelBase
         {
             RTTI_ENABLE(MultiChannelBase)
 
@@ -114,7 +114,7 @@ namespace nap
 
 
         template <typename NodeType>
-        class NAPAPI MultiChannelInstance : public MultiChannelInstanceBase
+        class MultiChannelInstance : public MultiChannelInstanceBase
         {
             RTTI_ENABLE(MultiChannelInstanceBase)
 

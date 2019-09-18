@@ -10,7 +10,7 @@ namespace nap
     namespace audio
     {
 
-        class CircularBufferPlayer : public MultiChannel<CircularBufferPlayerNode> {
+        class NAPAPI CircularBufferPlayer : public MultiChannel<CircularBufferPlayerNode> {
             RTTI_ENABLE(MultiChannelBase)
             
         public:

@@ -115,7 +115,7 @@ namespace nap
 
             int mCurrentSegment = { 0 };
             int mEndSegment = { 0 };
-            Envelope mEnvelope = { { 1000.f, 1.f }, { 1000.f, 0.f } }; // 1000ms attack and 1000ms decay
+            Envelope mEnvelope; // 1000ms attack and 1000ms decay
 
             RampedValue<ControllerValue> mValue = { 0.f };
             std::atomic<ControllerValue> mCurrentValue = { 0.f };

@@ -17,7 +17,7 @@ namespace nap
         /**
          * Multichannel oscillator object.
          */
-        class Input : public MultiChannel<InputNode>
+        class NAPAPI Input : public MultiChannel<InputNode>
         {
             RTTI_ENABLE(MultiChannelBase)
             
