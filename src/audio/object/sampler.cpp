@@ -26,17 +26,17 @@ namespace nap
         }
         
         
-        std::unique_ptr<AudioObjectInstance> Sampler::createInstance(AudioService& service, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> Sampler::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<SamplerInstance>();
-            if (!instance->init(mSampleEntries, mEnvelopeData, mChannelCount, service, errorState))
+            if (!instance->init(mSampleEntries, mEnvelopeData, mChannelCount, nodeManager, errorState))
                 return nullptr;
             
             return std::move(instance);
         }
 
         
-        bool SamplerInstance::init(Sampler::SamplerEntries& samplerEntries, EnvelopeNode::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState)
+        bool SamplerInstance::init(Sampler::SamplerEntries& samplerEntries, EnvelopeNode::Envelope& envelopeData, int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             mSamplerEntries = samplerEntries;
             mEnvelopeData = envelopeData;
@@ -80,7 +80,7 @@ namespace nap
                 return false;
             }
             
-            mVoice = std::make_unique<Voice>(service);
+            mVoice = std::make_unique<Voice>(nodeManager);
             mVoice->mID = "Voice";
             mVoice->mObjects.emplace_back(mBufferLooper.get());
             mVoice->mObjects.emplace_back(mGain.get());
@@ -105,7 +105,7 @@ namespace nap
                 return false;
             }
             
-            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicObjectInstance>(service, errorState);
+            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicObjectInstance>(nodeManager, errorState);
             
             return true;
         }

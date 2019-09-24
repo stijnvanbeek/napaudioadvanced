@@ -28,10 +28,10 @@ namespace nap
     {
         
 
-        std::unique_ptr<AudioObjectInstance> MultiObject::createInstance(AudioService& service, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> MultiObject::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<MultiObjectInstance>();
-            if (!instance->init(*mObject, mInstanceCount, mIsActive, service, errorState))
+            if (!instance->init(*mObject, mInstanceCount, mIsActive, nodeManager, errorState))
             {
                 errorState.fail("Failed to initialize %s", mID.c_str());
                 return nullptr;
@@ -40,16 +40,16 @@ namespace nap
         }
         
         
-        bool MultiObjectInstance::init(AudioObject& objectResource, int instanceCount, bool isActive, AudioService& audioService, utility::ErrorState& errorState)
+        bool MultiObjectInstance::init(AudioObject& objectResource, int instanceCount, bool isActive, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            mAudioService = &audioService;
+            mNodeManager = &nodeManager;
             
             // Instantiate the objects.
             mObjectResource = &objectResource;
             
             for (auto i = 0; i < instanceCount; ++i)
             {
-                auto instance = mObjectResource->instantiate<AudioObjectInstance>(audioService, errorState);
+                auto instance = mObjectResource->instantiate<AudioObjectInstance>(nodeManager, errorState);
                 if (instance == nullptr)
                     return false;
                 mObjects.emplace_back(std::move(instance));
@@ -60,7 +60,7 @@ namespace nap
             if (mObjects.empty())
             {
                 // Create a dummy object instance to acquire the channel count..
-                auto instance = mObjectResource->instantiate<AudioObjectInstance>(audioService, errorState);
+                auto instance = mObjectResource->instantiate<AudioObjectInstance>(nodeManager, errorState);
                 if (instance == nullptr)
                     return false;
                 channelCount = instance->getChannelCount();
@@ -72,7 +72,7 @@ namespace nap
             for (auto channel = 0; channel < channelCount; ++channel)
             {
                 // we dont connect anything yet
-                mMixers.emplace_back(mAudioService->makeSafe<MixNode>(mAudioService->getNodeManager()));
+                mMixers.emplace_back(nodeManager.makeSafe<MixNode>(nodeManager));
             }
             
             // Connect the objects that are active
@@ -104,7 +104,7 @@ namespace nap
         {
             if (mObjectResource == nullptr)
                 return nullptr;
-            auto instance = mObjectResource->instantiate<AudioObjectInstance>(*mAudioService, errorState);
+            auto instance = mObjectResource->instantiate<AudioObjectInstance>(*mNodeManager, errorState);
             if (instance == nullptr)
                 return nullptr;
             auto result = instance.get();

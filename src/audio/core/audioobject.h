@@ -5,10 +5,9 @@
 #include <nap/resource.h>
 
 // Audio includes
-#include <audio/core/audionode.h>
+#include <audio/core/audionodemanager.h>
 #include <audio/core/multichannel.h>
 #include <audio/utility/safeptr.h>
-#include <audio/service/audioservice.h>
 
 namespace nap
 {
@@ -73,22 +72,22 @@ namespace nap
              * This method spawns an instance of this resource.
              */
             template <typename T>
-            std::unique_ptr<T> instantiate(AudioService& service, utility::ErrorState& errorState);
+            std::unique_ptr<T> instantiate(NodeManager& nodeManager, utility::ErrorState& errorState);
             
         private:
             /**
              * This methods need to be overwritten by all descendants to return an instance of this resource.
              */
-            virtual std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) = 0;
+            virtual std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) = 0;
             
             AudioObjectInstance* mInstance = nullptr;
         };
         
         
         template <typename T>
-        std::unique_ptr<T> AudioObject::instantiate(AudioService& service, utility::ErrorState& errorState)
+        std::unique_ptr<T> AudioObject::instantiate(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            auto instance = createInstance(service, errorState);
+            auto instance = createInstance(nodeManager, errorState);
             if (instance == nullptr)
                 return nullptr;
             instance->mName = mID;

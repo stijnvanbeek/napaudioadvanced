@@ -36,9 +36,9 @@ namespace nap
         {
             auto audioService = getCore().getService<AudioService>();
             assert(audioService);
-            factory.addObjectCreator(std::make_unique<GraphObjectCreator>(*audioService));
-            factory.addObjectCreator(std::make_unique<VoiceObjectCreator>(*audioService));
-            factory.addObjectCreator(std::make_unique<WaveTableResourceObjectCreator >(*audioService));
+            factory.addObjectCreator(std::make_unique<GraphObjectCreator>(audioService->getNodeManager()));
+            factory.addObjectCreator(std::make_unique<VoiceObjectCreator>(audioService->getNodeManager()));
+            factory.addObjectCreator(std::make_unique<WaveTableResourceObjectCreator>(audioService->getNodeManager()));
         }
 
 

@@ -31,7 +31,7 @@ namespace nap
 
         private:
             // Inherited from AudioObject
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
 
 
@@ -46,7 +46,7 @@ namespace nap
             EnvelopeInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Inherited from AudioObjectInstance
-            bool init(EnvelopeNode::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, utility::ErrorState& errorState);
             
             OutputPin* getOutputForChannel(int channel) override { return &mEnvelopeGenerator->output; }
             int getChannelCount() const override { return 1; }

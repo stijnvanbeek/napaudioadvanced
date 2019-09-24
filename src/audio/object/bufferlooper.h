@@ -51,7 +51,7 @@ namespace nap
             bool mAutoPlay = true;                                      ///< property: 'AutoPlay' Indicates wether playback will be started on init
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
             
         };
         
@@ -64,7 +64,7 @@ namespace nap
             BufferLooperInstance() : AudioObjectInstance() { }
             BufferLooperInstance(const std::string& name) : AudioObjectInstance(name) { }
 
-            bool init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, AudioService& service, utility::ErrorState& errorState);
+            bool init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, NodeManager& nodeManager, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
 

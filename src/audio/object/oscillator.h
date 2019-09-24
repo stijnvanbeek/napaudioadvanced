@@ -17,7 +17,7 @@ namespace nap
         class NAPAPI WaveTableResource : public Resource {
             RTTI_ENABLE(Resource)
         public:
-            WaveTableResource(AudioService& audioService) : Resource(), mService(audioService) { }
+            WaveTableResource(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
             bool init(utility::ErrorState& errorState);
 
             int mSize = 2048; ///< Property: 'Size' Size of the wavetable. Has to be a power of two.
@@ -26,7 +26,7 @@ namespace nap
 
         private:
             SafeOwner<WaveTable> mWave = nullptr;
-            AudioService& mService;
+            NodeManager& mNodeManager;
         };
 
         
@@ -58,7 +58,7 @@ namespace nap
             }
         };
 
-        using WaveTableResourceObjectCreator = rtti::ObjectCreator<WaveTableResource, AudioService>;
+        using WaveTableResourceObjectCreator = rtti::ObjectCreator<WaveTableResource, NodeManager>;
 
     }
     

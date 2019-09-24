@@ -29,10 +29,10 @@ namespace nap
         private:
             virtual void initNode(NodeType& node) { }
 
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override
             {
-                auto instance = std::make_unique<NodeObjectInstance<NodeType>>(service);
-                instance->init(service, errorState);
+                auto instance = std::make_unique<NodeObjectInstance<NodeType>>(nodeManager);
+                instance->init(nodeManager, errorState);
                 initNode(*instance->get());
                 return std::move(instance);
             }
@@ -59,9 +59,9 @@ namespace nap
 
             NodeObjectInstance(const std::string& name) : NodeObjectInstanceBase(name) { }
 
-            bool init(AudioService& service, utility::ErrorState& errorState)
+            bool init(NodeManager& nodeManager, utility::ErrorState& errorState)
             {
-                mNode = service.makeSafe<NodeType>(service.getNodeManager());
+                mNode = nodeManager.makeSafe<NodeType>(nodeManager);
                 return true;
             }
 
@@ -98,7 +98,7 @@ namespace nap
         public:
             MultiChannel() = default;
 
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
 
         private:
             virtual bool initNode(int channel, NodeType& node, utility::ErrorState& errorState) { return true; }
@@ -127,7 +127,7 @@ namespace nap
             // Inherited from MultiChannelInstanceBase
             Node* getChannelNonTyped(int channel) override { return channel < mChannels.size() ? mChannels[channel].getRaw() : nullptr; }
 
-            bool init(int channelCount, AudioService& service, utility::ErrorState& errorState);
+            bool init(int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
              * Returns a safe pointer to the DSP node for the specified channel.
@@ -182,10 +182,10 @@ namespace nap
 
 
         template <typename NodeType>
-        std::unique_ptr<AudioObjectInstance> MultiChannel<NodeType>::createInstance(AudioService& service, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> MultiChannel<NodeType>::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<MultiChannelInstance<NodeType>>();
-            if (!instance->init(mChannelCount, service, errorState))
+            if (!instance->init(mChannelCount, nodeManager, errorState))
                 return nullptr;
             for (auto channel = 0; channel < instance->getChannelCount(); ++channel)
                 if (!initNode(channel, *instance->getChannel(channel), errorState))
@@ -199,11 +199,11 @@ namespace nap
 
 
         template <typename NodeType>
-        bool MultiChannelInstance<NodeType>::init(int channelCount, AudioService& service, utility::ErrorState& errorState)
+        bool MultiChannelInstance<NodeType>::init(int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             for (auto channel = 0; channel < channelCount; ++channel)
             {
-                auto node = service.makeSafe<NodeType>(service.getNodeManager());
+                auto node = nodeManager.makeSafe<NodeType>(nodeManager);
 
                 if (node == nullptr)
                 {

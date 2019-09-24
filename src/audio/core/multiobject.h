@@ -33,7 +33,7 @@ namespace nap
             ResourcePtr<AudioObject> mObject = nullptr;
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
         
         
@@ -50,7 +50,7 @@ namespace nap
             MultiObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Initialize the object
-            bool init(AudioObject& objectResource, int instanceCount, bool isActive, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(AudioObject& objectResource, int instanceCount, bool isActive, NodeManager& nodeManager, utility::ErrorState& errorState);
             
             /**
              * Use this method to acquire one of the managed objects.
@@ -122,7 +122,7 @@ namespace nap
             
         private:
             std::vector<SafeOwner<MixNode>> mMixers;            
-            AudioService* mAudioService = nullptr;
+            NodeManager* mNodeManager = nullptr;
             AudioObject* mObjectResource = nullptr;
         };
         

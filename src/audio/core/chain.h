@@ -28,7 +28,7 @@ namespace nap
             ResourcePtr<AudioObject> mInput = nullptr;
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
         
         
@@ -65,7 +65,7 @@ namespace nap
             
             AudioObjectInstance* getObjectNonTyped(unsigned int index);
             
-            bool addObject(AudioObject& resource, AudioService& audioService, utility::ErrorState& errorState);
+            bool addObject(AudioObject& resource, NodeManager& nodeManager, utility::ErrorState& errorState);
             bool addObject(std::unique_ptr<AudioObjectInstance> object, utility::ErrorState& errorState);
 
             /**
@@ -80,7 +80,7 @@ namespace nap
             /**
              * Overwrite this method to manipulate instantiation of objects in the chain.
              */
-            virtual std::unique_ptr<AudioObjectInstance> instantiateObjectInChain(AudioObject& resource, AudioService& audioService, utility::ErrorState& errorState);
+            virtual std::unique_ptr<AudioObjectInstance> instantiateObjectInChain(AudioObject& resource, NodeManager& audioService, utility::ErrorState& errorState);
             
             /**
              * Overwrite this method to manipulate the way two objects in the chain are connected.

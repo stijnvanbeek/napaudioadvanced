@@ -29,7 +29,7 @@ namespace nap
         {
             RTTI_ENABLE(Resource)
         public:
-            Graph(AudioService& service) : mAudioService(service)  { }
+            Graph(NodeManager& nodeManager) : mNodeManager(nodeManager)  { }
 
             /**
              * The audio objects managed by the graph that are part of it's DSP network.
@@ -47,12 +47,12 @@ namespace nap
             ResourcePtr<AudioObject> mInput = nullptr;
             
             /**
-             * Returns the audio service that instances of this graph will perform their DSP processing on.
+             * Returns the node manager that instances of this graph will perform their DSP processing on.
              */
-            AudioService& getAudioService() { return mAudioService; }
+            NodeManager& getNodeManager() { return mNodeManager; }
             
         private:
-            AudioService& mAudioService;
+            NodeManager& mNodeManager;
         };
         
         
@@ -122,17 +122,17 @@ namespace nap
             /**
              * @return: the audio service that this graph runs on.
              */
-            AudioService& getAudioService() { return *mAudioService; }
+            NodeManager& getNodeManager() { return *mNodeManager; }
 
         private:
             std::vector<std::unique_ptr<AudioObjectInstance>> mObjects;
             AudioObjectInstance* mOutput = nullptr;
             AudioObjectInstance* mInput = nullptr;
-            AudioService* mAudioService = nullptr;
+            NodeManager* mNodeManager = nullptr;
         };
         
         
-        using GraphObjectCreator = rtti::ObjectCreator<Graph, AudioService>;
+        using GraphObjectCreator = rtti::ObjectCreator<Graph, NodeManager>;
         
     }
     

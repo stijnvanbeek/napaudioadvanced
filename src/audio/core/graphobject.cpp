@@ -23,17 +23,17 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> GraphObject::createInstance(AudioService& service, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> GraphObject::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<GraphObjectInstance>();
-            if (!instance->init(*mGraph, service, errorState))
+            if (!instance->init(*mGraph, nodeManager, errorState))
                 return nullptr;
             
             return std::move(instance);
         }
 
 
-        bool GraphObjectInstance::init(Graph& graph, AudioService& audioService, utility::ErrorState& errorState)
+        bool GraphObjectInstance::init(Graph& graph, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             if (!mGraphInstance.init(graph, errorState))
             {

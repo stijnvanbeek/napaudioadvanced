@@ -24,7 +24,7 @@ namespace nap
             RTTI_ENABLE(Graph)
             
         public:
-            Voice(AudioService& audioService) : Graph(audioService)  { }
+            Voice(NodeManager& nodeManager) : Graph(nodeManager)  { }
             
             /**
              * Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice.
@@ -106,7 +106,7 @@ namespace nap
         };
         
         
-        using VoiceObjectCreator = rtti::ObjectCreator<Voice, AudioService>;
+        using VoiceObjectCreator = rtti::ObjectCreator<Voice, NodeManager>;
 
         
     }
