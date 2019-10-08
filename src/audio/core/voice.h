@@ -24,7 +24,7 @@ namespace nap
             RTTI_ENABLE(Graph)
             
         public:
-            Voice(NodeManager& nodeManager) : Graph(nodeManager)  { }
+            Voice() : Graph()  { }
             
             /**
              * Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice.
@@ -46,7 +46,7 @@ namespace nap
             friend class PolyphonicObjectInstance;
             
         public:
-            bool init(Voice& resource, utility::ErrorState& errorState);
+            bool init(Voice& resource, NodeManager& nodeManager, utility::ErrorState& errorState);
             
             /**
              * @return: the envelope controlling the overall amplitude of the voice
@@ -104,10 +104,6 @@ namespace nap
             // This set caches the channels of the output mixer of the polyphonic object that this voice is connected to before it was started to play. When playing is done the polyphonic object will take care of disconnecting the voice from these channels.
             std::vector<int> mConnectedToChannels = { };
         };
-        
-        
-        using VoiceObjectCreator = rtti::ObjectCreator<Voice, NodeManager>;
-
         
     }
     

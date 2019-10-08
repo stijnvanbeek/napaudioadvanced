@@ -42,7 +42,7 @@ namespace nap
             for (auto i = 0; i < voiceCount; ++i)
             {
                 mVoices.emplace_back(std::make_unique<VoiceInstance>());
-                if (!mVoices.back()->init(voice, errorState))
+                if (!mVoices.back()->init(voice, nodeManager, errorState))
                     return false;
                 mVoices.back()->finishedSignal.connect(voiceFinishedSlot);
             }

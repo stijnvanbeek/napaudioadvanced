@@ -80,7 +80,7 @@ namespace nap
                 return false;
             }
             
-            mVoice = std::make_unique<Voice>(nodeManager);
+            mVoice = std::make_unique<Voice>();
             mVoice->mID = "Voice";
             mVoice->mObjects.emplace_back(mBufferLooper.get());
             mVoice->mObjects.emplace_back(mGain.get());

@@ -35,7 +35,7 @@ namespace nap
 
         bool GraphObjectInstance::init(Graph& graph, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            if (!mGraphInstance.init(graph, errorState))
+            if (!mGraphInstance.init(graph, nodeManager, errorState))
             {
                 errorState.fail("Fail to init graph.");
                 return false;
