@@ -25,7 +25,7 @@ namespace nap
             int mChannelCount = 1;                                      ///< property: 'ChannelCount' Number of channels
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
             
         };
         
@@ -38,7 +38,7 @@ namespace nap
             SamplerInstance() : AudioObjectInstance() { }
             SamplerInstance(const std::string& name) : AudioObjectInstance(name) { }
             
-            bool init(Sampler::SamplerEntries& sampleEntries, EnvelopeNode::Envelope& envelopeData, int channelCount, AudioService& service, utility::ErrorState& errorState);
+            bool init(Sampler::SamplerEntries& sampleEntries, EnvelopeNode::Envelope& envelopeData, int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
             

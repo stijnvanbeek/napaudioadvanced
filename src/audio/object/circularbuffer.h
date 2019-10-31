@@ -38,7 +38,7 @@ namespace nap
             
         private:
             // Inherited from AudioObject
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
 
         
@@ -49,8 +49,8 @@ namespace nap
             CircularBufferInstance() : AudioObjectInstance() { }
             CircularBufferInstance(const std::string& name) : AudioObjectInstance(name) { }
 
-            bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState);
-            bool init(int channelCount, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState);
+            bool init(int channelCount, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }

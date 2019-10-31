@@ -35,6 +35,7 @@ namespace nap
             }
             
             auto audioService = getEntityInstance()->getCore()->getService<AudioService>();
+            auto& nodeManager = audioService->getNodeManager();
             
             auto channelCount = resource->mChannelRouting.size();
             
@@ -53,7 +54,7 @@ namespace nap
                     return false;
                 }
                 
-                auto node = audioService->makeSafe<CircularBufferNode>(audioService->getNodeManager(), resource->mBufferSize);
+                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, resource->mBufferSize);
                 node->audioInput.connect(*mInput->getOutputForChannel(resource->mChannelRouting[channel]));
                 mNodes.emplace_back(std::move(node));
             }

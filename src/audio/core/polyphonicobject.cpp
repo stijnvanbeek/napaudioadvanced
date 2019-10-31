@@ -25,31 +25,31 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> PolyphonicObject::createInstance(AudioService& audioService, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> PolyphonicObject::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<PolyphonicObjectInstance>();
-            if (!instance->init(*mVoice, mVoiceCount, mVoiceStealing, mChannelCount, audioService, errorState))
+            if (!instance->init(*mVoice, mVoiceCount, mVoiceStealing, mChannelCount, nodeManager, errorState))
                 return nullptr;
             
             return std::move(instance);
         }
 
 
-        bool PolyphonicObjectInstance::init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, AudioService& audioService, utility::ErrorState& errorState)
+        bool PolyphonicObjectInstance::init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            mAudioService = &audioService;
+            mNodeManager = &nodeManager;
 
             for (auto i = 0; i < voiceCount; ++i)
             {
                 mVoices.emplace_back(std::make_unique<VoiceInstance>());
-                if (!mVoices.back()->init(voice, errorState))
+                if (!mVoices.back()->init(voice, nodeManager, errorState))
                     return false;
                 mVoices.back()->finishedSignal.connect(voiceFinishedSlot);
             }
 
             // Create the mix nodes to mix output of all the voices
             for (auto i = 0; i < channelCount; ++i)
-                mMixNodes.emplace_back(mAudioService->makeSafe<MixNode>(audioService.getNodeManager()));
+                mMixNodes.emplace_back(mNodeManager->makeSafe<MixNode>(*mNodeManager));
             
             mVoiceStealing = voiceStealing;
 
@@ -91,7 +91,7 @@ namespace nap
             for (auto channel = 0; channel < std::min<int>(mMixNodes.size(), voice->getOutput()->getChannelCount()); ++channel)
                 voice->mConnectedToChannels.emplace_back(channel);
 
-            mAudioService->enqueueTask([&, voice](){
+            mNodeManager->enqueueTask([&, voice](){
                 for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
                     mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i));
             });
@@ -112,7 +112,7 @@ namespace nap
                 if (channel < mMixNodes.size())
                     voice->mConnectedToChannels.emplace_back(channel);
 
-            mAudioService->enqueueTask([&, voice](){
+            mNodeManager->enqueueTask([&, voice](){
                 for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
                     mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i % voice->getOutput()->getChannelCount()));
             });

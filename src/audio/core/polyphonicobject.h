@@ -54,7 +54,7 @@ namespace nap
             int mChannelCount = 1;
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& audioService, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
 
         
@@ -70,7 +70,7 @@ namespace nap
             PolyphonicObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Initialize the object
-            bool init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(Voice& voice, int voiceCount, bool voiceStealing, int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState);
             OutputPin* getOutputForChannel(int channel) override;
             int getChannelCount() const override;
             
@@ -112,7 +112,7 @@ namespace nap
             std::vector<std::unique_ptr<VoiceInstance>> mVoices;
             std::vector<SafeOwner<MixNode>> mMixNodes;
             
-            AudioService* mAudioService = nullptr;
+            NodeManager* mNodeManager = nullptr;
             bool mVoiceStealing = true;
         };
         

@@ -42,11 +42,11 @@ namespace nap
              * @param errorState Error state if the init fails
              * @return true on success
              */
-            bool init(audio::AudioObject& channelResource, int channelCount, audio::AudioService& service, utility::ErrorState& errorState)
+            bool init(audio::AudioObject& channelResource, int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState)
             {
                 for (auto channel = 0; channel < channelCount; ++channel)
                 {
-                    auto channelInstance = channelResource.instantiate<T>(service, errorState);
+                    auto channelInstance = channelResource.instantiate<T>(nodeManager, errorState);
                     if (channelInstance == nullptr)
                     {
                         errorState.fail("Failed to instantiate channel %s for %s", channelResource.mID.c_str(), getName().c_str());

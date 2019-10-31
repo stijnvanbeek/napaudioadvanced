@@ -25,7 +25,7 @@ namespace nap
     namespace audio
     {
         
-        std::unique_ptr<AudioObjectInstance> CircularBuffer::createInstance(AudioService& audioService, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> CircularBuffer::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             if (mInput == nullptr)
             {
@@ -34,14 +34,14 @@ namespace nap
             }
             
             auto instance = std::make_unique<CircularBufferInstance>();
-            if (!instance->init(*mInput->getInstance(), mChannelRouting, mRootProcess, mBufferSize, audioService, errorState))
+            if (!instance->init(*mInput->getInstance(), mChannelRouting, mRootProcess, mBufferSize, nodeManager, errorState))
                 return nullptr;
             
             return std::move(instance);
         }
 
     
-        bool CircularBufferInstance::init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, AudioService& audioService, utility::ErrorState& errorState)
+        bool CircularBufferInstance::init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto channelCount = channelRouting.size();
             
@@ -60,7 +60,7 @@ namespace nap
                     return false;
                 }
                 
-                auto node = audioService.makeSafe<CircularBufferNode>(audioService.getNodeManager(), bufferSize, rootProcess);
+                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize, rootProcess);
                 node->audioInput.connect(*input.getOutputForChannel(channelRouting[channel]));
                 mNodes.emplace_back(std::move(node));
             }
@@ -68,11 +68,11 @@ namespace nap
         }
 
 
-        bool CircularBufferInstance::init(int channelCount, bool rootProcess, int bufferSize, AudioService &audioService,
+        bool CircularBufferInstance::init(int channelCount, bool rootProcess, int bufferSize, NodeManager &nodeManager,
                                           utility::ErrorState &errorState) {
             for (auto channel = 0; channel < channelCount; ++channel)
             {
-                auto node = audioService.makeSafe<CircularBufferNode>(audioService.getNodeManager(), bufferSize, rootProcess);
+                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize, rootProcess);
                 mNodes.emplace_back(std::move(node));
             }
 

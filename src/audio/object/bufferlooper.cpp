@@ -22,10 +22,10 @@ namespace nap
     namespace audio
     {
         
-        std::unique_ptr<AudioObjectInstance> BufferLooper::createInstance(AudioService& service, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> BufferLooper::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<BufferLooperInstance>();
-            if (!instance->init(mSettings, mChannelCount, mAutoPlay, service, errorState))
+            if (!instance->init(mSettings, mChannelCount, mAutoPlay, nodeManager, errorState))
                 return nullptr;
             
             return std::move(instance);
@@ -83,7 +83,7 @@ namespace nap
         }
 
 
-        bool BufferLooperInstance::init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, AudioService& service, utility::ErrorState& errorState)
+        bool BufferLooperInstance::init(BufferLooper::Settings& settings, int channelCount, bool autoPlay, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             mSettings = settings;
             
@@ -146,7 +146,7 @@ namespace nap
                 return false;
             }
             
-            mVoice = std::make_unique<Voice>(service);
+            mVoice = std::make_unique<Voice>();
             mVoice->mID = "Voice";
             mVoice->mObjects.emplace_back(mBufferPlayer.get());
             mVoice->mObjects.emplace_back(mGain.get());
@@ -171,7 +171,7 @@ namespace nap
                 return false;
             }
 
-            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicObjectInstance>(service, errorState);
+            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicObjectInstance>(nodeManager, errorState);
             
             if (autoPlay)
                 start();

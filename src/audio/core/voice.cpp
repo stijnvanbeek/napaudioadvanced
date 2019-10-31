@@ -3,8 +3,7 @@
 // Audio includes
 #include <audio/core/polyphonicobject.h>
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::Voice)
-    RTTI_CONSTRUCTOR(nap::audio::AudioService&)
+RTTI_BEGIN_CLASS(nap::audio::Voice)
     RTTI_PROPERTY("Envelope", &nap::audio::Voice::mEnvelope, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
@@ -34,9 +33,9 @@ namespace nap
     namespace audio
     {
         
-        bool VoiceInstance::init(Voice& resource, utility::ErrorState& errorState)
+        bool VoiceInstance::init(Voice& resource, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            if (!GraphInstance::init(resource, errorState))
+            if (!GraphInstance::init(resource, nodeManager, errorState))
                 return false;
 
             mEnvelope = getObject<EnvelopeInstance>(resource.mEnvelope->mID.c_str());
@@ -55,7 +54,7 @@ namespace nap
         void VoiceInstance::play(TimeValue duration)
         {
             mEnvelope->trigger(duration);
-            mStartTime = getAudioService().getNodeManager().getSampleTime();
+            mStartTime = getNodeManager().getSampleTime();
         }
         
         

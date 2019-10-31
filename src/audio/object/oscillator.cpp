@@ -22,7 +22,7 @@ namespace nap
 
         bool WaveTableResource::init(utility::ErrorState& errorState)
         {
-            mWave = mService.makeSafe<WaveTable>(mSize);
+            mWave = mNodeManager.makeSafe<WaveTable>(mSize);
             return true;
         }
 

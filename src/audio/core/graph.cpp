@@ -8,8 +8,7 @@
 
 
 // RTTI
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::Graph)
-    RTTI_CONSTRUCTOR(nap::audio::AudioService&)
+RTTI_BEGIN_CLASS(nap::audio::Graph)
     RTTI_PROPERTY("Objects", &nap::audio::Graph::mObjects, nap::rtti::EPropertyMetaData::Embedded)
     RTTI_PROPERTY("Output", &nap::audio::Graph::mOutput, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Input", &nap::audio::Graph::mInput, nap::rtti::EPropertyMetaData::Default)
@@ -85,9 +84,9 @@ namespace nap
         };
 
         
-        bool GraphInstance::init(Graph& resource, utility::ErrorState& errorState)
+        bool GraphInstance::init(Graph& resource, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            mAudioService = &resource.getAudioService();
+            mNodeManager = &nodeManager;
             
             // Build object graph as utility to sort all the audio object resources in dependency order
             std::vector<AudioObject*> objects;
@@ -108,7 +107,7 @@ namespace nap
             {
                 // Create instance and initialize
                 auto objectResource = node->mItem.mObject;
-                auto instance = objectResource->instantiate<AudioObjectInstance>(resource.getAudioService(), errorState);
+                auto instance = objectResource->instantiate<AudioObjectInstance>(nodeManager, errorState);
                 
                 if (instance == nullptr)
                 {

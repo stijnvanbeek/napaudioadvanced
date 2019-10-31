@@ -19,20 +19,20 @@ namespace nap
     namespace audio
     {
 
-        std::unique_ptr<AudioObjectInstance> Envelope::createInstance(AudioService& audioService, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> Envelope::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<EnvelopeInstance>();
-            if (!instance->init(mSegments, mAutoTrigger, audioService, errorState))
+            if (!instance->init(mSegments, mAutoTrigger, nodeManager, errorState))
                 return nullptr;
             
             return std::move(instance);
         }
 
 
-        bool EnvelopeInstance::init(EnvelopeNode::Envelope segments, bool autoTrigger, AudioService& audioService, utility::ErrorState& errorState)
+        bool EnvelopeInstance::init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            mEqualPowerTable = audioService.makeSafe<EqualPowerTranslator<ControllerValue>>(256);
-            mEnvelopeGenerator = audioService.makeSafe<EnvelopeNode>(audioService.getNodeManager(), segments, mEqualPowerTable.get());
+            mEqualPowerTable = nodeManager.makeSafe<EqualPowerTranslator<ControllerValue>>(256);
+            mEnvelopeGenerator = nodeManager.makeSafe<EnvelopeNode>(nodeManager, segments, mEqualPowerTable.get());
 
             if (autoTrigger)
                 mEnvelopeGenerator->trigger();

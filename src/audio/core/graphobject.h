@@ -29,7 +29,7 @@ namespace nap
             ResourcePtr<Graph> mGraph = nullptr;
             
         private:
-            std::unique_ptr<AudioObjectInstance> createInstance(AudioService& service, utility::ErrorState& errorState) override;
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
         
         
@@ -45,7 +45,7 @@ namespace nap
             GraphObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Initialize the object
-            bool init(Graph& graph, AudioService& audioService, utility::ErrorState& errorState);
+            bool init(Graph& graph, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
              * Use this method to acquire an object within the graph by ID.

@@ -14,7 +14,7 @@ namespace nap
     namespace audio
     {
         
-        std::unique_ptr<AudioObjectInstance> Chain::createInstance(AudioService& audioService, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> Chain::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             if (mObjects.empty())
             {
@@ -25,7 +25,7 @@ namespace nap
             auto instance = std::make_unique<ChainInstance>();
             for (auto& object : mObjects)
             {
-                if (!instance->addObject(*object, audioService, errorState))
+                if (!instance->addObject(*object, nodeManager, errorState))
                 {
                     errorState.fail("Failed to add object to chain: %s", object->mID.c_str());
                     return nullptr;
@@ -39,9 +39,9 @@ namespace nap
         }
         
         
-        bool ChainInstance::addObject(AudioObject& resource, AudioService& audioService, utility::ErrorState& errorState)
+        bool ChainInstance::addObject(AudioObject& resource, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            auto instance = instantiateObjectInChain(resource, audioService, errorState);
+            auto instance = instantiateObjectInChain(resource, nodeManager, errorState);
             if (instance == nullptr)
                 return false;
             return addObject(std::move(instance), errorState);
@@ -84,9 +84,9 @@ namespace nap
         }
 
 
-        std::unique_ptr<AudioObjectInstance> ChainInstance::instantiateObjectInChain(AudioObject& resource, AudioService& audioService, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> ChainInstance::instantiateObjectInChain(AudioObject& resource, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            auto newObject = resource.instantiate<AudioObjectInstance>(audioService, errorState);
+            auto newObject = resource.instantiate<AudioObjectInstance>(nodeManager, errorState);
             if (newObject == nullptr)
             {
                 errorState.fail("Failed to create object in chain: %s", resource.mID.c_str());
