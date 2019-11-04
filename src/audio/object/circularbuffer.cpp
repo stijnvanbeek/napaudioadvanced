@@ -80,11 +80,11 @@ namespace nap
         }
 
 
-        CircularBufferNode* CircularBufferInstance::getChannel(unsigned int channel)
+        SafePtr<CircularBufferNode> CircularBufferInstance::getChannel(unsigned int channel)
         {
             if (channel >= mNodes.size())
                 return nullptr;
-            return mNodes[channel].getRaw();
+            return mNodes[channel].get();
         }
 
 

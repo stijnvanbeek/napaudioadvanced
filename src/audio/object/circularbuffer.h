@@ -56,7 +56,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }
             int getChannelCount() const override { return 0; }
             
-            CircularBufferNode* getChannel(unsigned int channel);
+            SafePtr<CircularBufferNode> getChannel(unsigned int channel);
             
         private:
             std::vector<SafeOwner<CircularBufferNode>> mNodes; // Circular buffer for each channel
