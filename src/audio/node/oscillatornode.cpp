@@ -115,7 +115,14 @@ namespace nap
         {
             auto& outputBuffer = getOutputBuffer(output);
             SampleBuffer* fmInputBuffer = fmInput.pull();
-            
+
+            if (mWave == nullptr)
+            {
+                for (auto i = 0; i < getBufferSize(); ++i)
+                    outputBuffer[i] = 0.f;
+                return;
+            }
+
             auto waveSize = mWave->getSize();
             auto step = mStep.load();
             auto phaseOffset = mPhaseOffset.load();

@@ -8,9 +8,8 @@
 
 // Audio includes
 #include <audio/service/audioservice.h>
-#include <audio/core/graph.h>
-#include <audio/core/voice.h>
 #include <audio/object/oscillator.h>
+#include <audio/resource/audiofilewriter.h>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AdvancedAudioService)
 	RTTI_CONSTRUCTOR(nap::ServiceConfiguration*)
@@ -37,6 +36,7 @@ namespace nap
             auto audioService = getCore().getService<AudioService>();
             assert(audioService);
             factory.addObjectCreator(std::make_unique<WaveTableResourceObjectCreator>(audioService->getNodeManager()));
+            factory.addObjectCreator(std::make_unique<AudioFileWriterObjectCreator>(audioService->getNodeManager()));
         }
 
 
