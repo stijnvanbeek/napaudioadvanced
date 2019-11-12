@@ -5,7 +5,7 @@
 
 // Audio includes
 #include <audio/core/audionode.h>
-#include <audio/resource/audiofilewriter.h>
+#include <audio/resource/audiofileio.h>
 
 namespace nap
 {

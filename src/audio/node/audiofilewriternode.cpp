@@ -49,7 +49,7 @@ namespace nap
             std::memcpy(mBufferQueue[mInputIndex].data(), inputBuffer->data(), mBufferSizeInBytes);
             mThread.enqueue([&](){
                 if (mAudioFileDescriptor != nullptr)
-                    mAudioFileDescriptor->write(mBufferQueue[mDiskWriteIndex]);
+                    mAudioFileDescriptor->write(mBufferQueue[mDiskWriteIndex].data(), getBufferSize());
                 mDiskWriteIndex++;
                 if (mDiskWriteIndex >= mBufferQueue.size())
                     mDiskWriteIndex = 0;

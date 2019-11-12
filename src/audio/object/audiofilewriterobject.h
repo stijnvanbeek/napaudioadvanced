@@ -20,7 +20,7 @@ namespace nap
         public:
             AudioFileWriterObject() = default;
 
-            std::vector<ResourcePtr<AudioFileWriter>> mAudioFileWriters; ///< property: 'AudioFileWriters' Vector that points to mono @AudioFileWriter resources to write each channel of the object into.
+            std::vector<ResourcePtr<AudioFileIO>> mAudioFiles; ///< property: 'AudioFiles' Vector that points to mono @AudioFileWriter resources to write each channel of the object into.
             ResourcePtr<AudioObject> mInput = nullptr;
 
         private:
@@ -35,7 +35,7 @@ namespace nap
         public:
             AudioFileWriterObjectInstance() = default;
             AudioFileWriterObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
-            bool init(NodeManager& nodeManager, std::vector<ResourcePtr<AudioFileWriter>>& audioFileWriters, AudioObjectInstance* input, utility::ErrorState& errorState);
+            bool init(NodeManager& nodeManager, std::vector<ResourcePtr<AudioFileIO>>& audioFiles, AudioObjectInstance* input, utility::ErrorState& errorState);
 
             int getChannelCount() const override { return 0; }
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }
@@ -43,7 +43,7 @@ namespace nap
             void connect(unsigned int channel, OutputPin& pin) override { mNodes[channel]->audioInput.connect(pin); }
 
         private:
-            std::vector<ResourcePtr<AudioFileWriter>> mAudioFileWriters;
+            std::vector<ResourcePtr<AudioFileIO>> mAudioFiles;
             std::vector<SafeOwner<AudioFileWriterNode>> mNodes;
         };
 

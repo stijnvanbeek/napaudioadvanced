@@ -1,7 +1,7 @@
 #include "audiofilewriterobject.h"
 
 RTTI_BEGIN_CLASS(nap::audio::AudioFileWriterObject)
-    RTTI_PROPERTY("AudioFileWriters", &nap::audio::AudioFileWriterObject::mAudioFileWriters, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("AudioFiles", &nap::audio::AudioFileWriterObject::mAudioFiles, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Input", &nap::audio::AudioFileWriterObject::mInput, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
@@ -18,7 +18,7 @@ namespace nap
         std::unique_ptr<AudioObjectInstance> AudioFileWriterObject::createInstance(NodeManager &nodeManager, utility::ErrorState &errorState)
         {
             auto instance = std::make_unique<AudioFileWriterObjectInstance>();
-            if (!instance->init(nodeManager, mAudioFileWriters, mInput->getInstance(), errorState))
+            if (!instance->init(nodeManager, mAudioFiles, mInput->getInstance(), errorState))
             {
                 errorState.fail("Failed to initialize AudioFileWriterObjectInstance");
                 return nullptr;
@@ -28,7 +28,7 @@ namespace nap
         }
 
 
-        bool AudioFileWriterObjectInstance::init(NodeManager &nodeManager, std::vector<ResourcePtr<AudioFileWriter>>& audioFileWriters, AudioObjectInstance* input, utility::ErrorState &errorState)
+        bool AudioFileWriterObjectInstance::init(NodeManager &nodeManager, std::vector<ResourcePtr<AudioFileIO>>& audioFileWriters, AudioObjectInstance* input, utility::ErrorState &errorState)
         {
             if (input != nullptr)
                 if (input->getChannelCount() < 1)
@@ -37,24 +37,23 @@ namespace nap
                     return false;
                 }
 
-
-            mAudioFileWriters = audioFileWriters;
+            mAudioFiles = audioFileWriters;
             int inputChannel = 0;
-            for (auto& audioFileWriter : mAudioFileWriters)
+            for (auto& audioFile : mAudioFiles)
             {
-                if (audioFileWriter->mSampleRate != nodeManager.getSampleRate())
+                if (audioFile->getDescriptor()->getMode() != AudioFileDescriptor::Mode::WRITE && audioFile->getDescriptor()->getMode() != AudioFileDescriptor::Mode::READWRITE)
                 {
-                    errorState.fail("Audio file samplerate does not equal system sample rate");
+                    errorState.fail("AudioFileWriterObject: Audio file not opened for writing");
                     return false;
                 }
-                if (audioFileWriter->mChannelCount != 1)
+                if (audioFile->getDescriptor()->getChannelCount() != 1)
                 {
                     errorState.fail("AudioFileWriterObject works with mono AudioFileWriter resources");
                     return false;
                 }
 
                 auto node = nodeManager.makeSafe<AudioFileWriterNode>(nodeManager, 4, true);
-                node->setAudioFile(audioFileWriter->getDescriptor());
+                node->setAudioFile(audioFile->getDescriptor());
                 if (input != nullptr)
                     node->audioInput.connect(*input->getOutputForChannel(inputChannel % input->getChannelCount()));
                 inputChannel++;
