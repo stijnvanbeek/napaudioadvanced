@@ -1,7 +1,5 @@
 #pragma once
 
-#include <filesystem>
-
 // Third party includes
 #include <sndfile.h>
 
