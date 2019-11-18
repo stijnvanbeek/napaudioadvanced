@@ -55,7 +55,7 @@ namespace nap
             RTTI_ENABLE(Resource)
 
         public:
-            AudioFileIO(NodeManager& nodeManager) : mNodeManager(nodeManager) { }
+            AudioFileIO(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
             bool init(utility::ErrorState& errorState) override;
 
             std::string mPath = "";
