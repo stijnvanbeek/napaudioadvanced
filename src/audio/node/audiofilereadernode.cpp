@@ -24,8 +24,18 @@ namespace nap
             mAudioFileDescriptor = audioFileDescriptor;
             mWritePosition = 0;
             mReadPosition = 0;
-            mAudioFileDescriptor->read(&mCircularBuffer[0], mDiskReadBuffer.size());
-            mWritePosition = mDiskReadBuffer.size();
+            if (mAudioFileDescriptor != nullptr)
+            {
+                auto framesRead = mAudioFileDescriptor->read(&mCircularBuffer[0], mDiskReadBuffer.size());
+                if (framesRead != mDiskReadBuffer.size())
+                {
+                    if (mLooping)
+                        mAudioFileDescriptor->seek(0);
+                    else
+                        mAudioFileDescriptor = nullptr;
+                }
+                mWritePosition = framesRead;
+            }
         }
 
 
@@ -33,29 +43,50 @@ namespace nap
         {
             auto& outputBuffer = getOutputBuffer(audioOutput);
 
+            if (mAudioFileDescriptor == nullptr)
+            {
+                for (auto i = 0; i < outputBuffer.size(); ++i)
+                    outputBuffer[i] = 0.f;
+                return;
+            }
+
             for (auto i = 0; i < outputBuffer.size(); ++i)
             {
-                int mReadPositionFloor = int(mReadPosition);
-                float remainder = mReadPosition - mReadPositionFloor;
-                SampleValue start = mCircularBuffer[wrap(mReadPositionFloor, mCircularBuffer.size())];
-                SampleValue end = mCircularBuffer[wrap(mReadPositionFloor + 1, mCircularBuffer.size())];
-                auto value = lerp(start, end, remainder);
-                outputBuffer[i] = value;
-                mReadPosition += mAudioFileDescriptor->getSampleRate() / getNodeManager().getSampleRate();
+                if (mReadPosition < mWritePosition)
+                {
+                    int mReadPositionFloor = int(mReadPosition);
+                    float remainder = mReadPosition - mReadPositionFloor;
+                    SampleValue start = mCircularBuffer[wrap(mReadPositionFloor, mCircularBuffer.size())];
+                    SampleValue end = mCircularBuffer[wrap(mReadPositionFloor + 1, mCircularBuffer.size())];
+                    auto value = lerp(start, end, remainder);
+                    outputBuffer[i] = value;
+                    mReadPosition += mAudioFileDescriptor->getSampleRate() / getNodeManager().getSampleRate();
+                }
+                else
+                    outputBuffer[i] = 0.f;
             }
             if (mReadPosition > mWritePosition - mDiskReadBuffer.size())
             {
                mThread.enqueue([&](){
-                   mAudioFileDescriptor->read(mDiskReadBuffer.data(), mDiskReadBuffer.size());
+                   if (mAudioFileDescriptor == nullptr)
+                       return;
+                   auto framesRead = mAudioFileDescriptor->read(mDiskReadBuffer.data(), mDiskReadBuffer.size());
+                   if (framesRead != mDiskReadBuffer.size())
+                   {
+                       if (mLooping)
+                           mAudioFileDescriptor->seek(0);
+                       else
+                           mAudioFileDescriptor = nullptr;
+                   }
                    int wrappedWritePos = wrap(mWritePosition, mCircularBuffer.size());
-                   for (auto i = 0; i < mDiskReadBuffer.size(); ++i)
+                   for (auto i = 0; i < framesRead; ++i)
                    {
                        mCircularBuffer[wrappedWritePos] = mDiskReadBuffer[i];
                        wrappedWritePos++;
                        if (wrappedWritePos >= mCircularBuffer.size())
                            wrappedWritePos = 0;
                    }
-                   mWritePosition += mDiskReadBuffer.size();
+                   mWritePosition += framesRead;
                });
             }
         }

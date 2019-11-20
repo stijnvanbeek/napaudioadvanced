@@ -40,6 +40,11 @@ namespace nap
              */
             unsigned int read(float* buffer, int size);
 
+            /**
+             * Moves the read/write position to the given offset.
+             */
+            void seek(DiscreteTimeValue offset) { sf_seek(mSndFile, offset, SEEK_SET); }
+
             int getChannelCount() const { return mSfInfo.channels; }
             float getSampleRate() const { return mSfInfo.samplerate; }
             Mode getMode() const { return mMode; }
