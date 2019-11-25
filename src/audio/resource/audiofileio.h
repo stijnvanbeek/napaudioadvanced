@@ -1,8 +1,5 @@
 #pragma once
 
-// Third party includes
-#include <sndfile.h>
-
 // Nap includes
 #include <nap/resource.h>
 #include <rtti/factory.h>
@@ -10,6 +7,8 @@
 // Audio includes
 #include <audio/core/audionodemanager.h>
 
+// Forward declarations
+struct SNDFILE_tag;
 
 namespace nap
 {
@@ -25,7 +24,7 @@ namespace nap
 
         public:
             AudioFileDescriptor(const std::string& path, Mode mode, int channelCount = 1, float sampleRate = 44100.f);
-            ~AudioFileDescriptor() { sf_close(mSndFile); }
+            ~AudioFileDescriptor();
             bool isValid() { return mSndFile != nullptr; }
 
             /**
@@ -43,15 +42,16 @@ namespace nap
             /**
              * Moves the read/write position to the given offset.
              */
-            void seek(DiscreteTimeValue offset) { sf_seek(mSndFile, offset, SEEK_SET); }
+            void seek(DiscreteTimeValue offset);
 
-            int getChannelCount() const { return mSfInfo.channels; }
-            float getSampleRate() const { return mSfInfo.samplerate; }
+            int getChannelCount() const { return mChannelCount; }
+            float getSampleRate() const { return mSampleRate; }
             Mode getMode() const { return mMode; }
 
         private:
-            SNDFILE* mSndFile = nullptr;
-            SF_INFO mSfInfo;
+            SNDFILE_tag* mSndFile = nullptr;
+            int mChannelCount = 1;
+            float mSampleRate = 44100.f;
             Mode mMode = Mode::WRITE;
         };
 
