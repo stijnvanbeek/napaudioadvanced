@@ -130,10 +130,10 @@ namespace nap
             bool init(int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
-             * Returns a safe pointer to the DSP node for the specified channel.
-             * Returns nullptr if the given channel is out of bounds
+             * Returns a pointer to the DSP node for the specified channel.
+			 * Returns nullptr if the channel; is out of bounds.
              */
-            SafePtr<NodeType> getChannel(unsigned int channel) { return channel < mChannels.size() ? mChannels[channel].get() : nullptr; }
+            NodeType* getChannel(unsigned int channel) { return channel < mChannels.size() ? mChannels[channel].getRaw() : nullptr; }
 
             /**
              * Clear the processing channels.
