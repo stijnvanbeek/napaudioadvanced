@@ -21,6 +21,7 @@ namespace nap
                 {
                     node.inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
                 }
+            node.setGain(mGain[channel % mGain.size()], 0);
 
             return true;
         }
