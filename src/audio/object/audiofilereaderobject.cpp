@@ -24,7 +24,7 @@ namespace nap
                 return nullptr;
             }
 
-            return instance;
+            return std::move(instance);
         }
 
 

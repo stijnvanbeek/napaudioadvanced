@@ -21,6 +21,9 @@ namespace nap
         public:
             AudioFileReaderNode(NodeManager& nodeManager, unsigned int bufferSize);
             void setAudioFile(SafePtr<AudioFileDescriptor> audioFileDescriptor);
+            bool isPlaying() const { return mAudioFileDescriptor != nullptr; }
+            void setLooping(bool value) { mLooping = value; }
+            bool isLooping() const { return mLooping; }
 
             OutputPin audioOutput = { this };
 
@@ -33,6 +36,7 @@ namespace nap
             SampleBuffer mDiskReadBuffer;
             DiscreteTimeValue mWritePosition = 0;
             double mReadPosition = 0;
+            bool mLooping = false;
         };
 
 

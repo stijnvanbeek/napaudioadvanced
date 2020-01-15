@@ -1,5 +1,8 @@
 #include "audiofileio.h"
 
+// Third party includes
+#include <sndfile.h>
+
 // Audio includes
 #include <audio/core/audionodemanager.h>
 
@@ -24,11 +27,12 @@ namespace nap
         AudioFileDescriptor::AudioFileDescriptor(const std::string& path, Mode mode, int channelCount, float sampleRate)
         {
             mMode = mode;
-            mSfInfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+            SF_INFO sfInfo;
+            sfInfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
             if (mode == Mode::WRITE)
             {
-                mSfInfo.channels = channelCount;
-                mSfInfo.samplerate = sampleRate;
+                sfInfo.channels = channelCount;
+                sfInfo.samplerate = sampleRate;
             }
             int libSndFileMode;
             if (mode == Mode::WRITE)
@@ -37,8 +41,17 @@ namespace nap
                 libSndFileMode = SFM_READ;
             else
                 libSndFileMode = SFM_RDWR;
-            mSndFile = sf_open(path.c_str(), libSndFileMode, &mSfInfo);
+            mSndFile = sf_open(path.c_str(), libSndFileMode, &sfInfo);
+            mSampleRate = sfInfo.samplerate;
+            mChannelCount = sfInfo.channels;
         }
+
+
+        AudioFileDescriptor::~AudioFileDescriptor()
+        {
+            sf_close(mSndFile);
+        }
+
 
 
         unsigned int AudioFileDescriptor::write(float* buffer, int size)
@@ -51,6 +64,13 @@ namespace nap
         {
             return sf_read_float(mSndFile, destination, size);
         }
+
+
+        void AudioFileDescriptor::seek(DiscreteTimeValue offset)
+        {
+            sf_seek(mSndFile, offset, SEEK_SET);
+        }
+
 
 
         bool AudioFileIO::init(utility::ErrorState& errorState)
