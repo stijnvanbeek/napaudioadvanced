@@ -2,11 +2,12 @@
 
 // Nap includes
 #include <rtti/objectptr.h>
+#include <nap/resourceptr.h>
 
 // Audio includes
 #include <audio/core/audioobject.h>
 #include <audio/node/envelopenode.h>
-#include <audio/utility/translator.h>
+#include <audio/resource/equalpowertable.h>
 
 namespace nap
 {
@@ -27,7 +28,7 @@ namespace nap
 
             EnvelopeNode::Envelope mSegments; ///< The segments that define the envelope's shape.
             bool mAutoTrigger = false; ///< If true the envelope will be triggered automatically on initialization.
-            bool mEqualPowerTranslate = false; ///< Indicated wether the output will be translated using an equal power table.
+            ResourcePtr<EqualPowerTable> mEqualPowerTable = nullptr; ///< Property: 'EqualPowerTable' used to translate to equal power curve.
 
         private:
             // Inherited from AudioObject
@@ -46,7 +47,7 @@ namespace nap
             EnvelopeInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             // Inherited from AudioObjectInstance
-            bool init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, utility::ErrorState& errorState);
+            bool init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, audio::SafePtr<Translator<float>> translator, utility::ErrorState& errorState);
             
             OutputPin* getOutputForChannel(int channel) override { return &mEnvelopeGenerator->output; }
             int getChannelCount() const override { return 1; }
@@ -108,7 +109,7 @@ namespace nap
             
         private:
             SafeOwner<EnvelopeNode> mEnvelopeGenerator = nullptr;
-            SafeOwner<EqualPowerTranslator<ControllerValue>> mEqualPowerTable = nullptr;
+            SafePtr<Translator<ControllerValue>> mTranslator = nullptr;
         };
 
 

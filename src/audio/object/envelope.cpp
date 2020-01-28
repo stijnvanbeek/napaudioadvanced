@@ -3,7 +3,7 @@
 RTTI_BEGIN_CLASS(nap::audio::Envelope)
     RTTI_PROPERTY("Envelope", &nap::audio::Envelope::mSegments, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("AutoTrigger", &nap::audio::Envelope::mAutoTrigger, nap::rtti::EPropertyMetaData::Default)
-    RTTI_PROPERTY("EqualPowerTranslate", &nap::audio::Envelope::mEqualPowerTranslate, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("EqualPowerTable", &nap::audio::Envelope::mEqualPowerTable, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::EnvelopeInstance)
@@ -22,17 +22,22 @@ namespace nap
         std::unique_ptr<AudioObjectInstance> Envelope::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<EnvelopeInstance>();
-            if (!instance->init(mSegments, mAutoTrigger, nodeManager, errorState))
+            if (!instance->init(mSegments, mAutoTrigger, nodeManager, mEqualPowerTable->getTable(), errorState))
                 return nullptr;
             
             return std::move(instance);
         }
 
 
-        bool EnvelopeInstance::init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, utility::ErrorState& errorState)
+        bool EnvelopeInstance::init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, audio::SafePtr<Translator<float>> translator, utility::ErrorState& errorState)
         {
-            mEqualPowerTable = nodeManager.makeSafe<EqualPowerTranslator<ControllerValue>>(256);
-            mEnvelopeGenerator = nodeManager.makeSafe<EnvelopeNode>(nodeManager, segments, mEqualPowerTable.get());
+            if (translator == nullptr)
+            {
+                errorState.fail("No translator provided.");
+                return false;
+            }
+            mTranslator = translator;
+            mEnvelopeGenerator = nodeManager.makeSafe<EnvelopeNode>(nodeManager, segments, mTranslator);
 
             if (autoTrigger)
                 mEnvelopeGenerator->trigger();

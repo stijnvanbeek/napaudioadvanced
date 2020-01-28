@@ -62,7 +62,6 @@ namespace nap
             mEnvelope->mID = "Envelope";
             mEnvelope->mSegments = mEnvelopeData;
             mEnvelope->mAutoTrigger = false;
-            mEnvelope->mEqualPowerTranslate = true;
             if (!mEnvelope->init(errorState))
             {
                 errorState.fail("Failed to initialize Sampler " + getName());

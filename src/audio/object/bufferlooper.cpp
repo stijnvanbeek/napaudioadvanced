@@ -128,7 +128,6 @@ namespace nap
             mEnvelope->mSegments.emplace_back(sustain);
             mEnvelope->mSegments.emplace_back(decay);
             mEnvelope->mAutoTrigger = false;
-            mEnvelope->mEqualPowerTranslate = true;
             if (!mEnvelope->init(errorState))
             {
                 errorState.fail("Failed to initialize BufferLooper " + getName());
