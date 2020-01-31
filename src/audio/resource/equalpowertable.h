@@ -17,7 +17,7 @@ namespace nap
         /**
          * Resource managing an equal power lookup table that can be shared across multiple audio processes to save memory usage.
          */
-        class EqualPowerTable : public Resource
+        class NAPAPI EqualPowerTable : public Resource
         {
         public:
             EqualPowerTable(NodeManager& nodeManager) : mNodeManager(&nodeManager) {  }
