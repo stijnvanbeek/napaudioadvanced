@@ -26,6 +26,7 @@ namespace nap
 
             }
 
+
             /**
              * Initialize the node.
              * @param inputChannelCount the numebr of input channels the nested node manager has
