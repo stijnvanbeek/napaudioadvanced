@@ -17,9 +17,9 @@ namespace nap
         /**
          * Multichannel oscillator object.
          */
-        class NAPAPI Input : public MultiChannel<InputNode>
+        class NAPAPI Input : public ParallelNode<InputNode>
         {
-            RTTI_ENABLE(MultiChannelBase)
+            RTTI_ENABLE(ParallelNodeBase)
             
         public:
             std::vector<int> mChannels = { 0 }; ///< property: 'Channels' Defines what audio input channels to receive data from. The size of this array determines the number of channels that this component will output.

@@ -33,9 +33,9 @@ namespace nap
         /**
          * Multichannel oscillator object.
          */
-        class NAPAPI Oscillator : public MultiChannel<OscillatorNode>
+        class NAPAPI Oscillator : public ParallelNode<OscillatorNode>
         {
-            RTTI_ENABLE(MultiChannelBase)
+            RTTI_ENABLE(ParallelNodeBase)
             
         public:
             std::vector<ControllerValue> mFrequency = { 220.f }; ///< property: 'Frequency' array of frequency values that will be mapped on the oscillators on each channel
