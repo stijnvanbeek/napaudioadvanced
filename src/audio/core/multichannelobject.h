@@ -15,50 +15,39 @@ namespace nap
     namespace audio
     {
 
-        class NAPAPI MultiChannelObjectInstanceBase : public AudioObjectInstance {
-        RTTI_ENABLE(AudioObjectInstance)
-
+        class NAPAPI Parallel : public AudioObject {
+            RTTI_ENABLE(AudioObject)
         public:
-            MultiChannelObjectInstanceBase() = default;
-            MultiChannelObjectInstanceBase(const std::string& name) : AudioObjectInstance(name) { }
+            std::vector<ResourcePtr<AudioObject>> mChannels;
+            ResourcePtr<AudioObject> mInput = nullptr;
+            int mChannelCount = 1;
 
-            virtual AudioObjectInstance* getChannelNonTyped(int channel) = 0;
+        private:
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
 
 
-        template <typename T>
-        class NAPAPI MultiChannelObjectInstance : public MultiChannelObjectInstanceBase {
-        RTTI_ENABLE(MultiChannelObjectInstanceBase)
-
+        class NAPAPI ParallelInstance : public AudioObjectInstance
+        {
+            RTTI_ENABLE(AudioObjectInstance)
         public:
-            MultiChannelObjectInstance() = default;
-            MultiChannelObjectInstance(const std::string& name) : MultiChannelObjectInstanceBase(name) { }
+            ParallelInstance() = default;
+            ParallelInstance(const std::string& name) : AudioObjectInstance(name) { }
+
+            bool addChannel(AudioObject& resource, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
-             * Init contents by instancing each channel from a resource.
-             * @param channelResource AudioObject resource to instantiate the channels from.
-             * @param channelCount Number of channels to instantiate.
-             * @param service Audio service for use to construct DSP
-             * @param errorState Error state if the init fails
-             * @return true on success
+             * Add a mono audio object instance as a new channel of the object
              */
-            bool init(audio::AudioObject& channelResource, int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState)
-            {
-                for (auto channel = 0; channel < channelCount; ++channel)
-                {
-                    auto channelInstance = channelResource.instantiate<T>(nodeManager, errorState);
-                    if (channelInstance == nullptr)
-                    {
-                        errorState.fail("Failed to instantiate channel %s for %s", channelResource.mID.c_str(), getName().c_str());
-                        return false;
-                    }
-                    mChannels.emplace_back(std::move(channelInstance));
-                }
+            void addChannel(std::unique_ptr<AudioObjectInstance> channel);
 
-                return true;
-            }
+            /**
+             * Returns a channel as mono audio object
+             */
+            template <typename T>
+            T* getChannel(int channel) { return rtti_cast<T>(mChannels[channel].get()); }
 
-            void addChannel(std::unique_ptr<T> channel) { mChannels.emplace_back(std::move(channel)); }
+            AudioObjectInstance* getChannelNonTyped(int channel);
 
             // Inherited from AudioObjectInstance
             audio::OutputPin* getOutputForChannel(int channel) override { return mChannels[channel]->getOutputForChannel(0); }
@@ -66,11 +55,9 @@ namespace nap
             void connect(unsigned int channel, audio::OutputPin& pin) override { mChannels[channel]->connect(0, pin); }
             int getInputChannelCount() const override { return (mChannels[0]->getInputChannelCount() == 1) ? mChannels.size() : 0; }
 
-            T* getChannel(int channel) { return mChannels[channel].get(); }
-            AudioObjectInstance* getChannelNonTyped(int channel) override { return mChannels[channel].get(); }
+        protected:
+            std::vector<std::unique_ptr<AudioObjectInstance>> mChannels;
 
-        private:
-            std::vector<std::unique_ptr<T>> mChannels;
         };
 
 
