@@ -1,4 +1,4 @@
-#include "multichannelobject.h"
+#include "parallel.h"
 
 
 // Nap includes
