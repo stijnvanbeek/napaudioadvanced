@@ -160,7 +160,7 @@ namespace nap
                 return false;
             }
             
-            mPolyphonic = std::make_unique<PolyphonicObject>();
+            mPolyphonic = std::make_unique<Polyphonic>();
             mPolyphonic->mID = "Polyphonic";
             mPolyphonic->mVoice = mVoice.get();
             mPolyphonic->mChannelCount = channelCount;
@@ -172,7 +172,7 @@ namespace nap
                 return false;
             }
 
-            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicObjectInstance>(nodeManager, errorState);
+            mPolyphonicInstance = mPolyphonic->instantiate<PolyphonicInstance>(nodeManager, errorState);
             
             if (autoPlay)
                 start();
