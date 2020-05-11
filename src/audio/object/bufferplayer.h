@@ -18,9 +18,9 @@ namespace nap
         /**
          * AudioObject to play back audio contained by an AudioBufferResource.
          */
-        class NAPAPI BufferPlayer : public ParallelNode<BufferPlayerNode>
+        class NAPAPI BufferPlayer : public ParallelNodeObject<BufferPlayerNode>
         {
-            RTTI_ENABLE(ParallelNodeBase)
+            RTTI_ENABLE(ParallelNodeObjectBase)
             
         public:
             BufferPlayer() = default;

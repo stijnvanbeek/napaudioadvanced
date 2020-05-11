@@ -14,9 +14,9 @@ namespace nap
         /**
          * Multichannel audio object to apply a delay to the input channels.
          */
-        class NAPAPI DelayObject : public ParallelNode<DelayNode>
+        class NAPAPI DelayObject : public ParallelNodeObject<DelayNode>
         {
-            RTTI_ENABLE(ParallelNodeBase)
+            RTTI_ENABLE(ParallelNodeObjectBase)
             
         public:
             DelayObject() = default;

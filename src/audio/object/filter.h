@@ -14,9 +14,9 @@ namespace nap
         /**
          * Multichannel audio object to apply a filter to the input channels.
          */
-        class NAPAPI Filter : public ParallelNode<FilterNode>
+        class NAPAPI Filter : public ParallelNodeObject<FilterNode>
         {
-            RTTI_ENABLE(ParallelNodeBase)
+            RTTI_ENABLE(ParallelNodeObjectBase)
             
         public:
             Filter() = default;

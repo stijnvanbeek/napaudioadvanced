@@ -5,7 +5,7 @@ RTTI_BEGIN_CLASS(nap::audio::BufferPlayer)
     RTTI_PROPERTY("Buffer", &nap::audio::BufferPlayer::mBufferResource, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::ParallelNodeInstance<nap::audio::BufferPlayerNode>)
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::ParallelNodeObjectInstance<nap::audio::BufferPlayerNode>)
 RTTI_END_CLASS
 
 namespace nap

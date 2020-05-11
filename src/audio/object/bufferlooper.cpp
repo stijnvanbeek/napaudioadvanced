@@ -215,7 +215,7 @@ namespace nap
             auto voice = mPolyphonicInstance->findFreeVoice();
             assert(voice != nullptr);
             mVoices.emplace(voice);
-            auto bufferPlayer = voice->getObject<ParallelNodeInstance<BufferPlayerNode>>("BufferPlayer");
+            auto bufferPlayer = voice->getObject<ParallelNodeObjectInstance<BufferPlayerNode>>("BufferPlayer");
             auto& envelope = voice->getEnvelope();
             
             for (auto channel = 0; channel < bufferPlayer->getChannelCount(); ++channel)

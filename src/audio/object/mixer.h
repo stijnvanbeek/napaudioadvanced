@@ -13,9 +13,9 @@ namespace nap
     namespace audio
     {
         
-        class NAPAPI Mixer : public ParallelNode<MixNode>
+        class NAPAPI Mixer : public ParallelNodeObject<MixNode>
         {
-            RTTI_ENABLE(ParallelNodeBase)
+            RTTI_ENABLE(ParallelNodeObjectBase)
             
         public:
             Mixer() = default;
