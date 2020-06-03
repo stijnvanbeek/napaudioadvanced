@@ -139,13 +139,6 @@ namespace nap
         }
 
 
-        void PolyphonicInstance::editVoices(std::function<void(VoiceInstance&)> editFunction)
-        {
-            for (auto& voice : mVoices)
-                editFunction(*voice);
-        }
-
-
         OutputPin* PolyphonicInstance::getOutputForChannel(int channel)
         {
             return &mMixNodes[channel]->audioOutput;

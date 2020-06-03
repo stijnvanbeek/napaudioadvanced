@@ -110,11 +110,6 @@ namespace nap
              * Counts the number of voices that are currently playing.
              */
             int getBusyVoiceCount() const;
-
-            /**
-             * Performs the given function on all the voices in the pool.
-             */
-            void editVoices(std::function<void(VoiceInstance&)>);
             
         private:
             void connectVoice(VoiceInstance* voice);
