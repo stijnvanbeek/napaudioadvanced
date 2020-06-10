@@ -44,7 +44,6 @@ namespace nap
                 mVoices.emplace_back(std::make_unique<VoiceInstance>());
                 if (!mVoices.back()->init(voice, nodeManager, errorState))
                     return false;
-                mVoices.back()->finishedSignal.connect(voiceFinishedSlot);
             }
 
             // Create the mix nodes to mix output of all the voices
@@ -60,7 +59,7 @@ namespace nap
         VoiceInstance* PolyphonicInstance::findFreeVoice()
         {
             for (auto& voice : mVoices)
-                if (voice->try_use())
+                if (voice->try_use(this))
                     return voice.get();
 
             if (mVoiceStealing)

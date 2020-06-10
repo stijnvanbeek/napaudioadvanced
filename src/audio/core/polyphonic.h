@@ -64,7 +64,9 @@ namespace nap
         class NAPAPI PolyphonicInstance : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
-            
+
+            friend class VoiceInstance;
+
         public:
             PolyphonicInstance() : AudioObjectInstance() { }
             PolyphonicInstance(const std::string& name) : AudioObjectInstance(name) { }
@@ -119,8 +121,6 @@ namespace nap
             
         private:
             void connectVoice(VoiceInstance* voice);
-
-            Slot<VoiceInstance&> voiceFinishedSlot = { this, &PolyphonicInstance::voiceFinished };
             void voiceFinished(VoiceInstance& voice);
             
             std::vector<std::unique_ptr<VoiceInstance>> mVoices;

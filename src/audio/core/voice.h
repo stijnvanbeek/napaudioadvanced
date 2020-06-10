@@ -87,7 +87,7 @@ namespace nap
              * Signal that is emitted when the voice has finished playing.
              */
             nap::Signal<VoiceInstance&> finishedSignal;
-            
+
             /**
              * Function to retrieve the @finishedSignal using RTTR
              */
@@ -95,7 +95,7 @@ namespace nap
             
         private:
             // Used internally by PolyphincObjectInstance to try to reserve the voice for usage
-            bool try_use();
+            bool try_use(PolyphonicInstance*);
             void free();
             
             // Responds to the signal emitted by the envelope generator of the main envelope by emitting the finishedSignal.
@@ -108,6 +108,9 @@ namespace nap
             
             // This set caches the channels of the output mixer of the polyphonic object that this voice is connected to before it was started to play. When playing is done the polyphonic object will take care of disconnecting the voice from these channels.
             std::vector<int> mConnectedToChannels = { };
+
+            // If the voice is in used, this points to the polyphonic instance that is playing th voice.
+            PolyphonicInstance* mPolyphonic = nullptr;
         };
         
     }
