@@ -25,6 +25,8 @@ namespace nap
         private:
             bool initNode(int channel, MixNode& node, utility::ErrorState& errorState) override
             {
+                node.inputs.reserveInputs(mInputs.size());
+
                 for (auto& input : mInputs)
                     if (input != nullptr)
                     {

@@ -87,7 +87,7 @@ namespace nap
             // private resources
             std::unique_ptr<Envelope> mEnvelope = nullptr;
             std::unique_ptr<BufferLooper> mBufferLooper = nullptr;
-            std::unique_ptr<Gain> mGain = nullptr;
+            std::unique_ptr<Multiply> mGain = nullptr;
             std::unique_ptr<Voice> mVoice = nullptr;
             std::unique_ptr<Polyphonic> mPolyphonic = nullptr;
         };

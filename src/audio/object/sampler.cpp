@@ -72,7 +72,7 @@ namespace nap
                 return false;
             }
             
-            mGain = std::make_unique<Gain>();
+            mGain = std::make_unique<Multiply>();
             mGain->mID = "Gain";
             mGain->mChannelCount = channelCount;
             mGain->mInputs.emplace_back(mBufferLooper.get());

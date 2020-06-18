@@ -1,7 +1,7 @@
 #pragma once
 
 #include <audio/object/bufferplayer.h>
-#include <audio/object/gain.h>
+#include <audio/object/multiply.h>
 #include <audio/core/polyphonic.h>
 
 namespace nap
@@ -88,7 +88,7 @@ namespace nap
             // private resources
             std::unique_ptr<Envelope> mEnvelope = nullptr;
             std::unique_ptr<BufferPlayer> mBufferPlayer = nullptr;
-            std::unique_ptr<Gain> mGain = nullptr;
+            std::unique_ptr<Multiply> mGain = nullptr;
             std::unique_ptr<Voice> mVoice = nullptr;
             std::unique_ptr<Polyphonic> mPolyphonic = nullptr;
         };
