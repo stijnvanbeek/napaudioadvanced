@@ -69,8 +69,7 @@ namespace nap
              * @param startSegment: the start segment of the envelope section to be played
              * @param endSegment: the end segment of the envelope section to be played
              * @param startValue: the startValue of the line when the section is triggered.
-             * @param totalDuration: if this value is greater than the total of all durations of segments that have durationRelative = false
-             the resting time wille be divided over the segments with durationRelative = true, using their duration values as denominator.
+             * @param totalDuration: if this value is greater than the total of all durations of segments that have durationRelative = false, the resting time wille be divided over the segments with durationRelative = true, using their duration values as denominator.
              */
             void trigger(int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0);
 
