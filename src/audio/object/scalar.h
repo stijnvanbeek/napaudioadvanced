@@ -19,7 +19,7 @@ namespace nap
         RTTI_ENABLE(ParallelNodeObjectBase)
 
         public:
-            Gain() = default;
+            Scalar() = default;
 
             std::vector<ControllerValue> mScalar = { 1.f }; ///< property: 'Scalar' array of scalar values per output channel. If the size of the array is less than the number of channels it will be repeated.
             ResourcePtr<AudioObject> mInput = nullptr; ///< property: Object generating the input signal of the scalar.

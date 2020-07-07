@@ -20,6 +20,7 @@ namespace nap
 
         class StereoGrainPannerNode : public Node
         {
+            RTTI_ENABLE(Node)
         public:
             StereoGrainPannerNode(NodeManager& nodeManager) : Node(nodeManager), mDelay(32768) { }
 
@@ -29,6 +30,7 @@ namespace nap
             OutputPin rightOutput = { this };
 
             void setPanning(ControllerValue panning, ControllerValue amplitude, TimeValue maxDelay);
+            TimeValue getDelayTime() const { return mDelayTime; }
 
         private:
             void process() override;
@@ -38,12 +40,14 @@ namespace nap
             int leftDelayTime = 0;
             int rightDelayTime = 0;
             Delay mDelay;
+            TimeValue mDelayTime = 0;
         };
 
 
 
         class StereoGrainPanner : public AudioObject
         {
+            RTTI_ENABLE(AudioObject)
         public:
             StereoGrainPanner() = default;
 
@@ -58,6 +62,7 @@ namespace nap
 
         class StereoGrainPannerInstance : public AudioObjectInstance
         {
+            RTTI_ENABLE(AudioObjectInstance)
         public:
             StereoGrainPannerInstance() = default;
             StereoGrainPannerInstance(const std::string& name) : AudioObjectInstance(name) { }
@@ -66,7 +71,7 @@ namespace nap
 
             OutputPin* getOutputForChannel(int channel) override { return channel == 0 ? &mPanner->leftOutput : &mPanner->rightOutput; }
             int getChannelCount() const override { return 2; }
-            void connect(unsigned int channel, OutputPin& pin) { mPanner->audioInput.connect(pin); }
+            void connect(unsigned int channel, OutputPin& pin) override { mPanner->audioInput.connect(pin); }
 
             StereoGrainPannerNode& getPanner() { return *mPanner; }
 
@@ -78,12 +83,36 @@ namespace nap
 
         class NAPAPI Granulator : public AudioObject
         {
+            RTTI_ENABLE(AudioObject)
+
+        public:
+            /**
+            * Possible amplitude envelope shapes for a grain
+            */
+            enum Shape { hanning, expodec, rexpodec };
+
         public:
             Granulator() = default;
 
             ResourcePtr<AudioBufferResource> mBuffer = nullptr;
             int mInternalBufferSize = 64;
             int mVoiceCount = 100;
+
+            bool mActive = false;
+            float mDuration = 500;
+            float mIrregularity = 0;
+            float mDiffusion = 0;
+            float mDensity = 10;
+            float mAmplitude = 1;
+            float mAmplitudeDev = 0;
+            Shape mShape = hanning;
+            float mAttackDecay = 10;
+            float mTranspose = 1.f;
+            float mTransposeDeviation = 0.f;
+
+            // Specific for memory buffer granulation
+            float mPosition = 0; // in milliseconds
+            float mSpeed = 1.f;
 
         private:
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
@@ -93,15 +122,15 @@ namespace nap
 
         class NAPAPI GranulatorInstance : public AudioObjectInstance
         {
-        public:
-            /**
-            * Possible amplitude envelope shapes for a grain
-            */
-            enum Shape { hanning, expodec, rexpodec };
+            RTTI_ENABLE(AudioObjectInstance)
 
         public:
             GranulatorInstance() = default;
+            ~GranulatorInstance();
             GranulatorInstance(const std::string& name) : AudioObjectInstance(name) { }
+
+            int getChannelCount() const override { return mNestedNodeManager->getChannelCount(); }
+            OutputPin* getOutputForChannel(int channel) override { return mNestedNodeManager->getOutputForChannel(channel); }
 
             /**
             * Initialize the granulator channel
@@ -117,7 +146,7 @@ namespace nap
             */
             bool init(int internalBufferSize, int voiceCount, SafePtr<CircularBufferNode> circularBuffer, NodeManager& nodeManager, utility::ErrorState& errorState);
 
-            bool init(int internalBufferSize, int voiceCount, SafePtr<MultiSampleBuffer> buffer, NodeManager& nodeManager, utility::ErrorState& errorState);
+            bool init(int internalBufferSize, int voiceCount, SafePtr<MultiSampleBuffer> buffer, float bufferSampleRate, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
             * Set the timing deviation in ms of the grains measured in whole times the average interval between the grains
@@ -132,7 +161,7 @@ namespace nap
             /**
             * Set the shape of the amplitude envelope of the grains.
             */
-            void setShape(GranulatorInstance::Shape shape) { mShape = shape; }
+            void setShape(Granulator::Shape shape) { mShape = shape; }
 
             /**
             * Sets the attack for expodec shaped grains/the decay of the rexpodec grains
@@ -194,19 +223,21 @@ namespace nap
             /**
              * Change the buffer from which audio input is read to a memory buffer and set the mode accordingly
              */
-            void setSource(SafePtr<MultiSampleBuffer> buffer);
+            void setSource(SafePtr<MultiSampleBuffer> buffer, float sampleRate);
 
         private:
             std::unique_ptr<NestedNodeManagerInstance> mNestedNodeManager = nullptr;
             std::unique_ptr<PolyphonicInstance> mPolyphonic = nullptr;
-            std::unique_ptr<NodeObjectInstance<OutputNode>> mOutput = nullptr;
+            std::unique_ptr<ParallelNodeObjectInstance<OutputNode>> mOutput = nullptr;
 
             SafePtr<CircularBufferNode> mCircularBuffer = nullptr;
             SafePtr<MultiSampleBuffer> mBuffer = nullptr;
+            float mBufferSampleRate = 0.f;
 
             SafeOwner<TableTranslator<float>> mPitchTranslator = nullptr;
 
-            float mAmplitudeScaling = 1.f;
+            float mAmplitudeScaling = 1.f; // Used internally to compensate amplitude for density/duration
+
             bool mActive = false;
             TimeValue mDuration = 500;
             float mIrregularity = 0;
@@ -214,25 +245,24 @@ namespace nap
             float mDensity = 10;
             float mAmplitude = 1;
             float mAmplitudeDev = 0;
-            Shape mShape = hanning;
+            Granulator::Shape mShape = Granulator::Shape::hanning;
             TimeValue mAttackDecay = 10;
             float mTranspose = 1.f;
             float mTransposeDeviation = 0;
-
 
             // Specific for memory buffer granulation
             double mPosition = 0; // in milliseconds
             float mSpeed = 1.f;
 
         private:
+            Slot<DiscreteTimeValue> mUpdateAudioSlot = { this, &GranulatorInstance::updateAudio };
             void updateAudio(DiscreteTimeValue sampleTime);
-            void makeGrain();
+            void makeGrain(DiscreteTimeValue sampleTime);
             bool init(int internalBufferSize, int voiceCount, NodeManager& nodeManager, utility::ErrorState& errorState);
 
-            double mCurrentPhase = 0;
             DiscreteTimeValue mLastSampleTime = 0;
-            bool mAboutToSpawn = false;
-            double mIrregularityOffset = 0.;
+            DiscreteTimeValue mLastGrainTime = 0;
+            DiscreteTimeValue mNextGrainTime = 0;
         };
 
     }

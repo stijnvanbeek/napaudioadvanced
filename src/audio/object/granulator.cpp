@@ -3,6 +3,32 @@
 #include <audio/object/circularbufferplayer.h>
 #include <audio/object/bufferplayer.h>
 
+RTTI_BEGIN_ENUM(nap::audio::Granulator::Shape)
+    RTTI_ENUM_VALUE(nap::audio::Granulator::Shape::hanning, "Hanning"),
+    RTTI_ENUM_VALUE(nap::audio::Granulator::Shape::expodec, "Expodec"),
+    RTTI_ENUM_VALUE(nap::audio::Granulator::Shape::rexpodec, "Rexpodec")
+RTTI_END_ENUM
+
+RTTI_BEGIN_CLASS(nap::audio::Granulator)
+    RTTI_PROPERTY("Buffer", &nap::audio::Granulator::mBuffer, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("InternalBufferSize", &nap::audio::Granulator::mInternalBufferSize, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("VoiceCount", &nap::audio::Granulator::mVoiceCount, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Active", &nap::audio::Granulator::mActive, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Duration", &nap::audio::Granulator::mDuration, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Irregularity", &nap::audio::Granulator::mIrregularity, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Diffusion", &nap::audio::Granulator::mDiffusion, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Density", &nap::audio::Granulator::mDensity, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Amplitude", &nap::audio::Granulator::mAmplitude, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("AmplitudeDev", &nap::audio::Granulator::mAmplitudeDev, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Shape", &nap::audio::Granulator::mShape, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("AttackDecay", &nap::audio::Granulator::mAttackDecay, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Transpose", &nap::audio::Granulator::mTranspose, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("TransposeDeviation", &nap::audio::Granulator::mTransposeDeviation, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Position", &nap::audio::Granulator::mPosition, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Speed", &nap::audio::Granulator::mSpeed, nap::rtti::EPropertyMetaData::Default)
+RTTI_END_CLASS
+
+
 namespace nap
 {
 
@@ -18,15 +44,17 @@ namespace nap
             equalPowerPan(panning, leftGain, rightGain);
             leftGain *= amplitude;
             rightGain *= amplitude;
+
+            mDelay.clear();
             if (panning < 0.5f)
             {
-                TimeValue delay = (1.f - panning * 2) * maxDelay;
-                leftDelayTime = delay * getNodeManager().getSamplesPerMillisecond();
+                TimeValue mDelayTime = (1.f - panning * 2) * maxDelay;
+                leftDelayTime = mDelayTime * getNodeManager().getSamplesPerMillisecond();
                 rightDelayTime = 0.f;
             }
             else {
-                TimeValue delay = (2 * panning - 1.f) * maxDelay;
-                rightDelayTime = delay * getNodeManager().getSamplesPerMillisecond();
+                TimeValue mDelayTime = (2 * panning - 1.f) * maxDelay;
+                rightDelayTime = mDelayTime * getNodeManager().getSamplesPerMillisecond();
                 leftDelayTime = 0.f;
             }
         }
@@ -44,9 +72,9 @@ namespace nap
 
             for (auto i = 0; i < inputBuffer->size(); ++i)
             {
-                mDelay.write((*inputBuffer)[i]);
-                leftOutputBuffer[i] = mDelay.read(leftDelayTime) * leftGain * (*envelopeBuffer)[i];
-                rightOutputBuffer[i] = mDelay.read(rightDelayTime) * rightGain * (*envelopeBuffer)[i];
+                mDelay.write((*inputBuffer)[i]  * (*envelopeBuffer)[i]);
+                leftOutputBuffer[i] = mDelay.read(leftDelayTime) * leftGain;
+                rightOutputBuffer[i] = mDelay.read(rightDelayTime) * rightGain;
             }
         }
 
@@ -84,14 +112,42 @@ namespace nap
         std::unique_ptr<AudioObjectInstance> Granulator::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto result = std::make_unique<GranulatorInstance>(mID);
-            if (!result->init(mInternalBufferSize, mVoiceCount, mBuffer->getBuffer(), nodeManager, errorState))
+            if (!result->init(mInternalBufferSize, mVoiceCount, mBuffer->getBuffer(), mBuffer->getSampleRate(), nodeManager, errorState))
             {
                 errorState.fail("Failed to initialize granulator");
                 return nullptr;
             }
+
+            result->setDuration(mDuration);
+            result->setIrregularity(mIrregularity);
+            result->setDiffusion(mDiffusion);
+            result->setDensity(mDensity);
+            result->setAmplitude(mAmplitude);
+            result->setAmplitudeDev(mAmplitudeDev);
+            result->setShape(mShape);
+            result->setAttackDecay(mAttackDecay);
+            result->setTranspose(mTranspose);
+            result->setTransposeDeviation(mTransposeDeviation);
+            result->setPosition(mPosition);
+            result->setSpeed(mSpeed);
+            result->setActive(mActive);
+
             return result;
         }
 
+
+        GranulatorInstance::~GranulatorInstance()
+        {
+            AsyncObserver observer;
+            auto observerPtr = &observer;
+
+            mNestedNodeManager->getNestedNodeManager().enqueueTask([&, observerPtr](){
+               mNestedNodeManager->getNestedNodeManager().mUpdateSignal.disconnect(mUpdateAudioSlot);
+               observerPtr->notifyOne();
+            });
+
+            observer.waitForNotifications();
+        }
 
 
         bool GranulatorInstance::init(int internalBufferSize, int voiceCount, SafePtr<CircularBufferNode> circularBuffer, NodeManager& nodeManager, utility::ErrorState& errorState)
@@ -101,9 +157,10 @@ namespace nap
         }
 
 
-        bool GranulatorInstance::init(int internalBufferSize, int voiceCount, SafePtr<MultiSampleBuffer> buffer, NodeManager& nodeManager, utility::ErrorState& errorState)
+        bool GranulatorInstance::init(int internalBufferSize, int voiceCount, SafePtr<MultiSampleBuffer> buffer, float bufferSampleRate, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             mBuffer = buffer;
+            mBufferSampleRate = bufferSampleRate;
             return init(internalBufferSize, voiceCount, nodeManager, errorState);
         }
 
@@ -113,38 +170,12 @@ namespace nap
 
             if (mActive)
             {
-                // Calculate deltaTime in miliseconds (because mDuration is also in miliseconds).
-                DiscreteTimeValue deltaTimeInSamples = sampleTime - mLastSampleTime;
-                TimeValue deltaTime = (deltaTimeInSamples / mNestedNodeManager->getNestedNodeManager().getSampleRate()) * 1000.f;
-
-                // Calculate the deltaPhase (the increase in phase).
-                // A higher density increases the speed of the phase
-                // A higher duration (= grain size) decreases the speed of the phase
-                float deltaPhase = deltaTime * mDensity / mDuration;
-
-
-                // Increase the phase by deltaPhase.
-                mCurrentPhase += deltaPhase;
-
-
-                // If we are 'about to spawn', spawn a grain if the phase has reached mIrregularityOffset.
-                if(mAboutToSpawn && mCurrentPhase > mIrregularityOffset)
+                if (sampleTime >= mNextGrainTime)
                 {
-                    makeGrain();
-                    mAboutToSpawn = false;
-                }
-
-
-                // If the phase reached 1..
-                if(mCurrentPhase > 1.f)
-                {
-                    // we decrease the phase by 1..
-                    mCurrentPhase -= 1.f;
-
-                    // .. and we will spawn a grain as soon as the phase reaches the 'irregularity offset'.
-                    // (the 'irregularity offset' is a value between 0 and the value of 'irregularity' [0-1]).
-                    mAboutToSpawn = true;
-                    mIrregularityOffset = mIrregularity * math::random(0.f, 1.f);
+                    makeGrain(sampleTime);
+                    mLastGrainTime = sampleTime;
+                    auto interval = (mDuration / mDensity) * (0.5f + mIrregularity * math::random(0.f, 1.f));
+                    mNextGrainTime = sampleTime + interval * mNestedNodeManager->getNestedNodeManager().getSamplesPerMillisecond();
                 }
 
             }
@@ -153,7 +184,7 @@ namespace nap
         }
 
 
-        void GranulatorInstance::makeGrain()
+        void GranulatorInstance::makeGrain(DiscreteTimeValue sampleTime)
         {
             auto voice = mPolyphonic->findFreeVoice();
             if (voice == nullptr)
@@ -167,15 +198,18 @@ namespace nap
             auto amplitude = mAmplitude * mAmplitudeScaling;
             auto amplitudeNoisy = amplitude * (1 + (math::random(0.f, 1.f) * mAmplitudeDev * 2) - mAmplitudeDev);
 
+            panner.setPanning(math::random(0.f, 1.f), amplitudeNoisy, 30.f);
+
             switch (mShape)
             {
-                case Shape::hanning:
+                case Granulator::Shape::hanning:
                 {
                     envelope->setSegmentData(0, mDuration * 0.5, 1.0, false, false, true);
                     envelope->setSegmentData(1, mDuration * 0.5, 0.0, false, false, true);
+                    envelope->setSegmentData(2, panner.getDelayTime(), 0.0, false, false, true);
                     break;
                 }
-                case Shape::expodec:
+                case Granulator::Shape::expodec:
                 {
                     float limitedAttackDecay = 0.f;
                     if (mAttackDecay > mDuration * 0.5)
@@ -184,10 +218,11 @@ namespace nap
                         limitedAttackDecay = mAttackDecay;
                         envelope->setSegmentData(0, limitedAttackDecay, 1.0, false, false, false);
                         envelope->setSegmentData(1, mDuration - limitedAttackDecay, 0.0, false, true, false);
+                        envelope->setSegmentData(2, panner.getDelayTime(), 0.0, false, false, true);
                     }
                     break;
                 }
-                case Shape::rexpodec:
+                case Granulator::Shape::rexpodec:
                 {
                     float limitedAttackDecay = 0.f;
                     if (mAttackDecay > mDuration * 0.5)
@@ -196,12 +231,11 @@ namespace nap
                         limitedAttackDecay = mAttackDecay;
                         envelope->setSegmentData(0, mDuration - limitedAttackDecay, 1.0, false, true, false);
                         envelope->setSegmentData(1, limitedAttackDecay, 0.0, false, false, false);
+                        envelope->setSegmentData(2, panner.getDelayTime(), 0.0, false, false, true);
                     }
                     break;
                 }
             }
-
-            panner.setPanning(math::random(0.f, 1.f), amplitudeNoisy, 30.f);
 
             if (mCircularBuffer != nullptr)
             {
@@ -220,7 +254,9 @@ namespace nap
 
             else if (mBuffer != nullptr)
             {
-                auto samplesPerMillisecond = 1.f; // TODO this is not right, has to be adjusted to the buffer's samplerate
+                auto samplesPerMillisecond = mBufferSampleRate / 1000.f;
+                auto posInc = mSpeed * (sampleTime - mLastGrainTime) / mNestedNodeManager->getNestedNodeManager().getSamplesPerMillisecond();
+                mPosition += posInc;
                 DiscreteTimeValue pos = int((mPosition + mDiffusion * math::random(0.f, 1.f)) * samplesPerMillisecond);
 
                 auto bufferPlayer = voice->getObject<ParallelNodeObjectInstance<BufferPlayerNode>>("bufferPlayer")->getChannel(0);
@@ -259,10 +295,17 @@ namespace nap
             attack.mDestination = 1.f;
             attack.mDurationRelative = false;
             attack.mMode = RampMode::Linear;
-            attack.mTranslate = false;
+            attack.mTranslate = true;
 
             EnvelopeNode::Segment decay;
             decay.mDuration = 200.f;
+            decay.mDestination = 0.f;
+            decay.mDurationRelative = false;
+            decay.mMode = RampMode::Linear;
+            decay.mTranslate = true;
+
+            EnvelopeNode::Segment delay;
+            decay.mDuration = 50.f;
             decay.mDestination = 0.f;
             decay.mDurationRelative = false;
             decay.mMode = RampMode::Linear;
@@ -295,35 +338,33 @@ namespace nap
             voice.mEnvelope = &envelope;
 
             mNestedNodeManager = std::make_unique<NestedNodeManagerInstance>();
-            if (!mNestedNodeManager->init(nodeManager, 0, 1, internalBufferSize, errorState))
+            if (!mNestedNodeManager->init(nodeManager, 0, 2, internalBufferSize, errorState))
             {
                 errorState.fail("Failed to initialize nested node manager.");
                 return false;
             }
 
             mPolyphonic = std::make_unique<PolyphonicInstance>();
-            if (!mPolyphonic->init(voice, voiceCount, true, 1, mNestedNodeManager->getNestedNodeManager(), errorState))
+            if (!mPolyphonic->init(voice, voiceCount, true, 2, mNestedNodeManager->getNestedNodeManager(), errorState))
             {
                 errorState.fail("Failed to initialize Polyphonic");
                 return false;
             }
 
-            mOutput = std::make_unique<NodeObjectInstance<OutputNode>>();
-            if (!mOutput->init(mNestedNodeManager->getNestedNodeManager(), errorState))
+            mOutput = std::make_unique<ParallelNodeObjectInstance<OutputNode>>();
+            if (!mOutput->init(2, mNestedNodeManager->getNestedNodeManager(), errorState))
             {
                 errorState.fail("Failed to create nested nodemanager's output");
                 return false;
             }
-            mOutput->get()->setOutputChannel(0);
+            mOutput->getChannel(0)->setOutputChannel(0);
+            mOutput->getChannel(1)->setOutputChannel(1);
 
             mOutput->AudioObjectInstance::connect(*mPolyphonic);
-            mNestedNodeManager->getNestedNodeManager().registerRootProcess(*mOutput->get());
+            mNestedNodeManager->getNestedNodeManager().registerRootProcess(*mOutput->getChannel(0));
+            mNestedNodeManager->getNestedNodeManager().registerRootProcess(*mOutput->getChannel(1));
 
-            mNestedNodeManager->getNestedNodeManager().mUpdateSignal.connect([&](DiscreteTimeValue sampleTime){ updateAudio(sampleTime); });
-
-
-            // Initial phase.
-            mCurrentPhase = 0;
+            mNestedNodeManager->getNestedNodeManager().mUpdateSignal.connect(mUpdateAudioSlot);
 
             return true;
         }
@@ -376,9 +417,10 @@ namespace nap
         }
 
 
-        void GranulatorInstance::setSource(SafePtr<MultiSampleBuffer> buffer)
+        void GranulatorInstance::setSource(SafePtr<MultiSampleBuffer> buffer, float sampleRate)
         {
             mBuffer = buffer;
+            mBufferSampleRate = sampleRate;
             mCircularBuffer = nullptr;
         }
 
