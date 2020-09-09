@@ -19,23 +19,29 @@ namespace nap
         }
 
 
-        void AudioFileReaderNode::setAudioFile(SafePtr<AudioFileDescriptor> audioFileDescriptor)
+		void AudioFileReaderNode::setPlaying(bool value)
+		{
+			assert(mAudioFileDescriptor != nullptr);
+			mPlaying = value ? 1 : 0;
+		}
+
+
+        void AudioFileReaderNode::setAudioFile(const SafePtr<AudioFileDescriptor>& audioFileDescriptor)
         {
+			assert(audioFileDescriptor != nullptr);
+			assert(mPlaying == 0); // cannot set audio file descriptor while playing
             mAudioFileDescriptor = audioFileDescriptor;
             mWritePosition = 0;
             mReadPosition = 0;
-            if (mAudioFileDescriptor != nullptr)
-            {
-                auto framesRead = mAudioFileDescriptor->read(&mCircularBuffer[0], mDiskReadBuffer.size());
-                if (framesRead != mDiskReadBuffer.size())
-                {
-                    if (mLooping)
-                        mAudioFileDescriptor->seek(0);
-                    else
-                        mAudioFileDescriptor = nullptr;
-                }
-                mWritePosition = framesRead;
-            }
+			auto framesRead = mAudioFileDescriptor->read(&mCircularBuffer[0], mDiskReadBuffer.size());
+			if (framesRead != mDiskReadBuffer.size())
+			{
+				if (mLooping)
+					mAudioFileDescriptor->seek(0);
+				else
+					mPlaying = 0;
+			}
+			mWritePosition = framesRead;
         }
 
 
@@ -43,7 +49,7 @@ namespace nap
         {
             auto& outputBuffer = getOutputBuffer(audioOutput);
 
-            if (mAudioFileDescriptor == nullptr)
+            if (mPlaying == 0)
             {
                 for (auto i = 0; i < outputBuffer.size(); ++i)
                     outputBuffer[i] = 0.f;
@@ -68,7 +74,7 @@ namespace nap
             if (mReadPosition > mWritePosition - mDiskReadBuffer.size())
             {
                mThread.enqueue([&](){
-                   if (mAudioFileDescriptor == nullptr)
+                   if (mPlaying == 0)
                        return;
                    auto framesRead = mAudioFileDescriptor->read(mDiskReadBuffer.data(), mDiskReadBuffer.size());
                    if (framesRead != mDiskReadBuffer.size())
@@ -76,7 +82,7 @@ namespace nap
                        if (mLooping)
                            mAudioFileDescriptor->seek(0);
                        else
-                           mAudioFileDescriptor = nullptr;
+                           mPlaying = 0;
                    }
                    int wrappedWritePos = wrap(mWritePosition, mCircularBuffer.size());
                    for (auto i = 0; i < framesRead; ++i)

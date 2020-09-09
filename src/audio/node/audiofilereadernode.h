@@ -14,16 +14,41 @@ namespace nap
     namespace audio
     {
 
-        class NAPAPI AudioFileReaderNode : public Node
+		/**
+		* Node used to read an audio signal from an audio file using an @AudioFileDescriptor.
+		*/
+		class NAPAPI AudioFileReaderNode : public Node
         {
             RTTI_ENABLE(Node)
 
         public:
             AudioFileReaderNode(NodeManager& nodeManager, unsigned int bufferSize);
-            void setAudioFile(SafePtr<AudioFileDescriptor> audioFileDescriptor);
-            bool isPlaying() const { return mAudioFileDescriptor != nullptr; }
-            void setLooping(bool value) { mLooping = value; }
-            bool isLooping() const { return mLooping; }
+
+			/**
+			 * Sets the audio file descriptor. Needs to ba called before starting playback.
+			 * @param audioFileDescriptor to read audio from
+			 */
+            void setAudioFile(const SafePtr<AudioFileDescriptor>& audioFileDescriptor);
+
+			/**
+			 * Starts playback. setAudioFile() needs to be called first.
+			 */
+			void setPlaying(bool value);
+
+			/**
+			 * @return wether the node is currently playing back.
+			 */
+            bool isPlaying() const { return mPlaying > 0; }
+
+			/**
+			 * Specifies wether the audio file will loop.
+			 */
+            void setLooping(bool value) { mLooping = value ? 1 : 0; }
+
+			/**
+			 * @return wether the audio file is looping.
+			 */
+            bool isLooping() const { return mLooping > 0; }
 
             OutputPin audioOutput = { this };
 
@@ -36,7 +61,9 @@ namespace nap
             SampleBuffer mDiskReadBuffer;
             DiscreteTimeValue mWritePosition = 0;
             double mReadPosition = 0;
-            bool mLooping = false;
+			std::atomic<int> mPlaying = { 0 };
+            std::atomic<int> mLooping = { 0 };
+
         };
 
 
