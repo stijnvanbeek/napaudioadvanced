@@ -29,6 +29,25 @@ namespace nap
         }
 
 
+		void AudioFileWriterNode::setAudioFile(const SafePtr<AudioFileDescriptor>& audioFileDescriptor)
+		{
+			assert(audioFileDescriptor != nullptr);
+			assert(mActive == 0); // cannot set file descriptor while active
+			mAudioFileDescriptor = audioFileDescriptor;
+		}
+
+
+		void AudioFileWriterNode::setActive(bool active)
+		{
+			assert(mAudioFileDescriptor != nullptr); // cannot activate/deactivate before file descriptor is set
+
+			if (active)
+				mActive = 1;
+			else
+				mActive = 0;
+		}
+
+
         void AudioFileWriterNode::bufferSizeChanged(int size)
         {
             getNodeManager().enqueueTask([&](){
@@ -48,7 +67,7 @@ namespace nap
             auto inputBuffer = audioInput.pull();
             std::memcpy(mBufferQueue[mInputIndex].data(), inputBuffer->data(), mBufferSizeInBytes);
             mThread.enqueue([&](){
-                if (mAudioFileDescriptor != nullptr)
+                if (mActive > 0 && mAudioFileDescriptor != nullptr)
                     mAudioFileDescriptor->write(mBufferQueue[mDiskWriteIndex].data(), getBufferSize());
                 mDiskWriteIndex++;
                 if (mDiskWriteIndex >= mBufferQueue.size())
