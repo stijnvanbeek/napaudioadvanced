@@ -52,14 +52,15 @@ namespace nap
             bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState);
             bool init(int channelCount, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState);
 
-            // Inherited from AudioObjectInstance
-            OutputPin* getOutputForChannel(int channel) override { return nullptr; }
-            int getChannelCount() const override { return 0; }
-            
             SafePtr<CircularBufferNode> getChannel(unsigned int channel);
-            
+			int getBufferChannelCount() const { return mNodes.size(); }
+
         private:
-            std::vector<SafeOwner<CircularBufferNode>> mNodes; // Circular buffer for each channel
+			// Inherited from AudioObjectInstance
+			OutputPin* getOutputForChannel(int channel) override { return nullptr; }
+			int getChannelCount() const override { return 0; }
+
+			std::vector<SafeOwner<CircularBufferNode>> mNodes; // Circular buffer for each channel
         };
         
     }
