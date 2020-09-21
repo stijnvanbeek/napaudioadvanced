@@ -55,6 +55,8 @@ namespace nap
             SafePtr<CircularBufferNode> getChannel(unsigned int channel);
 			int getBufferChannelCount() const { return mNodes.size(); }
 
+			void clear();
+
         private:
 			// Inherited from AudioObjectInstance
 			OutputPin* getOutputForChannel(int channel) override { return nullptr; }

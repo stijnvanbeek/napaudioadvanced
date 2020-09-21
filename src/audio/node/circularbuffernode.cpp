@@ -52,6 +52,13 @@ namespace nap
         }
 
 
+		void CircularBufferNode::clear()
+		{
+			for (auto i = 0; i < mBuffer.size(); ++i)
+				mBuffer[i] = 0.f;
+		}
+
+
     }
     
 }

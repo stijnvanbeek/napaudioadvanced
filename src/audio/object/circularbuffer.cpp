@@ -88,6 +88,13 @@ namespace nap
         }
 
 
+		void CircularBufferInstance::clear()
+		{
+			for (auto& node : mNodes)
+				node->clear();
+		}
+
+
     }
         
 }

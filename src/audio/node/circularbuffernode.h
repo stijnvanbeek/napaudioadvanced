@@ -49,6 +49,11 @@ namespace nap
              * @return Absolute position in the circular buffer.
              */
             DiscreteTimeValue getAbsolutePosition(unsigned int relativePosition) const { return wrap(mWritePosition - relativePosition, mBuffer.size()); }
+
+			/**
+			 * Clears the contents of the buffer. Either perform this on the audio thread or while the node is not processing.
+			 */
+			void clear();
             
         private:
             void process() override;
