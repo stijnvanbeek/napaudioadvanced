@@ -16,9 +16,11 @@ namespace nap
     }
 }
 
-RTTI_BEGIN_CLASS(nap::audio::VoiceInstanceSignal)
-    RTTI_FUNCTION("connect", (void(nap::audio::VoiceInstanceSignal::*)(const pybind11::function))&nap::audio::VoiceInstanceSignal::connect)
-RTTI_END_CLASS
+#ifdef NAP_ENABLE_PYTHON
+    RTTI_BEGIN_CLASS(nap::audio::VoiceInstanceSignal)
+        RTTI_FUNCTION("connect", (void(nap::audio::VoiceInstanceSignal::*)(const pybind11::function))&nap::audio::VoiceInstanceSignal::connect)
+    RTTI_END_CLASS
+#endif
 
 RTTI_BEGIN_CLASS(nap::audio::VoiceInstance)
     RTTI_FUNCTION("play", &nap::audio::VoiceInstance::play)
