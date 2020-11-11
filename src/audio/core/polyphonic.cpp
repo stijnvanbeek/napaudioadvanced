@@ -14,6 +14,7 @@ RTTI_END_CLASS
 RTTI_BEGIN_CLASS(nap::audio::PolyphonicInstance)
     RTTI_FUNCTION("findFreeVoice", &nap::audio::PolyphonicInstance::findFreeVoice)
     RTTI_FUNCTION("play", &nap::audio::PolyphonicInstance::play)
+	RTTI_FUNCTION("playSection", &nap::audio::PolyphonicInstance::playSection)
     RTTI_FUNCTION("playOnChannels", &nap::audio::PolyphonicInstance::playOnChannels)
     RTTI_FUNCTION("stop", &nap::audio::PolyphonicInstance::stop)
     RTTI_FUNCTION("getBusyVoiceCount", &nap::audio::PolyphonicInstance::getBusyVoiceCount)

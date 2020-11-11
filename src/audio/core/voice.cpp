@@ -24,6 +24,7 @@ namespace nap
 
 RTTI_BEGIN_CLASS(nap::audio::VoiceInstance)
     RTTI_FUNCTION("play", &nap::audio::VoiceInstance::play)
+	RTTI_FUNCTION("playSection", &nap::audio::VoiceInstance::playSection)
     RTTI_FUNCTION("stop", &nap::audio::VoiceInstance::stop)
     RTTI_FUNCTION("getFinishedSignal", &nap::audio::VoiceInstance::getFinishedSignal)
 RTTI_END_CLASS
