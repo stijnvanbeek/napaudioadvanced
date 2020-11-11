@@ -6,7 +6,7 @@ namespace nap
     namespace audio
     {
 
-        SampleLayerController::SampleLayerController(SamplerInstance& sampler) : mSampler(sampler), mEnvelopeData(sampler.getEnvelopeData())
+        SampleLayerController::SampleLayerController(SamplePlayerInstance& sampler) : mSampler(sampler), mEnvelopeData(sampler.getEnvelopeData())
         {
         }
 

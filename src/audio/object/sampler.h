@@ -8,7 +8,7 @@ namespace nap
     namespace audio
     {
         
-        class NAPAPI Sampler : public AudioObject
+        class NAPAPI SamplePlayer : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
             
@@ -16,7 +16,7 @@ namespace nap
             using SamplerEntries = std::vector<BufferLooper::Settings>;
             
         public:
-            Sampler() : AudioObject() { }
+			SamplePlayer() : AudioObject() { }
             
             bool init(utility::ErrorState& errorState) override;
             
@@ -32,13 +32,13 @@ namespace nap
         };
         
         
-        class NAPAPI SamplerInstance : public AudioObjectInstance
+        class NAPAPI SamplePlayerInstance : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
             
         public:
-            SamplerInstance() : AudioObjectInstance() { }
-            SamplerInstance(const std::string& name) : AudioObjectInstance(name) { }
+			SamplePlayerInstance() : AudioObjectInstance() { }
+			SamplePlayerInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             /**
              * @param sampleEntries sample entries that can be played by this sampler
@@ -48,7 +48,7 @@ namespace nap
              * @param errorState contains error information if the init() fails
              * @return true on success
              */
-            bool init(Sampler::SamplerEntries& sampleEntries, ResourcePtr<EqualPowerTable> equalPowerTable, EnvelopeNode::Envelope& envelopeData, int channelCount, int voiceCount, NodeManager& nodeManager, utility::ErrorState& errorState);
+            bool init(SamplePlayer::SamplerEntries& sampleEntries, ResourcePtr<EqualPowerTable> equalPowerTable, EnvelopeNode::Envelope& envelopeData, int channelCount, int voiceCount, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             // Inhrited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
@@ -71,7 +71,7 @@ namespace nap
             /**
              * @return all the available sampler entries. Non editable.
              */
-            const Sampler::SamplerEntries& getSamplerEntries() const { return mSamplerEntries; }
+            const SamplePlayer::SamplerEntries& getSamplerEntries() const { return mSamplerEntries; }
 
             /**
              * @return the envelope data that will be passed to the next voice to be played. Result can be edited to affect the next play() statement.
@@ -79,7 +79,7 @@ namespace nap
             EnvelopeNode::Envelope& getEnvelopeData() { return mEnvelopeData; }
             
         private:
-            Sampler::SamplerEntries mSamplerEntries;
+			SamplePlayer::SamplerEntries mSamplerEntries;
             EnvelopeNode::Envelope mEnvelopeData;
             
             std::unique_ptr<PolyphonicInstance> mPolyphonicInstance = nullptr;

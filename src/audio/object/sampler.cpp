@@ -1,18 +1,18 @@
 #include "sampler.h"
 
-RTTI_BEGIN_CLASS(nap::audio::Sampler)
-    RTTI_PROPERTY("SamplerEntries", &nap::audio::Sampler::mSampleEntries, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("EnvelopeData", &nap::audio::Sampler::mEnvelopeData, nap::rtti::EPropertyMetaData::Required)
-    RTTI_PROPERTY("ChannelCount", &nap::audio::Sampler::mChannelCount, nap::rtti::EPropertyMetaData::Default)
-    RTTI_PROPERTY("VoiceCount", &nap::audio::Sampler::mVoiceCount, nap::rtti::EPropertyMetaData::Default)
-    RTTI_PROPERTY("EqualPowerTable", &nap::audio::Sampler::mEqualPowerTable, nap::rtti::EPropertyMetaData::Required)
+RTTI_BEGIN_CLASS(nap::audio::SamplePlayer)
+    RTTI_PROPERTY("SamplerEntries", &nap::audio::SamplePlayer::mSampleEntries, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("EnvelopeData", &nap::audio::SamplePlayer::mEnvelopeData, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("ChannelCount", &nap::audio::SamplePlayer::mChannelCount, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("VoiceCount", &nap::audio::SamplePlayer::mVoiceCount, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("EqualPowerTable", &nap::audio::SamplePlayer::mEqualPowerTable, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
-RTTI_BEGIN_CLASS(nap::audio::SamplerInstance)
-    RTTI_FUNCTION("play", &nap::audio::SamplerInstance::play)
-    RTTI_FUNCTION("stop", &nap::audio::SamplerInstance::stop)
-    RTTI_FUNCTION("getEnvelopeData", &nap::audio::SamplerInstance::getEnvelopeData)
-    RTTI_FUNCTION("getSamplerEntries", &nap::audio::SamplerInstance::getSamplerEntries)
+RTTI_BEGIN_CLASS(nap::audio::SamplePlayerInstance)
+    RTTI_FUNCTION("play", &nap::audio::SamplePlayerInstance::play)
+    RTTI_FUNCTION("stop", &nap::audio::SamplePlayerInstance::stop)
+    RTTI_FUNCTION("getEnvelopeData", &nap::audio::SamplePlayerInstance::getEnvelopeData)
+    RTTI_FUNCTION("getSamplerEntries", &nap::audio::SamplePlayerInstance::getSamplerEntries)
 RTTI_END_CLASS
 
 namespace nap
@@ -22,15 +22,15 @@ namespace nap
     {
         
         
-        bool Sampler::init(utility::ErrorState& errorState)
+        bool SamplePlayer::init(utility::ErrorState& errorState)
         {
             return true;
         }
         
         
-        std::unique_ptr<AudioObjectInstance> Sampler::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
+        std::unique_ptr<AudioObjectInstance> SamplePlayer::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
-            auto instance = std::make_unique<SamplerInstance>();
+            auto instance = std::make_unique<SamplePlayerInstance>();
             if (!instance->init(mSampleEntries, mEqualPowerTable, mEnvelopeData, mChannelCount, mVoiceCount, nodeManager, errorState))
                 return nullptr;
             
@@ -38,7 +38,7 @@ namespace nap
         }
 
         
-        bool SamplerInstance::init(Sampler::SamplerEntries& samplerEntries, ResourcePtr<EqualPowerTable> equalPowerTable, EnvelopeNode::Envelope& envelopeData, int channelCount, int voiceCount, NodeManager& nodeManager, utility::ErrorState& errorState)
+        bool SamplePlayerInstance::init(SamplePlayer::SamplerEntries& samplerEntries, ResourcePtr<EqualPowerTable> equalPowerTable, EnvelopeNode::Envelope& envelopeData, int channelCount, int voiceCount, NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             mSamplerEntries = samplerEntries;
             mEnvelopeData = envelopeData;
@@ -119,7 +119,7 @@ namespace nap
         }
 
         
-        VoiceInstance* SamplerInstance::play(unsigned int samplerEntryIndex, TimeValue duration)
+        VoiceInstance* SamplePlayerInstance::play(unsigned int samplerEntryIndex, TimeValue duration)
         {
             if (samplerEntryIndex > mSamplerEntries.size())
                 return nullptr;
@@ -142,7 +142,7 @@ namespace nap
         }
 
 
-        void SamplerInstance::stop(VoiceInstance* voice, TimeValue release)
+        void SamplePlayerInstance::stop(VoiceInstance* voice, TimeValue release)
         {
             auto bufferLooper = voice->getObject<BufferLooperInstance>("BufferLooper");
             auto& envelope = voice->getEnvelope();

@@ -11,7 +11,7 @@ namespace nap
         class NAPAPI SampleLayerController
         {
         public:
-            SampleLayerController(SamplerInstance& sampler);
+            SampleLayerController(SamplePlayerInstance& sampler);
 
             void startLayer(int samplerEntryIndex, TimeValue attack);
             void stopLayer(int samplerEntryIndex, TimeValue release);
@@ -21,7 +21,7 @@ namespace nap
             std::set<int> getLayers();
 
         private:
-            SamplerInstance& mSampler;
+			SamplePlayerInstance& mSampler;
             EnvelopeNode::Envelope& mEnvelopeData;
             std::map<int, VoiceInstance*> mLayerVoices;
         };
