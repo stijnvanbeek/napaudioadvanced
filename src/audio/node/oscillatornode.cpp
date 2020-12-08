@@ -25,68 +25,72 @@ namespace nap
     {
         
 // --- Wavetable --- //
-        
-        WaveTable::WaveTable(long size)
+
+		WaveTable::WaveTable(long size, Waveform waveform, int numberOfBands)
         {
-            mData.resize(size);
-            auto step = M_PI * 2 / size;
-            for(int i = 0; i < size; i++)
-                mData[i] = sin(i * step);
+			if (waveform == Waveform::Sine)
+			{
+				mData.resize(1, size);
+				auto& bandData = mData[0];
+				mBandWidth = Nyquist;
+				auto step = M_PI * 2 / size;
+				for (int i = 0; i < size; i++)
+					bandData[i] = sin(i * step);
+			}
+			else
+			{
+				mData.resize(numberOfBands, size);
+				mBandWidth = Nyquist / numberOfBands;
+				for (auto band = 0; band < numberOfBands; ++band)
+				{
+					auto bandFrequency = mBandWidth * (band + 1);
+					auto& bandData = mData[band];
+
+					auto harmonic = 1;
+					while (bandFrequency * harmonic < Nyquist)
+					{
+						auto step = M_PI * 2 / size;
+						auto a = harmonic > 1.f ? 1.f / (harmonic - 1.f) : 1.f;
+						for (auto i = 0; i < size; i++)
+							bandData[i] += a * sin(i * step * harmonic);
+						harmonic++;
+					}
+
+				}
+			}
         }
 
 
-        WaveTable::WaveTable(long size, SampleBuffer& spectrum, int stepSize)
-        {
-            mData.resize(size);
-            auto step = M_PI * 2 / size;
-            
-            for(int i = 0; i < size; i++){
-                mData[i] = 0.0;
-                for(int j = 0; j < spectrum.size(); j+=stepSize)
-                {
-                    mData[i] += spectrum[j] * sin(i * j * step);
-                }
-            }
-            
-            normalize();
-        }
-
-        
         void WaveTable::normalize()
         {
-            SampleValue max, min;
-            max = min = mData[0];
-            
-            for(int i = 0; i < mData.size(); i++){
-                if(mData[i] > max) max = mData[i];
-                if(mData[i] < min) min = mData[i];
-            }
-            
-            if(max < -min) max = -min;
-            for(int i = 0; i < mData.size(); i++)
-                mData[i] /= max;
+			for (auto band = 0; band < mData.getChannelCount(); band++)
+			{
+				auto& bandData = mData[band];
+				SampleValue max, min;
+				max = min = bandData[0];
+
+				for(int i = 0; i < bandData.size(); i++){
+					if(bandData[i] > max) max = bandData[i];
+					if(bandData[i] < min) min = bandData[i];
+				}
+
+				if(max < -min) max = -min;
+				for(int i = 0; i < bandData.size(); i++)
+					bandData[i] /= max;
+			}
         }
 
         
-        SampleValue& WaveTable::operator[](long index)
-        {
-            return mData[wrap(index, mData.size())];
-        }
-        
-        
-        SampleValue WaveTable::operator[](long index) const
-        {
-            return mData[wrap(index, mData.size())];
-        }
-
-        
-        SampleValue WaveTable::interpolate(double index) const
+        SampleValue WaveTable::interpolate(double index, float frequency) const
         {
             int floor = index;
             SampleValue frac = index - floor;
+
+			auto band = int(frequency / mBandWidth);
+			auto& data = mData[band];
             
-            auto v1 = mData[wrap(floor, mData.size())];
-            auto v2 = mData[wrap(floor + 1, mData.size())];
+            auto v1 = data[wrap(floor, data.size())];
+            auto v2 = data[wrap(floor + 1, data.size())];
 
             return lerp(v1, v2, frac);
         }
@@ -129,12 +133,16 @@ namespace nap
             
             for (auto i = 0; i < getBufferSize(); i++)
             {
-                auto val = mAmplitude.getNextValue() * mWave->interpolate(mPhase + phaseOffset);   //   calculate new value, use wave as a lookup table
-                if (fmInputBuffer)
-                    mPhase += ((*fmInputBuffer)[i] + 1) * mFrequency.getNextValue() * step;      //   calculate new phase
+				auto frequency = mFrequency.getNextValue();
+
+				// calculate new value, use wave as a lookup table
+                auto val = mAmplitude.getNextValue() * mWave->interpolate(mPhase + phaseOffset, frequency);
+
+				// calculate new phase
+				if (fmInputBuffer)
+                    mPhase += ((*fmInputBuffer)[i] + 1) * frequency * step;
                 else
-                    mPhase += mFrequency.getNextValue() * step;
-                
+                    mPhase += frequency * step;
                 if (mPhase > waveSize)
                     mPhase -= waveSize;
                 

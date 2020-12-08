@@ -1,7 +1,16 @@
 #include "oscillator.h"
 
+RTTI_BEGIN_ENUM(nap::audio::WaveTable::Waveform)
+	RTTI_ENUM_VALUE(nap::audio::WaveTable::Waveform::Sine, "Sine"),
+	RTTI_ENUM_VALUE(nap::audio::WaveTable::Waveform::Saw, "Saw"),
+	RTTI_ENUM_VALUE(nap::audio::WaveTable::Waveform::Square, "Square"),
+	RTTI_ENUM_VALUE(nap::audio::WaveTable::Waveform::Triangle, "Triangle")
+RTTI_END_ENUM
+
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::WaveTableResource)
     RTTI_PROPERTY("Size", &nap::audio::WaveTableResource::mSize, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Waveform", &nap::audio::WaveTableResource::mWaveform, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("NumberOfBands", &nap::audio::WaveTableResource::mNumberOfBands, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS(nap::audio::Oscillator)
@@ -22,7 +31,7 @@ namespace nap
 
         bool WaveTableResource::init(utility::ErrorState& errorState)
         {
-            mWave = mNodeManager.makeSafe<WaveTable>(mSize);
+            mWave = mNodeManager.makeSafe<WaveTable>(mSize, mWaveform, mNumberOfBands);
             return true;
         }
 

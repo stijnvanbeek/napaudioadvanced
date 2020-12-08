@@ -14,13 +14,17 @@ namespace nap
     namespace audio
     {
 
-        class NAPAPI WaveTableResource : public Resource {
+        class NAPAPI WaveTableResource : public Resource
+		{
             RTTI_ENABLE(Resource)
+
         public:
             WaveTableResource(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
             bool init(utility::ErrorState& errorState);
 
             int mSize = 2048; ///< Property: 'Size' Size of the wavetable. Has to be a power of two.
+            int mNumberOfBands = 100; ///< Property: 'NumberOfBands' Number of bands used for band limiting
+            WaveTable::Waveform mWaveform = WaveTable::Waveform::Sine; ///< Property: 'Waveform' Waveform of the wave table.
 
             SafePtr<WaveTable> getWave() { return mWave.get(); }
 
