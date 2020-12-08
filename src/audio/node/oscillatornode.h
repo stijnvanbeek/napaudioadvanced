@@ -46,7 +46,7 @@ namespace nap
         private:
 			using BandLimitedData = MultiSampleBuffer;
             BandLimitedData mData;
-			float mBandWidth = 0.f;
+			std::vector<int> mBandBottoms;
         };
 
         

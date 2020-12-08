@@ -31,31 +31,41 @@ namespace nap
 			if (waveform == Waveform::Sine)
 			{
 				mData.resize(1, size);
+				mBandBottoms.emplace_back(0);
 				auto& bandData = mData[0];
-				mBandWidth = Nyquist;
 				auto step = M_PI * 2 / size;
 				for (int i = 0; i < size; i++)
 					bandData[i] = sin(i * step);
 			}
-			else
-			{
+			else {
+				auto bandWidth = log2f(Nyquist) / numberOfBands;
 				mData.resize(numberOfBands, size);
-				mBandWidth = Nyquist / numberOfBands;
+				mBandBottoms.resize(numberOfBands);
 				for (auto band = 0; band < numberOfBands; ++band)
 				{
-					auto bandFrequency = mBandWidth * (band + 1);
+					auto bandFrequency = pow(2.f, bandWidth * band);
+					mBandBottoms[band] = bandFrequency;
 					auto& bandData = mData[band];
 
 					auto harmonic = 1;
+					bool negative = false;
 					while (bandFrequency * harmonic < Nyquist)
 					{
 						auto step = M_PI * 2 / size;
-						auto a = harmonic > 1.f ? 1.f / (harmonic - 1.f) : 1.f;
+						auto a = harmonic > 1.f ? 1.f / (waveform == Waveform::Triangle ? pow(harmonic, 2) : harmonic - 1.f) : 1.f;
+						if (negative)
+							a *= -1.f;
 						for (auto i = 0; i < size; i++)
 							bandData[i] += a * sin(i * step * harmonic);
 						harmonic++;
+						if (waveform == Waveform::Square)
+							harmonic++;
+						else if (waveform == Waveform::Triangle)
+						{
+							harmonic++;
+							negative = !negative;
+						}
 					}
-
 				}
 			}
         }
@@ -86,7 +96,9 @@ namespace nap
             int floor = index;
             SampleValue frac = index - floor;
 
-			auto band = int(frequency / mBandWidth);
+			auto band = 0;
+			while (frequency < mBandBottoms[band])
+				band++;
 			auto& data = mData[band];
             
             auto v1 = data[wrap(floor, data.size())];
