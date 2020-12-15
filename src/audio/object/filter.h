@@ -26,7 +26,7 @@ namespace nap
             std::vector<ControllerValue> mResonance = { 0.f };
             std::vector<ControllerValue> mBand = { 100.f };
             std::vector<ControllerValue> mGain = { 1.f };
-            ResourcePtr<AudioObject> mInput; ///< property: "Input" @AudioObject whose output channels will be used as inputs for the delay channels.
+            ResourcePtr<AudioObject> mInput = nullptr; ///< property: "Input" @AudioObject whose output channels will be used as inputs for the filter channels.
             
         private:
             bool initNode(int channel, FilterNode& node, utility::ErrorState& errorState) override;
