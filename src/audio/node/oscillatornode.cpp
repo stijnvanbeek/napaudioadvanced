@@ -113,7 +113,6 @@ namespace nap
 
         OscillatorNode::OscillatorNode(NodeManager& manager) : Node(manager)
         {
-            mFrequency.setStepCount(getNodeManager().getSamplesPerMillisecond());
             mAmplitude.setStepCount(getNodeManager().getSamplesPerMillisecond());
         }
 
@@ -122,7 +121,6 @@ namespace nap
             Node(manager), mWave(wave)
         {
             mStep = mWave->getSize() / getNodeManager().getSampleRate();
-            mFrequency.setStepCount(getNodeManager().getSamplesPerMillisecond());
             mAmplitude.setStepCount(getNodeManager().getSamplesPerMillisecond());
         }
 
@@ -177,7 +175,10 @@ namespace nap
 
         void OscillatorNode::setFrequency(SampleValue frequency, TimeValue rampTime)
         {
-            mFrequency.setValue(frequency);
+			if (rampTime == 0.f)
+				mFrequency.setValue(frequency);
+			else
+                mFrequency.ramp(frequency, rampTime * getNodeManager().getSamplesPerMillisecond(), RampMode::Exponential);
         }
         
         

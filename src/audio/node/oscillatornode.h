@@ -5,6 +5,7 @@
 
 #include <audio/core/audionode.h>
 #include <audio/utility/linearsmoothedvalue.h>
+#include <audio/utility/rampedvalue.h>
 #include <audio/utility/safeptr.h>
 
 namespace nap
@@ -95,7 +96,7 @@ namespace nap
 
             SafePtr<WaveTable> mWave = nullptr;
 
-            LinearSmoothedValue<ControllerValue> mFrequency = { 440, 44 };
+            RampedValue<ControllerValue> mFrequency = { 440 };
             LinearSmoothedValue<ControllerValue> mAmplitude = { 1.f, 44 };
             
             std::atomic<ControllerValue> mStep = { 0 };
