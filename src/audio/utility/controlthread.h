@@ -47,14 +47,14 @@ namespace nap
 		 * @param slot Can be anything that can be passed to Signal::connect()
 		 */
 		template <typename T>
-		void connectPeriodicTask(T& slot);
+		void connectPeriodicTask(T&& slot);
 
 		/**
 		 * Disconnect a slot or function to a signal that is triggered every cycle of the loop.
 		 * @param slot Can be anything that can be passed to Signal::connect()
 		 */
 		template <typename T>
-		void disconnectPeriodicTask(T& slot);
+		void disconnectPeriodicTask(T&& slot);
 
 		/**
 		 * Enqueue a task to be executed once on the next cycle.
@@ -83,7 +83,7 @@ namespace nap
 
 
 	template <typename T>
-	void ControlThread::connectPeriodicTask(T& slot)
+	void ControlThread::connectPeriodicTask(T&& slot)
 	{
 		auto slotPtr = &slot;
 		enqueue([&, slotPtr](){ mUpdateSignal.connect(*slotPtr); });
@@ -91,7 +91,7 @@ namespace nap
 
 
 	template <typename T>
-	void ControlThread::disconnectPeriodicTask(T& slot)
+	void ControlThread::disconnectPeriodicTask(T&& slot)
 	{
 		auto slotPtr = &slot;
 		enqueue([&, slotPtr](){ mUpdateSignal.disconnect(*slotPtr); }, true);
