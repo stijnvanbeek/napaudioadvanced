@@ -97,7 +97,7 @@ namespace nap
             SampleValue frac = index - floor;
 
 			auto band = 0;
-			while (frequency < mBandBottoms[band])
+			while (frequency > mBandBottoms[band] && band < mBandBottoms.size() - 1)
 				band++;
 			auto& data = mData.channels[band];
             

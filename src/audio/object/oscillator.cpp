@@ -57,7 +57,7 @@ namespace nap
 			{
 				auto node = result->getChannel(channel);
 				node->setFrequency(mFrequency[channel % mFrequency.size()]);
-				node->setAmplitude(mFrequency[channel % mAmplitude.size()]);
+				node->setAmplitude(mAmplitude[channel % mAmplitude.size()]);
                 if (mFmInput != nullptr)
                 {
                     node->fmInput.connect(*mFmInput->getInstance()->getOutputForChannel(channel % mFmInput->getInstance()->getChannelCount()));
