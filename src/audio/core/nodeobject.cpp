@@ -1,7 +1,7 @@
 #include "nodeobject.h"
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::NodeObjectInstanceBase)
-        RTTI_FUNCTION("get", &nap::audio::NodeObjectInstanceBase::getNonTyped)
+	RTTI_FUNCTION("get", &nap::audio::NodeObjectInstanceBase::getNonTyped)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::ParallelNodeObjectBase)

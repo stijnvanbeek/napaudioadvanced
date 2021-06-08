@@ -31,7 +31,7 @@ namespace nap
 
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override
             {
-                auto instance = std::make_unique<NodeObjectInstance<NodeType>>(nodeManager);
+                auto instance = std::make_unique<NodeObjectInstance<NodeType>>();
                 instance->init(nodeManager, errorState);
                 initNode(*instance->get());
                 return std::move(instance);
