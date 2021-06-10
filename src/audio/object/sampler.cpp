@@ -124,11 +124,12 @@ namespace nap
             if (samplerEntryIndex > mSamplerEntries.size())
                 return nullptr;
 
-            int busyVoiceCount = mPolyphonicInstance->getBusyVoiceCount();
-            Logger::info("Busy voice count %i", busyVoiceCount);
-            
             auto voice = mPolyphonicInstance->findFreeVoice();
-            assert(voice != nullptr);
+			if (voice == nullptr)
+			{
+				Logger::warn("Failed to acquire free voice");
+				return nullptr;
+			}
             auto bufferLooper = voice->getObject<BufferLooperInstance>("BufferLooper");
             auto& envelope = voice->getEnvelope();
 
