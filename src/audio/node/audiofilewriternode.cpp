@@ -50,13 +50,15 @@ namespace nap
 
         void AudioFileWriterNode::bufferSizeChanged(int size)
         {
-			mThread.stop();
-			for (auto& buffer : mBufferQueue)
-				buffer.resize(size);
-			mBufferSizeInBytes = sizeof(float) * getBufferSize();
-			mInputIndex = 0;
-			mDiskWriteIndex = 0;
-			mThread.start();
+            getNodeManager().enqueueTask([&](){
+                mThread.stop();
+                for (auto& buffer : mBufferQueue)
+                    buffer.resize(size);
+                mBufferSizeInBytes = sizeof(float) * getBufferSize();
+                mInputIndex = 0;
+                mDiskWriteIndex = 0;
+                mThread.start();
+            });
         }
 
 
