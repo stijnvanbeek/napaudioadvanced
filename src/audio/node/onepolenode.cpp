@@ -1,6 +1,7 @@
 #include "onepolenode.h"
 
 #include <audio/core/audionodemanager.h>
+#include <audio/utility/audiofunctions.h>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::OnePoleLowPassNode)
     RTTI_FUNCTION("setCutoffFrequency", &nap::audio::OnePoleLowPassNode::setCutoffFrequency)
@@ -29,6 +30,7 @@ namespace nap
             {
                 outputBuffer[i] = a0.getNextValue() * inputBuffer[i] + b1.getNextValue() * mTemp;
                 mTemp = outputBuffer[i];
+				undenormalize(mTemp);
             }
         }
         
@@ -63,6 +65,7 @@ namespace nap
                 outputBuffer[i] = a0.getNextValue() * inputBuffer[i] + a1.getNextValue() * mTemp1 + b1.getNextValue() * mTemp2;
                 mTemp1 = inputBuffer[i];
                 mTemp2 = outputBuffer[i];
+				undenormalize(mTemp2);
             }
         }
         
