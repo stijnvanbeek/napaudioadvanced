@@ -1,3 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+/* The reverb47 algorithm is named after the Contactweg 47 in Amsterdam,
+ * where it was designed and prototyped by Poul Holleman and implemented by Stijn van Beek.*/
+
 #pragma once
 
 // Spatial Audio includes
