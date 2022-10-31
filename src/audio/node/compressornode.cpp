@@ -18,10 +18,6 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::CompressorNode)
 	RTTI_FUNCTION("setRelease", &nap::audio::CompressorNode::setRelease)
 RTTI_END_CLASS
 
-RTTI_DEFINE_CLASS(nap::audio::Compressor)
-
-RTTI_DEFINE_CLASS(nap::audio::CompressorInstance)
-
 namespace nap {
     namespace audio {
         
