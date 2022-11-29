@@ -18,7 +18,7 @@ namespace nap
          * A node that manages a nested node manager. The nested node manager can contain a DSP network that runs on a lower buffersize than the main node system. This is useful for more time-accurate scheduling of events or parameter changes.
          * The @NestedNodeManager has its own internal buffersize, input channel count and output channel count. The sample rate should be the same as the main node manager's samplerate. A possible new feature in the future could be resampling so the nested node manager can run on a different samplerate than the main system as well.
          */
-        class NestedNodeManagerNode : public Node
+        class NAPAPI NestedNodeManagerNode : public Node
         {
         public:
             /**
@@ -75,7 +75,7 @@ namespace nap
         /**
          * AudioObjectInstance wrapping a nested node manager. See @NestedNodeManagerNode for more info.
          */
-        class NestedNodeManagerInstance : public AudioObjectInstance
+        class NAPAPI NestedNodeManagerInstance : public AudioObjectInstance
         {
         public:
             NestedNodeManagerInstance() = default;
