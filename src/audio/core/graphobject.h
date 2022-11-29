@@ -19,6 +19,7 @@ namespace nap
 
         /**
          * Audio object that uses a graph to process it's output.
+         * Basically an AudioObject wrapper for a Graph.
          */
         class NAPAPI GraphObject : public AudioObject
         {
@@ -27,10 +28,7 @@ namespace nap
         public:
             GraphObject() : AudioObject() { }
 
-            /**
-             * Pointer to the graph resource that this object uses.
-             */
-            ResourcePtr<Graph> mGraph = nullptr;
+            ResourcePtr<Graph> mGraph = nullptr; ///< Property: 'Graph' Pointer to the graph resource that this object uses.
             
         private:
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
@@ -39,6 +37,7 @@ namespace nap
         
         /**
          * Instance of audio object that uses a graph to process it's output.
+         * Basically an AudioObjectInstance wrapper for a GraphInstance.
          */
         class NAPAPI GraphObjectInstance : public AudioObjectInstance
         {
@@ -48,7 +47,13 @@ namespace nap
             GraphObjectInstance() : AudioObjectInstance() { }
             GraphObjectInstance(const std::string& name) : AudioObjectInstance(name) { }
 
-            // Initialize the object
+            /**
+             * Instantiates and initializes this GraphObjectInstance from a Graph resource.
+             * @param graph Resource of the Graph that this object will instantiate.
+             * @param nodeManager The NodeManager that the graph will be processed by.
+             * @param errorState Logs error messages if the initialization of the graph fails.
+             * @return True on succesful initialization.
+             */
             bool init(Graph& graph, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
@@ -59,22 +64,26 @@ namespace nap
             T* getObject(const std::string& mID) { return mGraphInstance.getObject<T>(mID); }
             
             /**
-             * Non typed version of @getObject().
+             * Non typed version of @getObject() for python usage.
+             * @return a raw pointer to the object with the given ID.
              */
             AudioObjectInstance* getObjectNonTyped(const std::string& mID) { return mGraphInstance.getObjectNonTyped(mID); }
             
             /**
              * Adds an object to the graph. The graph takes over ownership.
+             * @param object Object to add to the graph.
              */
             AudioObjectInstance& addObject(std::unique_ptr<AudioObjectInstance> object) { return mGraphInstance.addObject(std::move(object)); }
             
             /**
              * Adds an object to the graph and marks it to be the graph's input. The graph takes over ownership of the object.
+             * @param object Object to add to the graph as input.
              */
             AudioObjectInstance& addInput(std::unique_ptr<AudioObjectInstance> object)  { return mGraphInstance.addInput(std::move(object)); }
             
             /**
              * Adds an object to the graph and marks it to be the graph's output. The graph takes over ownership of the object.
+             * @param object Object to add to the graph as output.
              */
             AudioObjectInstance& addOutput(std::unique_ptr<AudioObjectInstance> object) { return mGraphInstance.addOutput(std::move(object)); }
 

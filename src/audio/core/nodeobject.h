@@ -18,10 +18,14 @@ namespace nap
     namespace audio
     {
 
-
+        // Forward declarations
         template <typename NodeType> class NodeObjectInstance;
 
 
+        /**
+         * AudioObject whose instance wraps a Node of type NodeType.
+         * @tparam NodeType The type of the Node that will be wrapped by this object's instance.
+         */
         template <typename NodeType>
         class NodeObject : public AudioObject
         {
@@ -31,28 +35,40 @@ namespace nap
             NodeObject() : AudioObject() { }
             
         private:
-            virtual void initNode(NodeType& node) { }
+            /**
+             * This method can be overridden by descendants to add custom behaviour to the initialization of the wrapped node when this resource is instantiated.
+             * @param node The node that is being initialized.
+             * @param errorState Logs errors during the initialization
+             * @return True on sucess.
+             */
+            virtual bool initNode(NodeType& node, utility::ErrorState& errorState) { }
 
-            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override
-            {
-                auto instance = std::make_unique<NodeObjectInstance<NodeType>>();
-                instance->init(nodeManager, errorState);
-                initNode(*instance->get());
-                return std::move(instance);
-            }
+            // Inherited from AudioObject
+            std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
 
 
-        class NodeObjectInstanceBase : public AudioObjectInstance {
+        /**
+         * Non templated base class for NodeObjectInstance
+         */
+        class NodeObjectInstanceBase : public AudioObjectInstance
+        {
             RTTI_ENABLE(AudioObjectInstance)
         public:
             NodeObjectInstanceBase() = default;
             NodeObjectInstanceBase(const std::string& name) : AudioObjectInstance(name) { }
 
+            /**
+             * @return Non-typed pointer to the wrapped node.
+             */
             virtual Node* getNonTyped() = 0;
         };
         
 
+        /**
+         * Instance of NodeObject. Wraps a single Node of type NodeType.
+         * @tparam NodeType type of the wrapped node.
+         */
         template <typename NodeType>
         class NodeObjectInstance : public NodeObjectInstanceBase
         {
@@ -60,13 +76,15 @@ namespace nap
             
         public:
             NodeObjectInstance() = default;
-
             NodeObjectInstance(const std::string& name) : NodeObjectInstanceBase(name) { }
 
-            bool init(NodeManager& nodeManager, utility::ErrorState& errorState)
+            /**
+             * Initializes this instance object by constructing the wrapped node.
+             * @param nodeManager The NodeManager that will process the wrapped node.
+             */
+            void init(NodeManager& nodeManager)
             {
                 mNode = nodeManager.makeSafe<NodeType>(nodeManager);
-                return true;
             }
 
             // Inherited from AudioObjectInstance
@@ -75,8 +93,19 @@ namespace nap
             void connect(unsigned int channel, OutputPin& pin) override;
             int getInputChannelCount() const override { return mNode->getInputs().size(); }
 
+            /**
+             * @return SafePtr to the wrapped Node.
+             */
             SafePtr<NodeType> get() { return mNode.get(); }
+
+            /**
+             * @return Raw pointer to the wrapped Node.
+             */
             NodeType* getRaw() { return mNode.getRaw(); }
+
+            /**
+             * @return Non types raw pointer to the wrapped Node.
+             */
             Node* getNonTyped() override { return mNode.getRaw(); }
 
         private:
@@ -84,6 +113,9 @@ namespace nap
         };
 
 
+        /**
+         * Non templated base class for ParallelNodeObject
+         */
         class NAPAPI ParallelNodeObjectBase : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
@@ -94,6 +126,10 @@ namespace nap
         };
 
 
+        /**
+         * AudioObject that manages a single input, single output (mono) Node of type NodeType to process each channel.
+         * @tparam NodeType The type of the nodes that process one single channel of the NodeObject.
+         */
         template <typename NodeType>
         class ParallelNodeObject : public ParallelNodeObjectBase
         {
@@ -102,28 +138,46 @@ namespace nap
         public:
             ParallelNodeObject() = default;
 
+            // Inherited from AudioObject
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
 
         private:
+            /**
+             * Override this method to add custom initialization behaviour for each channel's node.
+             * @param channel The channel that the node will process.
+             * @param node The node being initialized.
+             * @param errorState Logs errors during the node's initialization.
+             * @return True on sucess.
+             */
             virtual bool initNode(int channel, NodeType& node, utility::ErrorState& errorState) { return true; }
         };
 
 
+        /**
+         * Non templated base class for ParallelNodeObjectInstance
+         */
         class ParallelNodeObjectInstanceBase : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
+            /**
+             * Pure virtual method that has to be overridden to return a non typed raw pointer to the node that processes a given channel.
+             * @param channel The channel for which the processing node is requested.
+             * @return Non typed raw pointer to the node that processes a given channel.
+             */
             virtual Node* getChannelNonTyped(int channel) = 0;
         };
 
 
+        /**
+         * Instance of ParallelNodeObject.
+         * AudioObject that manages a single input, single output (mono) Node of type NodeType to process each channel.
+         * @tparam NodeType
+         */
         template <typename NodeType>
         class ParallelNodeObjectInstance : public ParallelNodeObjectInstanceBase
         {
             RTTI_ENABLE(ParallelNodeObjectInstanceBase)
-
-        public:
-            using NodeCreationFunction = std::function<std::unique_ptr<NodeType>()>;
 
         public:
             ParallelNodeObjectInstance() = default;
@@ -131,11 +185,17 @@ namespace nap
             // Inherited from ParallelNodeObjectInstanceBase
             Node* getChannelNonTyped(int channel) override { return channel < mChannels.size() ? mChannels[channel].getRaw() : nullptr; }
 
+            /**
+             * Initializes the ParallelNodeObjectInstance by constructing a node of type NodeType for each channel.
+             * @param channelCount Number of processing channels.
+             * @param nodeManager The NodeManager this ParallelNodeObjectInstance will be processed on.
+             * @param errorState Logs errors during the initialization.
+             * @return True on sucsess.
+             */
             bool init(int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState);
 
             /**
-             * Returns a pointer to the DSP node for the specified channel.
-			 * Returns nullptr if the channel; is out of bounds.
+             * @return A pointer to the DSP node for the specified channel. Returns nullptr if the channel; is out of bounds.
              */
             NodeType* getChannel(unsigned int channel) { return channel < mChannels.size() ? mChannels[channel].getRaw() : nullptr; }
 
@@ -153,6 +213,19 @@ namespace nap
         private:
             std::vector<SafeOwner<NodeType>> mChannels;
         };
+
+
+        // Template definitions
+
+        template <typename NodeType>
+        std::unique_ptr<AudioObjectInstance> NodeObject<NodeType>::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
+        {
+            auto instance = std::make_unique<NodeObjectInstance<NodeType>>();
+            instance->init(nodeManager);
+            if (!initNode(*instance->get(), errorState))
+                return nullptr;
+            return std::move(instance);
+        }
 
 
         template <typename NodeType>

@@ -35,16 +35,9 @@ namespace nap
         public:
             AudioComponent() : AudioComponentBase() { }
             
-            /**
-             * The audio object that is wrapped by this component
-             */
-            ResourcePtr<AudioObject> mObject;
+            ResourcePtr<AudioObject> mObject;                 ///< Property: 'Object' The audio object that is wrapped by this component
             
-            /**
-             * Pointers to audio components whose audio objects can be linked to from within this component
-             */
-            std::vector<ComponentPtr<AudioComponent>> mLinks;
-            
+            std::vector<ComponentPtr<AudioComponent>> mLinks; ///< Property: 'Links' Pointers to audio components whose audio objects can be linked to from within this component
         };
 
         
@@ -57,15 +50,14 @@ namespace nap
             
         public:
             AudioComponentInstance(EntityInstance& entity, Component& resource) : AudioComponentBaseInstance(entity, resource) { }
-            
-            // Initialize the component
-            bool init(utility::ErrorState& errorState) override;
 
-            // Derived from AudioComponentBaseInstance
+            // Inherited from AudioComponentBaseInstance
+            bool init(utility::ErrorState& errorState) override;
             int getChannelCount() const override { return mObject->getChannelCount(); }
             virtual OutputPin* getOutputForChannel(int channel) override { return mObject->getOutputForChannel(channel); }
+
             /**
-             * Returns the wrapped audio object
+             * @return the wrapped audio object
              */
             AudioObjectInstance* getObject();
             

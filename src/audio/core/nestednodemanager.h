@@ -25,11 +25,7 @@ namespace nap
              * Constructor
              * @param parentNodeManager the node manager that this NestedNodeManagerNode runs in. The parent node manager should run an internal buffersize that is a whole number of times the internal buffersize of the nested node manager.
              */
-            NestedNodeManagerNode(NodeManager& parentNodeManager) : Node(parentNodeManager), mNestedNodeManager(parentNodeManager.getDeletionQueue())
-            {
-
-            }
-
+            NestedNodeManagerNode(NodeManager& parentNodeManager) : Node(parentNodeManager), mNestedNodeManager(parentNodeManager.getDeletionQueue()) { }
 
             /**
              * Initialize the node.
@@ -37,32 +33,15 @@ namespace nap
              * @param outputChannelCount  the number of output channels the nested node manager has
              * @param internalBufferSize the internal buffersize of the nested node manager. Should be smaller than the parent node manager's.
              */
-            void init(int inputChannelCount, int outputChannelCount, int internalBufferSize)
-            {
-                mNestedNodeManager.setInputChannelCount(inputChannelCount);
-                mNestedNodeManager.setOutputChannelCount(outputChannelCount);
-                mNestedNodeManager.setSampleRate(getNodeManager().getSampleRate());
-                mNestedNodeManager.setInternalBufferSize(internalBufferSize);
-
-                for (auto i = 0; i < outputChannelCount; ++i)
-                {
-                    _mOutputs.emplace_back(OutputPin(this));
-                    mOutputBuffers.emplace_back(nullptr);
-                }
-                for (auto i = 0; i < inputChannelCount; ++i)
-                {
-                    _mInputs.emplace_back(InputPin(this));
-                    mInputBuffers.emplace_back(nullptr);
-                }
-            }
+            void init(int inputChannelCount, int outputChannelCount, int internalBufferSize);
 
             /**
-             * Return input pin with given index that will be fed into the nested node system.
+             * @return input pin with given index that will be fed into the nested node system.
              */
             InputPin& getInput(int index) { return _mInputs[index]; }
 
             /**
-             * Return output pin with given index that holds the output of the nested node system.
+             * @return output pin with given index that holds the output of the nested node system.
              */
             OutputPin& getOutput(int index) { return _mOutputs[index]; }
 
@@ -83,24 +62,7 @@ namespace nap
             NodeManager& getNestedNodeManager() { return mNestedNodeManager; }
 
         private:
-            void process() override
-            {
-                for (auto i = 0; i < _mInputs.size(); ++i)
-                {
-                    auto inputBuffer = _mInputs[i].pull();
-                    if (inputBuffer == nullptr)
-                        mInputBuffers[i] = nullptr;
-                    else
-                        mInputBuffers[i] = inputBuffer;
-                }
-
-                for (auto i = 0; i < _mOutputs.size(); ++i)
-                {
-                    auto outputBuffer = &getOutputBuffer(_mOutputs[i]);
-                    mOutputBuffers[i] = outputBuffer;
-                }
-                mNestedNodeManager.process(mInputBuffers, mOutputBuffers, getBufferSize());
-            }
+            void process() override;
 
             NodeManager mNestedNodeManager;
             std::vector<InputPin> _mInputs;
@@ -111,7 +73,7 @@ namespace nap
 
 
         /**
-         * AudioObject wrapping a nested node manager. See @NestedNodeManagerNode for mroe info.
+         * AudioObjectInstance wrapping a nested node manager. See @NestedNodeManagerNode for more info.
          */
         class NestedNodeManagerInstance : public AudioObjectInstance
         {
@@ -119,12 +81,7 @@ namespace nap
             NestedNodeManagerInstance() = default;
             NestedNodeManagerInstance(const std::string& name) : AudioObjectInstance(name) { }
 
-            bool init(NodeManager& nodeManager, int inputChannelCount, int outputChannelCount, int internalBufferSize, utility::ErrorState& errorState)
-            {
-                mNode = nodeManager.makeSafe<NestedNodeManagerNode>(nodeManager);
-                mNode->init(inputChannelCount, outputChannelCount, internalBufferSize);
-                return true;
-            }
+            bool init(NodeManager& nodeManager, int inputChannelCount, int outputChannelCount, int internalBufferSize, utility::ErrorState& errorState);
 
             // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return &mNode->getOutput(channel); }
@@ -132,7 +89,14 @@ namespace nap
             void connect(unsigned int channel, OutputPin& pin) override { mNode->getInput(channel).connect(pin); }
             int getInputChannelCount() const override { return mNode->getInputCount(); }
 
+            /**
+             * @return The wrapped nested NodeManager/
+             */
             NodeManager& getNestedNodeManager() { return mNode->getNestedNodeManager(); }
+
+            /**
+             * @return The NestedNodeManager's main Process.
+             */
             Process& getProcess() { return *mNode; }
 
         private:

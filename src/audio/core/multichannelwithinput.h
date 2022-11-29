@@ -15,7 +15,7 @@ namespace nap
     {
         
         /**
-         * This class exists so we can RTTI define the 'input' resourceptr of MultiChannelWithInput.
+         * This class exists so we can RTTI define the 'input' ResourcePtr of MultiChannelWithInput.
          */
         class NAPAPI InputResourceContainer
         {
@@ -25,12 +25,14 @@ namespace nap
 			
             virtual ~InputResourceContainer() = default;
             
-            ResourcePtr<AudioObject> mInput = nullptr;
+            ResourcePtr<AudioObject> mInput = nullptr; ///< Property: 'Input' AudioObject that generates the input for the object that owns the InputResourceContainer.
         };
-        
-        /**
-         * MultiChannel audioobject with a single input property baked in.
-         */
+
+
+         /**
+          * MultiChannel AudioObject with a single input property baked in.
+          * @tparam NodeType Each channel of the instance is processed by a (mono) node of type NodeType.
+          */
         template <typename NodeType>
         class NAPAPI MultiChannelWithInput : public ParallelNodeObject<NodeType>, public InputResourceContainer
         {
@@ -38,12 +40,12 @@ namespace nap
             
         public:
             MultiChannelWithInput() = default;
-            
-            
+
         private:
-            /**
-             * initNode sets the input. To set custom properties, 'onInitNode' needs to be overriden by descendants.
-             */
+             /**
+              * Overwritten from ParallelNodeObject base class.
+              * Handles connection of the input to the node of a specific channel, and calls onInitNode().
+              */
             virtual bool initNode(int channel, NodeType& node, utility::ErrorState& errorState) override final
             {
                 // mInput is allowed to stay nullptr, then the input will simply not be connected.
@@ -53,7 +55,13 @@ namespace nap
                 return onInitNode(channel, node, errorState);
             }
             
-            // should be renamed if 'initNode' will be renamed
+            /**
+             * This method needs to be overwritten by descendants if specific node initialization behaviour is needed for NodeType.
+             * @param channel The channel for which the node performs processing.
+             * @param node The node being initialized.
+             * @param errorState Logs errors during the initialization process.
+             * @return True on success.
+             */
             virtual bool onInitNode(int channel, NodeType& node, utility::ErrorState& errorState) { return true; };
         };
         

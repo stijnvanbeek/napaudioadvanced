@@ -30,11 +30,7 @@ namespace nap
         public:
             Voice() : Graph()  { }
             
-            /**
-             * Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice.
-             * When the voice is played this envelope will be triggered. When it has finished it emits a signal that will cause the voice to be disconnected and enter idle state again.
-             */
-            ResourcePtr<Envelope> mEnvelope = nullptr;
+            ResourcePtr<Envelope> mEnvelope = nullptr; ///< Property: 'Envelope' Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice. When the voice is played this envelope will be triggered. When it has finished it emits a signal that will cause the voice to be disconnected and enter idle state again.
             
         private:
         };
@@ -53,37 +49,43 @@ namespace nap
             bool init(Voice& resource, NodeManager& nodeManager, utility::ErrorState& errorState);
             
             /**
-             * @return: the envelope controlling the overall amplitude of the voice
+             * @return The envelope controlling the overall amplitude of the voice
              */
             EnvelopeInstance& getEnvelope() { return *mEnvelope; }
             
             /**
-             * @return: the envelope controlling the overall amplitude of the voice
+             * @return The envelope controlling the overall amplitude of the voice
              */
             const EnvelopeInstance& getEnvelope() const { return *mEnvelope; }
 
             /**
              * Starts playback of the voice by triggering the envelope
+             * @param duration The total duration of the envelope. This parameter will only have effect if the voice's envelope data has segments with a relative duration. See Envelope for more info.
              */
             void play(TimeValue duration = 0);
 
             /**
              * Starts playback of the voice by triggering a section of the envelope
+             * @param startSegment The index of the starting segment of the voice envelope's subsection that will be triggered.
+             * @param endSegmtnt The index of the ending segment of the voice envelope's subsection that will be triggered.
+             * @param startValue As envelope segments only define their destination value, this parameter can be used to define the starting value of the first segment. Normally this will be 0 to avoid clicks and pops.
+             * @param totalDuration The total duration of the envelope's subsection. This parameter will only have effect if the voice's envelope data has segments with a relative duration. See Envelope for more info.
              */
             void playSection(int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0);
 
             /**
              * Stops playback of the voice by forcing the envelope to fade out
+             * @param fadeOutTime The fadeout time in ms from the moment this method is called.
              */
             void stop(TimeValue rampTime);
             
             /**
-             * @return: wether this voice is currently playing or reserved for usage.
+             * @return True if this voice is currently playing or reserved for usage.
              */
             bool isBusy() const { return mBusy; }
             
             /**
-             * @return: when the voice is busy, the time the voice started playing
+             * @return When the voice is busy, the time the voice started playing
              */
             DiscreteTimeValue getStartTime() const { return mStartTime; }
 

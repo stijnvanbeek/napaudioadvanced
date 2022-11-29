@@ -21,7 +21,12 @@ namespace nap
     
         class CircularBufferComponentInstance;
         
-        
+
+        /**
+         * Component that manages circular buffers for a number of audio channels.
+         * Audio input can be connected to be recorded by the circular buffers, in the resource as well as at runtime on instances.
+         * At runtime the contents of the buffers can be read for each channel.
+         */
         class NAPAPI CircularBufferComponent : public Component
         {
             RTTI_ENABLE(Component)
@@ -32,27 +37,35 @@ namespace nap
             
         public:
             // Properties
-            nap::ComponentPtr<AudioComponentBase> mInput; ///<  property: 'Input' The component whose audio output to rout to the circular buffer.
+            nap::ComponentPtr<AudioComponentBase> mInput;    ///< Property: 'Input' The component whose audio output to rout to the circular buffer.
             
-            std::vector<int> mChannelRouting = { 0 }; ///< property: 'Routing' The size of this vector indicates the number of channels in the circular buffer.
-            ///< Each element in the array represents one channel of the circular buffer.
-            ///< The value of the element indicates the channel from the input that will be routed to the corresponding channel.
+            std::vector<int> mChannelRouting = { 0 };        ///< Property: 'Routing' The size of this vector indicates the number of channels in the circular buffer.
+                                                             ///< Each element in the array represents one channel of the circular buffer.
+                                                             ///< The value of the element indicates the channel from the input that will be routed to the corresponding channel.
 
-            int mBufferSize = 65536;
+            int mBufferSize = 65536;                         ///< Property: 'BufferSize' The size of the circular buffers in samples.
             
         private:
         };
 
-        
+
+        /**
+         * Instance of CircularBufferComponent
+         */
         class NAPAPI CircularBufferComponentInstance : public ComponentInstance
         {
             RTTI_ENABLE(ComponentInstance)
         public:
             CircularBufferComponentInstance(EntityInstance& entity, Component& resource) : ComponentInstance(entity, resource) { }
             
-            // Initialize the component
+            // Inherited from ComponentInstance
             bool init(utility::ErrorState& errorState) override;
-            
+
+            /**
+             * Request the circular buffer for a specific channel.
+             * @param channel The index of the requested channel
+             * @return Pointer to CircularBufferNode for the specified channel.
+             */
             CircularBufferNode* getChannel(unsigned int channel);
             
         private:

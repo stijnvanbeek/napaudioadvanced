@@ -19,12 +19,14 @@ namespace nap
     namespace audio
     {
         
-        // Forward delcarations
+        // Forward declarations
         class AudioObject;
         
         
         /**
-         * Instance of a object that generates audio output for one or more channels
+         * Instance of an AudioObject resource.
+         * - generates audio output for one or more channels
+         * - optionally exposes an interface to one or more channels receiving audio input
          */
         class NAPAPI AudioObjectInstance : public IMultiChannelInput, public IMultiChannelOutput
         {
@@ -32,19 +34,28 @@ namespace nap
             friend class AudioObject;
             
         public:
+            /**
+             * Default constructor
+             */
             AudioObjectInstance() = default;
+
+            /**
+             * Constructor
+             * @param name mID of the resource from which this object is instantiated.
+             */
             AudioObjectInstance(const std::string& name) : mName(name) { }
 
+            // Copy and move constructors are deleted
             AudioObjectInstance(const AudioObjectInstance&) = delete;
             AudioObjectInstance& operator=(const AudioObjectInstance&) = delete;
 
             /**
-             * If multichannel input is implemented for this object it returns its input interface, otherwise nullptr.
+             * @return If multichannel input is implemented for this object it returns its input interface, otherwise nullptr.
              */
             IMultiChannelInput* getInput() { return dynamic_cast<IMultiChannelInput*>(this); }
             
             /**
-             * If this object is instantiated from a resource this returns the mID of the resource.
+             * @return If this object is instantiated from a resource this returns the mID of the resource.
              * Otherwise it returns an empty string.
              */
             const std::string& getName() const { return mName; }
@@ -73,7 +84,10 @@ namespace nap
             AudioObjectInstance* getInstance() { return mInstance; }
             
             /**
-             * This method spawns an instance of this resource.
+             * This method spawns an instance of type T of this resource.
+             * @param nodeManager The node manager the instantiated object will be processed by
+             * @param errorState Logs errors when the resource dailt to instantiate.
+             * @return nullptr on failure
              */
             template <typename T>
             std::unique_ptr<T> instantiate(NodeManager& nodeManager, utility::ErrorState& errorState);
@@ -81,6 +95,9 @@ namespace nap
         private:
             /**
              * This methods need to be overwritten by all descendants to return an instance of this resource.
+             * @param nodeManager The node manager the instantiated object will be processed by
+             * @param errorState Logs errors when the resource dailt to instantiate.
+             * @return nullptr on failure
              */
             virtual std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) = 0;
             
