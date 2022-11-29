@@ -81,10 +81,13 @@ namespace nap
             /**
              * Initializes this instance object by constructing the wrapped node.
              * @param nodeManager The NodeManager that will process the wrapped node.
+             * @errorState Logs errors during the initialization
+             * @return True on success/
              */
-            void init(NodeManager& nodeManager)
+            virtual bool init(NodeManager& nodeManager, utility::ErrorState& errorState)
             {
                 mNode = nodeManager.makeSafe<NodeType>(nodeManager);
+                return true;
             }
 
             // Inherited from AudioObjectInstance
@@ -221,7 +224,8 @@ namespace nap
         std::unique_ptr<AudioObjectInstance> NodeObject<NodeType>::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             auto instance = std::make_unique<NodeObjectInstance<NodeType>>();
-            instance->init(nodeManager);
+            if (!instance->init(nodeManager, errorState))
+                return nullptr;
             if (!initNode(*instance->get(), errorState))
                 return nullptr;
             return std::move(instance);
