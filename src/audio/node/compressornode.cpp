@@ -17,20 +17,19 @@ RTTI_END_CLASS
 namespace nap {
     namespace audio {
         
-        FaustCompressor::FaustCompressor(int samplerate){
-            
+        FaustCompressor::FaustCompressor(int samplerate)
+        {
             fSamplingFreq = samplerate;
             
             // faust constants
             fConst0 = fmin(192000.0f, fmax(1.0f, float(fSamplingFreq)));
             fConst1 = (2.0f / fConst0);
             fConst2 = (1.0f / fConst0);
-            
         }
 
         
-        void FaustCompressor::compute(int count, float* input0, float* output0){
-    
+        void FaustCompressor::compute(int count, float* input0, float* output0)
+        {
             float fSlow0 = float(fVslider0);
             float fSlow1 = expf((0.0f - (fConst1 / fSlow0)));
             float fSlow2 = (((1.0f / float(fVslider1)) + -1.0f) * (1.0f - fSlow1));
@@ -51,7 +50,17 @@ namespace nap {
             }
         }
 
-        
-        
+
+        void CompressorNode::process()
+        {
+            auto& inputBuffer = *audioInput.pull();
+            auto& outputBuffer = getOutputBuffer(audioOutput);
+
+            // Converts std::vector to float arrays
+            float* inputArray = &inputBuffer[0];
+            float* outputArray = &outputBuffer[0];
+
+            faustCompressor.compute(getBufferSize(), inputArray, outputArray);
+        }
     }
 }

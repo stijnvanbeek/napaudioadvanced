@@ -28,7 +28,8 @@ namespace nap
          * Envelope generator that can trigger envelopes to generate a control signal.
          * Envelopes are specified as an array of segments with a duration and a destination value.
          */
-        class NAPAPI EnvelopeNode : public Node {
+        class NAPAPI EnvelopeNode : public Node
+        {
             RTTI_ENABLE(Node)
         public:
             /**
@@ -37,11 +38,11 @@ namespace nap
              */
             struct NAPAPI Segment
             {
-                TimeValue mDuration = 0;
-                ControllerValue mDestination = 0;
-                bool mDurationRelative = false; ///< this indicates wether the duration of this segment is relative to the total duration of the envelope.
-                RampMode mMode = RampMode::Linear; ///< This indicates the line shape of the segment
-                bool mTranslate = false; ///< Indicates wether the output value will be translated using a lookup table.
+                TimeValue mDuration = 0;             ///< Duration of the segment in ms
+                ControllerValue mDestination = 0;    ///< Destination value of the line segment
+                bool mDurationRelative = false;      ///< this indicates whether the duration of this segment is relative to the total duration of the envelope.
+                RampMode mMode = RampMode::Linear;   ///< This indicates the line shape of the segment
+                bool mTranslate = false;             ///< Indicates whether the output value will be translated using a lookup table.
             };
             using Envelope = std::vector<Segment>;
 
@@ -79,12 +80,13 @@ namespace nap
             void trigger(int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0);
 
             /**
-             * Stops playback of the envelope generator by fading the signal out to zero in @rampTime milliseconds.
+             * Stops playback of the envelope generator by fading the signal out to zero in rampTime milliseconds.
+             * @param rampTime The time in ms the envelope generator takes to fade from its current value out to zero.
              */
             void stop(TimeValue rampTime = 5);
 
             /**
-             * Returns the current output value of the envelope generator.
+             * @return The current output value of the envelope generator.
              */
             ControllerValue getValue() const { return mCurrentValue.load(); }
 
@@ -100,11 +102,12 @@ namespace nap
             
             /**
              * Use this to edit the envelope data. Handle with care and don't use this while the EnvelopeGenerator is playing!
+             * @return Reference to the envelope data being used by the node.
              */
             Envelope& getEnvelope() { return mEnvelope; }
             
             /**
-             * Request the current the index of the segment that is currently playing in the envelope.
+             * @return The current the index of the segment that is currently playing in the envelope.
              */
             int getCurrentSegment() { return mCurrentSegment; }
             

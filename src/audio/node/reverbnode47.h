@@ -44,7 +44,7 @@ namespace nap
                 float mGain = 0.30f;
 
                 /**
-                 * Multiply all magic numbers indicating a time value
+                 * Multiply all magic numbers that correspond to time values
                  * @param factor Multiplication factor
                  */
                 void multiply(float factor);
@@ -72,8 +72,8 @@ namespace nap
             public:
                 ReverbNode(NodeManager& nodeManager);
 
-                InputPin audioInput = { this };
-                OutputPin audioOutput = { this };
+                InputPin audioInput = { this };      ///< Connect audio input signal
+                OutputPin audioOutput = { this };    ///< The reverberated output signal
 
                 InputPin diffusionInput1 = { this }; ///< Connect another ReverbNode's diffusion output to this for cross diffusion
                 InputPin diffusionInput2 = { this }; ///< Connect another ReverbNode's diffusion output to this for cross diffusion

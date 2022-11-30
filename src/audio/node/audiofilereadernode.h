@@ -45,15 +45,19 @@ namespace nap
             bool isPlaying() const { return mPlaying > 0; }
 
 			/**
-			 * Specifies wether the audio file will loop.
+			 * Specifies if the audio file will loop.
+			 * @param value True if the audio file will loop, false if not
 			 */
             void setLooping(bool value) { mLooping = value ? 1 : 0; }
 
 			/**
-			 * @return wether the audio file is looping.
+			 * @return whether the audio file is looping.
 			 */
             bool isLooping() const { return mLooping > 0; }
 
+            /**
+             * Connect this pin to another node's input
+             */
             OutputPin audioOutput = { this };
 
         private:

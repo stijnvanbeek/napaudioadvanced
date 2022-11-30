@@ -15,8 +15,10 @@ namespace nap
     namespace audio
     {
         
-        // Class with compiled Faust code.
-        /* Ported faust code:
+        /**
+         * Compressor algorithm class compiled Faust code.
+         *
+         * Ported faust code:
          *
          * import("stdfaust.lib");
          * ratio = vslider("ratio", 4, 1, 20, 0.01);
@@ -26,17 +28,45 @@ namespace nap
          *
          * process = co.compressor_mono(ratio, thresh, attack, release);
          */
-        
-        class NAPAPI FaustCompressor {
-            
+        class NAPAPI FaustCompressor
+        {
         public:
+            /**
+             * Constructor
+             * @param samplerate Processing sample rate
+             */
             FaustCompressor(int samplerate);
-            
-            void setAttack(float attack){ fVslider0 = attack; }
-            void setRatio(float ratio){ fVslider1 = ratio; }
-            void setRelease(float release){ fVslider2 = release; }
-            void setThreshold(float threshold){ fVslider3 = threshold; }
 
+            /**
+             * Sets the attack time
+             * @param attack Attack time in ms, between 0.0 and 0.2ms.
+             */
+            void setAttack(float attack) { fVslider0 = attack; }
+
+            /**
+             * Sets the ratio
+             * @param ratio Ratio between 1 and 20.
+             */
+            void setRatio(float ratio) { fVslider1 = ratio; }
+
+            /**
+             * Sets the release in ms
+             * @param release In ms between 0. and 1.
+             */
+            void setRelease(float release) { fVslider2 = release; }
+
+            /**
+             * Sets the threshold in dB
+             * @param threshold in dB between -90 and 0dB.
+             */
+            void setThreshold(float threshold) { fVslider3 = threshold; }
+
+            /**
+             * Processes a number of samples
+             * @param count Number of samples to be processed.
+             * @param input0 Pointer to buffer with count number of input samples.
+             * @param output0 Pointer to buffer with count number of samples that the output will be written to.
+             */
             void compute(int count, float* input0, float* output0);
             
         private:
@@ -54,11 +84,10 @@ namespace nap
             float fRec2[2] = { 0.f, 0.f };
             float fRec1[2] = { 0.f, 0.f };
             float fRec0[2] = { 0.f, 0.f };
-            
         };
         
         /**
-         * CompressorNode is just a port of compiled Faust code.
+         * CompressorNode wraps the FaustCompressor.
          */
         class NAPAPI CompressorNode : public Node
         {
@@ -71,27 +100,35 @@ namespace nap
                 setRelease(0.5);
             }
             
-            InputPin audioInput = { this };
-            
-            OutputPin audioOutput = { this };
-            
-            void setAttack(float attack){ faustCompressor.setAttack(attack); }
-            void setRatio(float ratio){ faustCompressor.setRatio(ratio); }
-            void setRelease(float release){ faustCompressor.setRelease(release); }
-            void setThreshold(float threshold){ faustCompressor.setThreshold(threshold); }
+            InputPin audioInput = { this };     ///< Audio input pin
+            OutputPin audioOutput = { this };   ///< Audio output pin
+
+            /**
+             * Sets the attack time
+             * @param attack Attack time in ms, between 0.0 and 0.2ms.
+             */
+            void setAttack(float attack) { faustCompressor.setAttack(attack); }
+
+            /**
+             * Sets the ratio
+             * @param ratio Ratio between 1 and 20.
+             */
+            void setRatio(float ratio) { faustCompressor.setRatio(ratio); }
+
+            /**
+             * Sets the release in ms
+             * @param release In ms between 0. and 1.
+             */
+            void setRelease(float release) { faustCompressor.setRelease(release); }
+
+            /**
+             * Sets the threshold in dB
+             * @param threshold in dB between -90 and 0dB.
+             */
+            void setThreshold(float threshold) { faustCompressor.setThreshold(threshold); }
             
         private:
-            void process() override {
-                
-                auto& inputBuffer = *audioInput.pull();
-                auto& outputBuffer = getOutputBuffer(audioOutput);
-
-                // because buffers are std::vectors, I have to get them as float arrays
-                float* inputArray = &inputBuffer[0];
-                float* outputArray = &outputBuffer[0];
-                
-                faustCompressor.compute(getBufferSize(), inputArray, outputArray);
-            }
+            void process() override;
             
             FaustCompressor faustCompressor;
             

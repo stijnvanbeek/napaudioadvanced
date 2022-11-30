@@ -35,6 +35,7 @@ namespace nap
 
 			/**
 			 * Sets the number of filters being processed. The maximum is 8.
+			 * @param count Number of filters being processed in parallel.
 			 */
 			void setFilterCount(unsigned int count);
 
@@ -45,6 +46,10 @@ namespace nap
 
 			/**
 			 * Sets the parameters of all filters to the values within the vector arguments. If the sizes of the vectors are shorter than 8, the content will be repeated.
+			 * @param centerFrequency Centerfrequency in Hz for each of the filters
+			 * @param bandWidth Bandwidths in Hz for each of the filters
+			 * @param gain Gain multiplier for each of the filters
+			 * @param sampleRate Samplerate the filterbank will be processed at.
 			 */
 			void setParameters(const std::vector<ControllerValue>& centerFrequency, const std::vector<ControllerValue>& bandWidth, const std::vector<ControllerValue>& gain, float sampleRate);
 
@@ -58,6 +63,8 @@ namespace nap
 
 			/**
 			 * Process the samples in inputBuffer and store the output in outputBuffer. Both parameters are allowed to be the same buffer for replacement processing.
+			 * @param inputBuffer Buffer with input samples. Has to be at least as big as the outputBuffer.
+			 * @param outputBugger BUffer containing the output samples after execution.
 			 */
 			void processBuffer(SampleBuffer& inputBuffer, SampleBuffer& outputBuffer);
 
@@ -87,6 +94,7 @@ namespace nap
             
             /**
              * Sets the number of filters being processed. The maximum is 8.
+             * @param count Number of filters being processed in parallel.
              */
             void setFilterCount(unsigned int count) { mFilterBank.setFilterCount(count); }
             
@@ -97,6 +105,10 @@ namespace nap
             
             /**
              * Sets the parameters of all filters to the values within the vector arguments. If the sizes of the vectors are shorter than 8, the content will be repeated.
+             * @param centerFrequency Centerfrequency in Hz for each of the filters
+             * @param bandWidth Bandwidths in Hz for each of the filters
+             * @param gain Gain multiplier for each of the filters
+             * @param sampleRate Samplerate the filterbank will be processed at.
              */
             void setParameters(const std::vector<ControllerValue>& centerFrequency, const std::vector<ControllerValue>& bandWidth, const std::vector<ControllerValue>& gain)
 			{

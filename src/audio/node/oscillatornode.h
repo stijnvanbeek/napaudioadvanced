@@ -20,6 +20,7 @@ namespace nap
         /**
          * A wavetable that can be used as waveform data for an oscillator.
          * Contains a buffer with one cycle of samples for a periodic waveform.
+         * The WaveTable also supports "bandlimited" data,  which means that different waveforms are used for different frequency bands to avoid aliasing in high frequencies.
          */
         class NAPAPI WaveTable
         {
@@ -30,6 +31,8 @@ namespace nap
         public:
             /**
              * Constructor takes the size of the waveform buffer and the waveform type.
+             * @param size Size of the waveform in samples
+             * @param waveform
              */
             WaveTable(long size, Waveform waveform = Waveform::Sine, int numberOfBands = 1);
             
@@ -72,22 +75,28 @@ namespace nap
 
             /**
              * Set the frequency in Hz
+             * @param frequency Frequency in Hz
+             * @param rampTime Interpolation time in ms
              */
             void setFrequency(ControllerValue frequency, TimeValue rampTime = 0);
             
             /**
              * Set the amplitude of the generated wave
+             * @param amplitude Amplitude multiplier
+             * @param rampTime Interpolation time in ms
              */
             void setAmplitude(ControllerValue amplitude, TimeValue rampTime = 0);
             
             /**
-             * Sets the phase of the oscillator as a value between 0 and 1
+             * Sets the phase of the oscillator
+             * @param phaseOffset Phase as a value between 0 and 1
              */
             void setPhase(ControllerValue phaseOffset);
             
             /**
              * Set the waveform for the oscillator.
              * Has to be called after construction and before usage.
+             * @param aWave Safe pointer to WaveTable object.
              */
             void setWave(SafePtr<WaveTable> aWave);
             

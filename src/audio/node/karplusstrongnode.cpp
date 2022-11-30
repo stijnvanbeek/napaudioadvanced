@@ -13,3 +13,25 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::KarplusStrongNode)
 		RTTI_FUNCTION("setNegativePolarity", &nap::audio::KarplusStrongNode::setNegativePolarity)
 RTTI_END_CLASS
 
+namespace nap
+{
+
+    namespace audio
+    {
+
+        void KarplusStrongNode::process()
+        {
+            auto& outputBuffer = getOutputBuffer(audioOutput);
+            auto inputBuffer = audioInput.pull();
+            if (mNegativePolarity)
+                for (auto i = 0; i < getBufferSize(); ++i)
+                    outputBuffer[i] = mKarplusStrong.processNegative((*inputBuffer)[i]);
+            else
+                for (auto i = 0; i < getBufferSize(); ++i)
+                    outputBuffer[i] = mKarplusStrong.processPositive((*inputBuffer)[i]);
+        }
+
+    }
+
+}
+

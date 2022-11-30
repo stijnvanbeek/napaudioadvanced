@@ -41,10 +41,13 @@ namespace nap
 			void setActive(bool active);
 
 			/**
-			 * Indicates wether the node is writing to disk
+			 * Indicates whether the node is writing to disk
 			 */
 			 bool isActive() const { return mActive > 0; }
 
+			 /**
+			  * Connect another node's audio output to this pin to write it to a file.
+			  */
             InputPin audioInput = { this };
 
         private:
