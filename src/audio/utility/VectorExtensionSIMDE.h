@@ -14,7 +14,7 @@
 //#else
 //	#error "AVX instructions are disabled. Something is wrong in your CMake config."
 //#endif
-//
+
 //#include <emmintrin.h> // SSE2 (float4) intrinsics
 
 namespace nap
