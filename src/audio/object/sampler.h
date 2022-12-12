@@ -11,7 +11,10 @@ namespace nap
     
     namespace audio
     {
-        
+
+        /**
+         * Object that plays back samples along with some metadata about start point, loop points and transposition
+         */
         class NAPAPI SamplePlayer : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
@@ -21,21 +24,25 @@ namespace nap
             
         public:
 			SamplePlayer() : AudioObject() { }
-            
+
+			// Inherited from AudioObject
             bool init(utility::ErrorState& errorState) override;
             
-            SamplerEntries mSampleEntries;                              ///< property: 'SampleEntries' Default set of different playback settings
-            EnvelopeNode::Envelope mEnvelopeData;                       ///< property: 'Envelope' Default envelope settings
-            int mChannelCount = 1;                                      ///< property: 'ChannelCount' Number of channels
-            int mVoiceCount = 10;                                       ///< property: 'VoiceCount' Number of voices in the pool.
-            ResourcePtr<EqualPowerTable> mEqualPowerTable = nullptr;    ///< property: 'EqualPowerTable'
+            SamplerEntries mSampleEntries;                              ///< Property: 'SampleEntries' Default set of different playback settings
+            EnvelopeNode::Envelope mEnvelopeData;                       ///< Property: 'Envelope' Default envelope settings
+            int mChannelCount = 1;                                      ///< Property: 'ChannelCount' Number of channels
+            int mVoiceCount = 10;                                       ///< Property: 'VoiceCount' Number of voices in the pool.
+            ResourcePtr<EqualPowerTable> mEqualPowerTable = nullptr;    ///< Property: 'EqualPowerTable' Pointer to EqualPowerTable that will be used by crossfades and envelopes.
             
         private:
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
             
         };
         
-        
+
+        /**
+         * Instance of SamplePlayer
+         */
         class NAPAPI SamplePlayerInstance : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
@@ -45,12 +52,13 @@ namespace nap
 			SamplePlayerInstance(const std::string& name) : AudioObjectInstance(name) { }
 
             /**
-             * @param sampleEntries sample entries that can be played by this sampler
-             * @param envelopeData default envelope data
-             * @param channelCount number of output channels of the sampler
-             * @param nodeManager node manager this sampler runs on
-             * @param errorState contains error information if the init() fails
-             * @return true on success
+             * @param sampleEntries Sample entries containing playback metadata that can be played by this sampler
+             * @param equalPowerTable EqualPowerTable that will be used by crossfades and envelopes
+             * @param envelopeData Default envelope data
+             * @param channelCount Number of output channels of the sampler
+             * @param nodeManager NodeManager this sampler runs on
+             * @param errorState Contains error information if the init() fails
+             * @return True on success
              */
             bool init(SamplePlayer::SamplerEntries& sampleEntries, ResourcePtr<EqualPowerTable> equalPowerTable, EnvelopeNode::Envelope& envelopeData, int channelCount, int voiceCount, NodeManager& nodeManager, utility::ErrorState& errorState);
 
@@ -58,17 +66,29 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return mPolyphonicInstance->getOutputForChannel(channel); }
             int getChannelCount() const override { return mPolyphonicInstance->getChannelCount(); }
 
-            /**
-             * Plays back sampler entry with given index for given duration.
-             * Uses envelope data that can be accessed through @getEnvelopeData()
-             * Returns a voice that is playing back the entry.
-             */
+             /**
+              * Plays back sampler entry with given index for given duration.
+              * @param samplerEntryIndex Index of the sampler entry metadata for playback
+              * @param duration Duration of the playback
+              * @return Voice that is playing back the entry
+              */
             VoiceInstance* play(unsigned int samplerEntryIndex, TimeValue duration);
 
+            /**
+             * Plays a sampler entry, but specify the section of the envelope that will be played.
+             * @param samplerEntryIndex Index of the sampler entry meta data
+             * @param startSegment Starting segment of the envelope data that is triggered
+             * @param endSegment Ending segment of the envelope data
+             * @param startValue Initial value of the envelope output when the startSegment is triggered.
+             * @param totalDuration The total duration of the playback event.
+             * @return The voice playing back the section
+             */
             VoiceInstance* playSection(unsigned int samplerEntryIndex, int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0);
 
             /**
-             * Fades out the given voice over @releaseTime and stops it.
+             * Stops a voice that is playing back a sample event
+             * @param voice The voice that will be stopped
+             * @param release Time in ms of the fadeout
              */
             void stop(VoiceInstance* voice, TimeValue release = 0);
 

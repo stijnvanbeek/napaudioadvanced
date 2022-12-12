@@ -17,6 +17,10 @@ namespace nap
          * Object containing a @FilterBankNode on each channel.
          */
         using FilterBankObject = MultiChannelWithInput<FilterBankNode>;
+
+        /**
+         * Instance of FilterBankObject
+         */
         using FilterBankInstance = ParallelNodeObjectInstance<FilterBankNode>;
 
     }

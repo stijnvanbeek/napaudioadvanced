@@ -11,9 +11,9 @@
 #include <audio/core/audionodemanager.h>
 
 RTTI_BEGIN_ENUM(nap::audio::AudioFileDescriptor::Mode)
-RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::WRITE, "Write"),
-RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::READ, "Read"),
-RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::READWRITE, "ReadWrite")
+    RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::WRITE, "Write"),
+    RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::READ, "Read"),
+    RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::READWRITE, "ReadWrite")
 RTTI_END_ENUM
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AudioFileIO)
@@ -56,7 +56,6 @@ namespace nap
         {
             sf_close(mSndFile);
         }
-
 
 
         unsigned int AudioFileDescriptor::write(float* buffer, int size)

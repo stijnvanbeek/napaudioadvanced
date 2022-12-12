@@ -17,13 +17,15 @@ namespace nap
 		/**
 		 * Utility class representing a single delay that can be written and read from.
 		 * Supports interpolation between samples while reading.
+         * @tparam real Should be float, @float4 or @float8.
 		 */
 		template <typename real>
 		class NAPAPI VectorDelay
 		{
 		public:
 			/**
-			 * The buffer size has to be a power of 2
+			 * Constructor
+			 * @param bufferSize The buffer size has to be a power of 2
 			 */
 			VectorDelay(unsigned int bufferSize)
 			{
@@ -35,6 +37,7 @@ namespace nap
 			
 			/**
 			 * Write a sample to the delay line at the current write position
+			 * @param sample input value
 			 */
 			void write(const real& sample)
 			{
@@ -45,6 +48,7 @@ namespace nap
 			/**
 			 * Read a sample from the delay line at @time samples behind the write position.
 			 * Non interpolating.
+			 * @param time Delay time in samples
 			 */
 			const real& read(unsigned int time)
 			{
@@ -58,7 +62,8 @@ namespace nap
 			}
 			
 			/**
-			 * Same as @read() but with interpolation between samples
+			 * Same as @read() but supporting interpolation between samples
+			 * @param sampleTime Delay time in samples
 			 */
 			real readInterpolating(float sampleTime)
 			{
@@ -87,12 +92,13 @@ namespace nap
 			}
 			
 			/**
-			 * @return: return the maximum delay. (equalling the size of the buffer)
+			 * @return return the maximum delay. (equalling the size of the buffer)
 			 */
 			unsigned int getMaxDelay() { return mBuffer.size(); }
 			
 			/**
-			 * Operator to read from the delay line without interpolation at @index before the write position
+			 * Operator to read from the delay line without interpolation
+			 * @param index Delay time in samples
 			 */
 			inline const real& operator[](unsigned int index) { return read(index); }
 		

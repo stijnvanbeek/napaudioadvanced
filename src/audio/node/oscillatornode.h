@@ -43,11 +43,13 @@ namespace nap
             
             /**
              * Read from the waveform at a certain index between 0 and @getSize()
-             */
+             * @param index Position in samples to read out from the waveform
+             * @param frequency In case of a bandlimited waveform, this parameter determines which version of the waveform to read from.
+              */
             inline SampleValue interpolate(double index, float frequency) const;
             
             /**
-             * Returns the size of the waveform buffer
+             * @return the size of the waveform buffer
              */
             long getSize() const { return mData.getSize(); }
             

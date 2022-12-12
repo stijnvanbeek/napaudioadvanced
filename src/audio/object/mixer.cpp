@@ -16,6 +16,18 @@ namespace nap
     
     namespace audio
     {
+
+        bool Mixer::initNode(int channel, MixNode& node, utility::ErrorState& errorState)
+        {
+            node.inputs.reserveInputs(mInputs.size());
+
+            for (auto& input : mInputs)
+                if (input != nullptr)
+                    node.inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
+
+            return true;
+        }
+
         
     }
     

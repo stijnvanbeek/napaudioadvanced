@@ -96,5 +96,12 @@ namespace nap
 		}
 
 
-	}
+        int OscillatorInstance::addWaveTable(const SafePtr<WaveTable> &waveTable)
+        {
+            mWaveTables.emplace_back(waveTable);
+            return mWaveTables.size() - 1;
+        }
+
+
+    }
 }

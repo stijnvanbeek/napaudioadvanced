@@ -10,6 +10,8 @@ RTTI_BEGIN_CLASS(nap::audio::AudioFileWriter)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AudioFileWriterInstance)
+    RTTI_FUNCTION("setActive", &nap::audio::AudioFileWriterInstance::setActive)
+    RTTI_FUNCTION("isActive", &nap::audio::AudioFileWriterInstance::isActive)
 RTTI_END_CLASS
 
 
@@ -66,6 +68,14 @@ namespace nap
 
             return true;
         }
+
+
+        void AudioFileWriterInstance::setActive(bool active)
+        {
+            for (auto& node : mNodes)
+                node->setActive(active);
+        }
+
     }
 
 }

@@ -16,7 +16,10 @@ namespace nap
     
     namespace audio
     {
-        
+
+        /**
+         * AudioObject containing a MixNode for each channel
+         */
         class NAPAPI Mixer : public ParallelNodeObject<MixNode>
         {
             RTTI_ENABLE(ParallelNodeObjectBase)
@@ -24,20 +27,10 @@ namespace nap
         public:
             Mixer() = default;
             
-            std::vector<ResourcePtr<AudioObject>> mInputs;
+            std::vector<ResourcePtr<AudioObject>> mInputs; ///< Property: 'Inputs' AudioObjects whose output will be mixed by this object
             
         private:
-            bool initNode(int channel, MixNode& node, utility::ErrorState& errorState) override
-            {
-                node.inputs.reserveInputs(mInputs.size());
-
-                for (auto& input : mInputs)
-                    if (input != nullptr)
-                    {
-                        node.inputs.connect(*input->getInstance()->getOutputForChannel(channel % input->getInstance()->getChannelCount()));
-                    }
-                return true;
-            }
+            bool initNode(int channel, MixNode& node, utility::ErrorState& errorState) override;
         };
         
         

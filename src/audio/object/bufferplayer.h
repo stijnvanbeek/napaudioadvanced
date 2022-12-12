@@ -29,8 +29,8 @@ namespace nap
         public:
             BufferPlayer() = default;
             
-            ResourcePtr<AudioBufferResource> mBufferResource = nullptr; /**< Resource containing the buffer that will be played. */
-            bool mAutoPlay = true; /**<  If true, the object will start playing back immediately after initialization. */
+            ResourcePtr<AudioBufferResource> mBufferResource = nullptr; ///< Property: 'BufferResource' Resource containing the buffer that will be played.
+            bool mAutoPlay = true;                                      ///< Property: 'AutoPlay' If true, the object will start playing back immediately after initialization.
             
         private:
             bool initNode(int channel, BufferPlayerNode& node, utility::ErrorState& errorState) override;

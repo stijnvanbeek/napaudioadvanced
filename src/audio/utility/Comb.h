@@ -18,12 +18,21 @@ namespace nap
 		class Comb
 		{
 		public:
+		    /**
+		     * Reset the delay lines by flushing them with zero's
+		     * @param maxDelay Size of the delay lines in samples, therefore the maximum delay time in samples
+		     */
 			void reset(int maxDelay)
 			{
 				mBuffer.resize(maxDelay, 0.f);
 				mBufferIndex = 0;
 			}
 
+			/**
+			 * Process a single sample input
+			 * @param input Value of the input sample
+			 * @return Output value of the comb filter
+			 */
 			SampleValue process(SampleValue input)
 			{
 				int readIndex = mBufferIndex - mDelay;
@@ -40,8 +49,22 @@ namespace nap
 				return result;
 			}
 
+			/**
+			 * Set delay time
+			 * @param delay Discrete delay time in samples
+			 */
 			void setDelay(int delay) { assert(delay < mBuffer.size()); mDelay = delay; }
+
+			/**
+			 * Sets the gain multiplier of the filter
+			 * @param value Gain multiplier value
+			 */
 			void setGain(ControllerValue value) { mGain = value; }
+
+			/**
+			 * Sets the feedforward gain multiplier
+			 * @param value Gain multiplier of the feed forward signal
+			 */
 			void setFeedforward(ControllerValue value) { mFeedforward = value; }
 
 		private:

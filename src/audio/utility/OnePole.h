@@ -14,12 +14,21 @@ namespace nap
 	namespace audio
 	{
 
+	    /**
+	     * One pole lowpass filter algorithm
+	     * @tparam real Can be float, float4 or float8 to enable SIMD processing
+	     */
 		template <typename real>
 		class OnePoleLowPass
 		{
 		public:
 			OnePoleLowPass() = default;
 
+			/**
+			 * Process a single input smaple
+			 * @param input Input value to process by the filter
+			 * @return Output sample value
+			 */
 			real process(const real& input)
 			{
 				auto value = output + cf * (input - output);
@@ -27,6 +36,11 @@ namespace nap
 				return output;
 			}
 
+            /**
+             * Set the cutoff frequency
+             * @param cutoffFrequency The new cutoff frequency in HZ
+             * @param sampleRate The samplerate the filter runs on
+             */
 			void setCutoffFrequency(float cutoffFrequency, float sampleRate)
 			{
 				real c = real(cutoffFrequency / sampleRate);
@@ -39,12 +53,21 @@ namespace nap
 		};
 
 
+        /**
+         * One pole high pass filter algorithm
+         * @tparam real Can be float, float4 or float8 to enable SIMD processing
+         */
 		template <typename real>
 		class OnePoleHighPass
 		{
 		public:
 			OnePoleHighPass() = default;
 
+            /**
+             * Process a single input smaple
+             * @param input Input value to process by the filter
+             * @return Output sample value
+             */
 			real process(const real& input)
 			{
 				output = a0 * input + a1 * previousInput + b1 * output;
@@ -52,6 +75,11 @@ namespace nap
 				return output;
 			}
 
+			/**
+			 * Set the cutoff frequency
+			 * @param cutoffFrequency The new cutoff frequency in HZ
+			 * @param sampleRate The samplerate the filter runs on
+			 */
 			void setCutoffFrequency(ControllerValue cutoffFrequency, float sampleRate)
 			{
 				real c = cutoffFrequency / sampleRate;

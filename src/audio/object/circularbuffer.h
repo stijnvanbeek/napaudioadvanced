@@ -20,7 +20,10 @@ namespace nap
     
         class CircularBufferInstance;
         
-        
+
+        /**
+         * Object that reads its input into a circular buffer that can be read from at requested positions relative to the input position.
+         */
         class NAPAPI CircularBuffer : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
@@ -30,22 +33,25 @@ namespace nap
             
         public:
             // Properties
-            ResourcePtr<AudioObject> mInput; ///<  property: 'Input' The object whose audio output to rout to the circular buffer.
+            ResourcePtr<AudioObject> mInput;          ///< Property: 'Input' The object whose audio output to rout to the circular buffer.
             
-            std::vector<int> mChannelRouting = { 0 }; ///< property: 'ChannelRouting' The size of this vector indicates the number of channels in the circular buffer.
+            std::vector<int> mChannelRouting = { 0 }; ///< Property: 'ChannelRouting' The size of this vector indicates the number of channels in the circular buffer.
             ///< Each element in the array represents one channel of the circular buffer.
             ///< The value of the element indicates the channel from the input that will be routed to the corresponding channel.
 
-            bool mRootProcess = true;
+            bool mRootProcess = true; ///< Property: 'RootProcess'
             
-            int mBufferSize = 65536;
+            int mBufferSize = 65536;  ///< Property: 'BufferSize'
             
         private:
             // Inherited from AudioObject
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;
         };
 
-        
+
+        /**
+         * Instance of CircularBufferInstance
+         */
         class NAPAPI CircularBufferInstance : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
@@ -53,12 +59,44 @@ namespace nap
             CircularBufferInstance() : AudioObjectInstance() { }
             CircularBufferInstance(const std::string& name) : AudioObjectInstance(name) { }
 
+            /**
+             * Initializes the CircularBufferInstance with an input
+             * @param input AudioObject that will produce input or the circular buffers
+             * @param channelRouting For each channel of the circular buffer this indicates the input channel of input.
+             * @param rootProcess True if the circular buffers should be root processes of the NodeManager. This means processing will happen automatically.
+             * @param bufferSize The size of the circular buffers in samples
+             * @param nodeManager The NodeManager the circular buffers will be processed on
+             * @param errorState Logs errors during initialization
+             * @return True on success
+             */
             bool init(AudioObjectInstance& input, const std::vector<int>& channelRouting, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState);
+
+            /**
+             * Initializes the CircularBufferInstance without input
+             * @param channelCount Number of channels of the circular buffer
+             * @param rootProcess True if the circular buffers should be root processes of the NodeManager. This means processing will happen automatically.
+             * @param bufferSize The size of the circular buffers in samples
+             * @param nodeManager The NodeManager the circular buffers will be processed on
+             * @param errorState Logs errors during initialization
+             * @return True on success
+             */
             bool init(int channelCount, bool rootProcess, int bufferSize, NodeManager& nodeManager, utility::ErrorState& errorState);
 
+            /**
+             * Request a channel node of the circular buffer.
+             * @param channel Index of the requested channel
+             * @return Pointer to CircularBufferNode for the specified channel
+             */
             SafePtr<CircularBufferNode> getChannel(unsigned int channel);
+
+            /**
+             * @return Number of channels of this object
+             */
 			int getBufferChannelCount() const { return mNodes.size(); }
 
+			/**
+			 * Clears the contents of each channel of the circular buffer.
+			 */
 			void clear();
 
         private:

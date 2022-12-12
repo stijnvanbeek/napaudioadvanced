@@ -14,6 +14,9 @@ namespace nap
     namespace audio
     {
 
+        /**
+         * Object to play back audio from a circular buffer
+         */
         class NAPAPI CircularBufferPlayer : public ParallelNodeObject<CircularBufferPlayerNode> {
             RTTI_ENABLE(ParallelNodeObjectBase)
             

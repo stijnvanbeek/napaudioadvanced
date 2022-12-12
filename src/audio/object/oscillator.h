@@ -22,6 +22,9 @@ namespace nap
 		class OscillatorInstance;
 
 
+		/**
+		 * Resource wrapper around WaveTable object.
+		 */
         class NAPAPI WaveTableResource : public Resource
 		{
             RTTI_ENABLE(Resource)
@@ -30,10 +33,13 @@ namespace nap
             WaveTableResource(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
             bool init(utility::ErrorState& errorState);
 
-            int mSize = 2048; ///< Property: 'Size' Size of the wavetable. Has to be a power of two.
-            int mNumberOfBands = 100; ///< Property: 'NumberOfBands' Number of bands used for band limiting
+            int mSize = 2048;                                          ///< Property: 'Size' Size of the wavetable. Has to be a power of two.
+            int mNumberOfBands = 100;                                  ///< Property: 'NumberOfBands' Number of bands used for band limiting
             WaveTable::Waveform mWaveform = WaveTable::Waveform::Sine; ///< Property: 'Waveform' Waveform of the wave table.
 
+            /**
+             * @return Pointer to the managed WaveTable object.
+             */
             SafePtr<WaveTable> getWave() { return mWave.get(); }
 
         private:
@@ -44,6 +50,7 @@ namespace nap
 
 		/**
          * Multichannel oscillator object.
+         * The Oscillator basically repeats a waveform (default a sinewave) in a frequency that can be modulated.
          */
         class NAPAPI Oscillator : public AudioObject
         {
@@ -62,6 +69,9 @@ namespace nap
         };
 
 
+        /**
+         * Instance of Oscillator
+         */
 		class OscillatorInstance : public AudioObjectInstance
 		{
 			RTTI_ENABLE(AudioObjectInstance)
@@ -70,11 +80,34 @@ namespace nap
 			OscillatorInstance() = default;
 			OscillatorInstance(const std::string& name) : AudioObjectInstance(name) { }
 
+			/**
+			 * Initialize the OscillatorInstance
+			 * @param channelCount Number of channels
+			 * @param nodeManager The NodeManager this object will process on
+			 * @param errorState Logs errors during initialization
+			 * @return True on success
+			 */
 			bool init(int channelCount, NodeManager& nodeManager, utility::ErrorState& errorState);
-			void addWaveTable(const SafePtr<WaveTable>& waveTable) { mWaveTables.emplace_back(waveTable); }
+
+			/**
+			 * Adds a WaveTable to read from. The wave tabke can be selected using the selectWaveTable() function.
+			 * @param waveTable
+			 * @return The index of the wavetable that can be used to select it using selectWaveTable()
+			 */
+			int addWaveTable(const SafePtr<WaveTable>& waveTable);
+
+			/**
+			 * Selects a wavetable that has been added using addWaveTable()
+			 * @param index Index of the wavetable.
+			 */
 			void selectWaveTable(int index);
+
+			/**
+			 * @return The number of wavetables that can be chosen from
+			 */
 			int getWaveTableCount() const { return mWaveTables.size(); }
 
+			// Inherited from AudioObjectInstance
 			int getChannelCount() const override { return mNodes.size(); }
 			OutputPin* getOutputForChannel(int channel) override { return &mNodes[channel]->output; }
 			OscillatorNode* getChannel(int channel) { return mNodes[channel].getRaw(); }

@@ -18,7 +18,14 @@ namespace nap
     namespace audio
     {
 
+        /**
+         * Multichannel compressor audio object
+         */
         using Compressor = MultiChannelWithInput<CompressorNode>;
+
+        /**
+         * Instance of Compressor
+         */
         using CompressorInstance = ParallelNodeObjectInstance<CompressorNode>;
 
     }

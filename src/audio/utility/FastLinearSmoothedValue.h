@@ -16,13 +16,18 @@ namespace nap
         /**
          * Used to smooth changed to a value linearly over time, using a fixed smoothing time.
          * A slightly optimized version to the LinearSmoothedValue in modnapaudio.
-         * Pitfall is that the @update() has to be called manually each audio callback.
+         * Pitfall is that the update() method has to be called manually each audio callback.
          */
         template <typename T>
-        class FastLinearSmoothedValue {
+        class FastLinearSmoothedValue
+        {
+
         public:
-            
-        public:
+            /**
+             * Constructor
+             * @param initValue Initial value of the value
+             * @param stepCount The number of steps in samples the value takes to reach a new destination
+             */
             FastLinearSmoothedValue(const T& initValue, int stepCount) : mNewDestination(initValue), mValue(initValue), mDestination(initValue)
             {
                 mStepCount = stepCount;
@@ -30,6 +35,7 @@ namespace nap
             
             /**
              * Change the number of steps the value takes to reach a new destination.
+             * @param stepCount Number of steps in samples
              */
             void setStepCount(int stepCount)
             {
@@ -38,17 +44,16 @@ namespace nap
             
             /**
              * Start a ramp
-             * @param destination: the finishing value
+             * @param destination The destination value of the next ramp
              */
             void setValue(const T& destination)
             {
                 mNewDestination = destination;
             }
 
-
             /**
              * Should be called each audio callback in order to update the status.
-             * This way the (mNewDestination != mDestination) will be performed per bufer instead of per sample.
+             * This way the (mNewDestination != mDestination) will be performed per buffer instead of per sample, and therefore performs a little more efficient than the regular LinearSmoothedValue
              */
             void update()
             {
@@ -64,8 +69,9 @@ namespace nap
             }
             
             /**
-             * Take the next step in the current ramp.
+             * Take the next step in the current ramp and return the updated value.
              * Should only be called from the audio thread.
+             * @return The updated value
              */
             T getNextValue()
             {
@@ -81,19 +87,22 @@ namespace nap
             }
             
             /**
-             * Returns the current value.
              * Should only be called from the audio thread
+             * @return The current value
              */
             inline T getValue() const
             {
                 return mValue;
             }
-            
+
+            /**
+             * @return The destination of the current ramp. If the destination has been reached this value equals the current value.
+             */
             inline T getDestination() const { return mNewDestination; }
             
             /**
-             * Returns true when currently playing a ramp.
              * Should only be called from the audio thread.
+             * @return True when currently playing a ramp.
              */
             inline bool isRamping() const { return mStepCounter > 0 || mDestination != mNewDestination; }
             

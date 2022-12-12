@@ -25,8 +25,8 @@ namespace nap
         public:
             Gain() = default;
 
-            std::vector<ControllerValue> mGain = { 1.f }; ///< property: 'Gain' array of gain values per output channel. If the size of the array is less than the number of channels it will be repeated.
-            ResourcePtr<AudioObject> mInput = nullptr; ///< property: Object generating the input signal of the gain.
+            std::vector<ControllerValue> mGain = { 1.f }; ///< Property: 'Gain' array of gain values per output channel. If the size of the array is less than the number of channels it will be repeated.
+            ResourcePtr<AudioObject> mInput = nullptr;    ///< Property: Object generating the input signal of the gain.
 
         private:
             bool initNode(int channel, GainNode& node, utility::ErrorState& errorState) override;

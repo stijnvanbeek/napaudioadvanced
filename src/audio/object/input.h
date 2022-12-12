@@ -26,7 +26,7 @@ namespace nap
             RTTI_ENABLE(ParallelNodeObjectBase)
             
         public:
-            std::vector<int> mChannels = { 0 }; ///< property: 'Channels' Defines what audio input channels to receive data from. The size of this array determines the number of channels that this component will output.
+            std::vector<int> mChannels = { 0 }; ///< Property: 'Channels' Defines what audio input channels to receive data from. The size of this array determines the number of channels that this component will output.
             
         private:
             bool initNode(int channel, InputNode& node, utility::ErrorState& errorState) override

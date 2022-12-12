@@ -16,7 +16,7 @@ namespace nap
         
         /**
          * Helper object to calculate a multiple of 4 or 8 biquad filters simultaneously with SSE or AVX vector extensions using @float4 or @float8.
-         * @real should be @float4 or @float8.
+         * @tparam real Should be float, @float4 or @float8.
          */
         template <typename real>
         class NAPAPI BiquadFilter
@@ -24,6 +24,7 @@ namespace nap
         public:
             BiquadFilter() : a0(real(0), 64), a1(real(0), 64), a2(real(0), 64), b1(real(0), 64), b2(real(0), 64), gain(real(0), 64), h1(0), h2(0) { }
 
+            // Delete copy and move constructor
             BiquadFilter(const BiquadFilter&) = delete;
             BiquadFilter& operator=(const BiquadFilter&) = delete;
 
@@ -42,6 +43,8 @@ namespace nap
             
             /**
              * Process one input sample for all the filters simultaneously.
+             * @param input sample value
+             * @return output sample of the filter
              */
             real process(const real value)
             {

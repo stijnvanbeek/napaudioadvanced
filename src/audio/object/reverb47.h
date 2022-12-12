@@ -28,9 +28,9 @@ namespace nap
             public:
                 Reverb47() = default;
 
-                ResourcePtr<AudioObject> mInput = nullptr; ///< Property: 'Input' AudioObject to receive input from
+                ResourcePtr<AudioObject> mInput = nullptr;                 ///< Property: 'Input' AudioObject to receive input from
                 std::vector<float> mCorrelationMultiplier = { 1.f, 1.1f }; ///< Property: 'CorrelationMultiplier' Multiplication factor for all "magic" tuning numbers for the reverberation algorithm
-                bool mDiffusionCrossover = true; ///< Property: 'DiffusionCrossOver' Set to true if the diffusion inputs and outputs of the parallel reverb nodes should be connected to one another. Don't set to true when the object is processed multithreaded in parallel.
+                bool mDiffusionCrossover = true;                           ///< Property: 'DiffusionCrossOver' Set to true if the diffusion inputs and outputs of the parallel reverb nodes should be connected to one another. Don't set to true when the object is processed multithreaded in parallel.
 
                 // Inherited from ParallelNodeObject
                 bool initNode(int channel, ReverbNode& node, utility::ErrorState& errorState) override;
@@ -40,6 +40,9 @@ namespace nap
             };
 
 
+            /**
+             * Instance of Reverb47
+             */
             using ReverbInstance47 = ParallelNodeObjectInstance<ReverbNode>;
 
 

@@ -25,7 +25,7 @@ namespace nap
         public:
             Multiply() = default;
 
-            std::vector<ResourcePtr<AudioObject>> mInputs; ///< property: Object generating the input signals to be multiplied.
+            std::vector<ResourcePtr<AudioObject>> mInputs; ///< Property: 'Inputs' Object generating the input signals to be multiplied.
 
         private:
             bool initNode(int channel, MultiplyNode& node, utility::ErrorState& errorState) override;

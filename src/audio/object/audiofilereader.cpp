@@ -10,6 +10,11 @@ RTTI_BEGIN_CLASS(nap::audio::AudioFileReader)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AudioFileReaderInstance)
+    RTTI_FUNCTION("getChannelCount", &nap::audio::AudioFileReaderInstance::getChannelCount)
+    RTTI_FUNCTION("setPlaying", &nap::audio::AudioFileReaderInstance::setPlaying)
+    RTTI_FUNCTION("isPlaying", &nap::audio::AudioFileReaderInstance::isPlaying)
+    RTTI_FUNCTION("setLooping", &nap::audio::AudioFileReaderInstance::setLooping)
+    RTTI_FUNCTION("isLooping", &nap::audio::AudioFileReaderInstance::isLooping)
 RTTI_END_CLASS
 
 
@@ -55,6 +60,21 @@ namespace nap
 
             return true;
         }
+
+
+        void AudioFileReaderInstance::setPlaying(bool playing)
+        {
+            for (auto& node : mNodes)
+                node->setPlaying(playing);
+        }
+
+
+        void AudioFileReaderInstance::setLooping(bool looping)
+        {
+            for (auto& node : mNodes)
+                node->setLooping(looping);
+        }
+
     }
 
 }

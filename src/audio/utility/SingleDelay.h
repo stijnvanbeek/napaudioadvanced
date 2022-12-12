@@ -14,11 +14,18 @@ namespace nap
 	namespace audio
 	{
 
+	    /**
+	     * Single delay algorithm without feedback
+	     */
 		class SingleDelay
 		{
 		public:
 			SingleDelay() = default;
 
+			/**
+			 * Flushes the delay line
+			 * @param maxDelay Size of the delay line, also maximum delay time in samples.
+			 */
 			void reset(int maxDelay)
 			{
 				int size = 2048;
@@ -27,18 +34,32 @@ namespace nap
 				mDelay = std::make_unique<Delay>(size);
 			}
 
+			/**
+			 * Set the delay time
+			 * @param sampleTime New delay time in samples
+			 */
 			void setDelay(ControllerValue sampleTime)
 			{
 				assert(mTime <= mDelay->getMaxDelay());
 				mTime = sampleTime;
 			}
 
+			/**
+			 * Processes a single input sample
+			 * @param input Input sample value
+			 * @return Output value
+			 */
 			SampleValue process(SampleValue input)
 			{
 				mDelay->write(input);
 				return mDelay->read(mTime);
 			}
 
+			/**
+			 * Process a single input sample using interpolation in case the delay is modulating
+			 * @param input Input sample value
+			 * @return Output value
+			 */
 			SampleValue processInterpolating(SampleValue input)
 			{
 				mDelay->write(input);
