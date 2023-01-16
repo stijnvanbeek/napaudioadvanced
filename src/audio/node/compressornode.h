@@ -6,8 +6,6 @@
 
 // Audio includes
 #include <audio/core/audionode.h>
-#include <audio/core/multichannelwithinput.h>
-#include <audio/core/nodeobject.h>
 
 namespace nap
 {
