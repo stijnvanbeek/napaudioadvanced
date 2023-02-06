@@ -125,7 +125,8 @@ namespace nap
 
         public:
             ParallelNodeObjectBase() = default;
-            int mChannelCount = 1; ///< Property: 'ChannelCount' The number of channels
+            ResourcePtr<AudioObject> mInput = nullptr; ///< Property: 'Input' AudioObject that generates the input for the object that owns the InputResourceContainer. Not all ParallelNodeObjects have input, and this property is optional.
+            int mChannelCount = 1;                     ///< Property: 'ChannelCount' The number of channels
         };
 
 
@@ -265,15 +266,30 @@ namespace nap
         template <typename NodeType>
         std::unique_ptr<AudioObjectInstance> ParallelNodeObject<NodeType>::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
+            // Initialize the instance
             auto instance = std::make_unique<ParallelNodeObjectInstance<NodeType>>();
             if (!instance->init(mChannelCount, nodeManager, errorState))
                 return nullptr;
+
+            // Initialize channel nodes
             for (auto channel = 0; channel < instance->getChannelCount(); ++channel)
                 if (!initNode(channel, *instance->getChannel(channel), errorState))
                 {
                     errorState.fail("Failed to init node at channel %i", channel);
                     return nullptr;
                 }
+
+            // Connect the input
+            if (mInput != nullptr)
+            {
+                if (instance->getInputChannelCount() == 0)
+                {
+                    errorState.fail("Failed to init ParallelNodeObject: Input property specified but Node has no inputs");
+                    return nullptr;
+                }
+                for (auto channel = 0; channel < instance->getInputChannelCount(); ++channel)
+                    instance->connect(channel, *mInput->getInstance()->getOutputForChannel(channel % mInput->getInstance()->getChannelCount()));
+            }
 
             return std::move(instance);
         }

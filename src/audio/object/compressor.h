@@ -8,7 +8,7 @@
 #include <nap/resourceptr.h>
 
 // Audio includes
-#include <audio/core/multichannelwithinput.h>
+#include <audio/core/nodeobject.h>
 #include <audio/core/nodeobject.h>
 #include <audio/node/compressornode.h>
 
@@ -21,7 +21,7 @@ namespace nap
         /**
          * Multichannel compressor audio object
          */
-        using Compressor = MultiChannelWithInput<CompressorNode>;
+        using Compressor = ParallelNodeObject<CompressorNode>;
 
         /**
          * Instance of Compressor

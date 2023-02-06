@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <audio/core/multichannelwithinput.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/filterbanknode.h>
 
 namespace nap
@@ -16,7 +16,7 @@ namespace nap
         /**
          * Object containing a @FilterBankNode on each channel.
          */
-        using FilterBankObject = MultiChannelWithInput<FilterBankNode>;
+        using FilterBankObject = ParallelNodeObject<FilterBankNode>;
 
         /**
          * Instance of FilterBankObject

@@ -9,6 +9,7 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::NodeObjectInstanceBase)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::ParallelNodeObjectBase)
+    RTTI_PROPERTY("Input", &nap::audio::ParallelNodeObjectBase::mInput, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("ChannelCount", &nap::audio::ParallelNodeObjectBase::mChannelCount, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 

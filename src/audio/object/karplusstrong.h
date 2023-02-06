@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <audio/core/multichannelwithinput.h>
+#include <audio/core/nodeobject.h>
 #include <audio/node/karplusstrongnode.h>
 
 namespace nap
@@ -16,7 +16,7 @@ namespace nap
         /**
          * Object containing a @KarplusStrongNode on each channel.
          */
-        using KarplusStrongObject = MultiChannelWithInput<KarplusStrongNode>;
+        using KarplusStrongObject = ParallelNodeObject<KarplusStrongNode>;
         using KarplusStrongInstance = ParallelNodeObjectInstance<KarplusStrongNode>;
 
     }

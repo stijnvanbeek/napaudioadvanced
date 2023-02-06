@@ -5,10 +5,8 @@
 #pragma once
 
 #include <audio/utility/karplusstrong.h>
-#include <audio/core/multichannelwithinput.h>
-
 #include <audio/core/audionode.h>
-#include <audio/core/nodeobject.h>
+#include <audio/core/audionodemanager.h>
 
 namespace nap
 {
