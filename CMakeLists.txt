@@ -15,6 +15,12 @@ source_group("resource" src/audio/resource/*.*)
 source_group("service" src/audio/service/*.*)
 source_group("utility" src/audio/utility/*.*)
 
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
+endif()
+
 # Get our NAP modules dependencies from module.json
 module_json_to_cmake()
 
