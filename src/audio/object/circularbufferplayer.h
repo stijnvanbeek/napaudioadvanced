@@ -24,6 +24,12 @@ namespace nap
             CircularBufferPlayer() = default;
         };
 
+
+        /**
+         * Instance of CircularBufferPlayer
+         */
+        using BufferPlayerInstance = ParallelNodeObjectInstance<CircularBufferPlayerNode>;
+
     }
 
 }

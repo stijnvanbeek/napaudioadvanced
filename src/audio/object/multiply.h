@@ -32,6 +32,11 @@ namespace nap
         };
 
 
+        /**
+         * Instance of Multiply
+         */
+        using MultiplyInstance = ParallelNodeObjectInstance<MultiplyNode>;
+
     }
 
 }

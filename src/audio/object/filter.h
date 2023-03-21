@@ -35,6 +35,12 @@ namespace nap
         private:
             bool initNode(int channel, FilterNode& node, utility::ErrorState& errorState) override;
         };
+
+
+        /**
+         * Instance of Filter
+         */
+        using FilterInstance = ParallelNodeObjectInstance<FilterNode>;
         
     }
     

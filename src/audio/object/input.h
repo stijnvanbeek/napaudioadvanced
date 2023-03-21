@@ -35,8 +35,13 @@ namespace nap
                 return true;
             }
         };
-        
-       
+
+
+        /**
+         * Instance of Input
+         */
+        using InputInstance = ParallelNodeObjectInstance<InputNode>;
+
     }
     
 }

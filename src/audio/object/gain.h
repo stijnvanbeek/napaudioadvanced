@@ -33,6 +33,11 @@ namespace nap
         };
 
 
+        /**
+         * Instance of Gain
+         */
+        using GainInstance = ParallelNodeObjectInstance<GainNode>;
+
     }
 
 }
