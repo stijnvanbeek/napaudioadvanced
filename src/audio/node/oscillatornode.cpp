@@ -37,7 +37,7 @@ namespace nap
 				mData.resize(1, size);
 				mBandBottoms.emplace_back(0);
 				auto& bandData = mData[0];
-				auto step = M_PI * 2 / size;
+				auto step = math::PIX2 / size;
 				for (int i = 0; i < size; i++)
 					bandData[i] = sin(i * step);
 			}
@@ -55,7 +55,7 @@ namespace nap
 					bool negative = false;
 					while (bandFrequency * harmonic < Nyquist)
 					{
-						auto step = M_PI * 2 / size;
+						auto step = math::PIX2 / size;
 						auto a = harmonic > 1.f ? 1.f / (waveform == Waveform::Triangle ? pow(harmonic, 2) : harmonic - 1.f) : 1.f;
 						if (negative)
 							a *= -1.f;

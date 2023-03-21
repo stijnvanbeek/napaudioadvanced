@@ -44,7 +44,7 @@ namespace nap
 			void setCutoffFrequency(float cutoffFrequency, float sampleRate)
 			{
 				real c = real(cutoffFrequency / sampleRate);
-				cf = 1 - powVec(real(M_E), real(-math::PIX2) * c);
+				cf = 1 - powVec(real(math::E), real(-math::PIX2) * c);
 			}
 
 		private:
@@ -83,7 +83,7 @@ namespace nap
 			void setCutoffFrequency(ControllerValue cutoffFrequency, float sampleRate)
 			{
 				real c = cutoffFrequency / sampleRate;
-				real x = powVec(real(M_E), real(-M_2_PI) * c);
+				real x = powVec(real(math::E), real(-math::M2_PI) * c);
 				real one = real(1.f);
 				real two = real(2.f);
 				a0 = (one + x) / two;

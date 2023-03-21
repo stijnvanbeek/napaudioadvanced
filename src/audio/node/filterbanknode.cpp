@@ -58,8 +58,8 @@ namespace nap
             float8 one = float8(1);
             float8 two = float8(2);
 
-            float8 c = one / tanVec(float8(M_PI) * bandWidth / sampleRate);
-            float8 d = two * cosVec(float8(2 * M_PI) * centerFrequency / sampleRate);
+            float8 c = one / tanVec(float8(math::PI) * bandWidth / sampleRate);
+            float8 d = two * cosVec(float8(math::PIX2) * centerFrequency / sampleRate);
             float8 a0 = one / (one + c);
             float8 a1 = zero;
             float8 a2 = zero - a0;
