@@ -20,7 +20,7 @@ RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AudioComponentInstance)
     RTTI_CONSTRUCTOR(nap::EntityInstance&, nap::Component&)
-    RTTI_FUNCTION("getObject", &nap::audio::AudioComponentInstance::getObject)
+    RTTI_FUNCTION("getObject", &nap::audio::AudioComponentInstance::getObjectNonTyped)
 RTTI_END_CLASS
 
 namespace nap
@@ -44,7 +44,7 @@ namespace nap
         }
         
         
-        AudioObjectInstance* AudioComponentInstance::getObject()
+        AudioObjectInstance* AudioComponentInstance::getObjectNonTyped()
         {
             return mObject.get();
         }
