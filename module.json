@@ -6,5 +6,6 @@
         "napscene",
         "napaudio"
     ],
-    "WindowsDllSearchPaths": []
+    "WindowsDllSearchPaths": [],
+    "DemoApp": "fmsynth"
 }

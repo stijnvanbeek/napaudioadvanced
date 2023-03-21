@@ -1,0 +1,17 @@
+{
+    "Type": "nap::ProjectInfo",
+    "mID": "ProjectInfo",
+    "Title": "FmSynth",
+    "Version": "1.0.0",
+    "RequiredModules": [
+        "napapp",
+        "napimgui",
+        "naprender",
+        "napparameter",
+        "napparametergui",
+        "napfmsynth"
+    ],
+    "Data": "data/fmsynth.json",
+    "ServiceConfig": "",
+    "PathMapping": "cache/path_mapping.json"
+}
