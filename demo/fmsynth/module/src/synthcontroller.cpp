@@ -19,6 +19,8 @@ RTTI_BEGIN_CLASS(nap::SynthController)
     RTTI_PROPERTY("Decay", &nap::SynthController::mDecay, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Sustain", &nap::SynthController::mSustain, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("Release", &nap::SynthController::mRelease, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("WaveformA", &nap::SynthController::mWaveformA, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("WaveformB", &nap::SynthController::mWaveformB, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::SynthControllerInstance)
