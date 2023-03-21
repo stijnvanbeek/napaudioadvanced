@@ -1,10 +1,10 @@
 {
     "Type": "nap::ModuleInfo",
-    "mID": "ModuleInfo",
+    "mID": "napaudioadvanced",
     "RequiredModules": [
-        "mod_napmath",
-        "mod_napscene",
-        "mod_napaudio"
+        "napmath",
+        "napscene",
+        "napaudio"
     ],
     "WindowsDllSearchPaths": []
 }
