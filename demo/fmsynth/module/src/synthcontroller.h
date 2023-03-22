@@ -2,6 +2,9 @@
 
 #include <audio/component/audiocomponent.h>
 #include <audio/core/polyphonic.h>
+#include <audio/core/graphobject.h>
+#include <audio/object/reverb47.h>
+#include <audio/object/control.h>
 
 #include <midiinputcomponent.h>
 
@@ -26,9 +29,6 @@ namespace nap
         RTTI_ENABLE(Component)
         DECLARE_COMPONENT(SynthController, SynthControllerInstance)
     public:
-        void getDependentComponents(std::vector<rtti::TypeInfo> &types) const override {
-        }
-
         ComponentPtr<audio::AudioComponent> mAudioComponent = nullptr; ///< Property: 'AudioComponent'
         ComponentPtr<MidiInputComponent> mNoteOn = nullptr;
         ComponentPtr<MidiInputComponent> mNoteOff = nullptr;
@@ -44,8 +44,7 @@ namespace nap
         ResourcePtr<ParameterFloat> mRelease = nullptr;
         ResourcePtr<ParameterOptionList> mWaveformA = nullptr;
         ResourcePtr<ParameterOptionList> mWaveformB = nullptr;
-
-    private:
+        ResourcePtr<ParameterFloat> mReverbLevel = nullptr;
     };
 
 
@@ -58,40 +57,29 @@ namespace nap
             mResource = getComponent<SynthController>();
         }
 
-
-        bool init(utility::ErrorState &errorState) override
-        {
-            mNoteOn->messageReceived.connect(this, &SynthControllerInstance::noteOn);
-            mNoteOff->messageReceived.connect(this, &SynthControllerInstance::noteOff);
-            mResource->mFrequencyModulation->valueChanged.connect(this, &SynthControllerInstance::fmChanged);
-            mResource->mVoicing->valueChanged.connect(this, &SynthControllerInstance::voicingChanged);
-            mResource->mFilterResonance->valueChanged.connect(this, &SynthControllerInstance::filterResonanceChanged);
-            mResource->mEnvelopeModulation->valueChanged.connect(this, &SynthControllerInstance::envelopeModulationChanged);
-            mResource->mWaveformA->valueChanged.connect(this, &SynthControllerInstance::waveformAChanged);
-            mResource->mWaveformB->valueChanged.connect(this, &SynthControllerInstance::waveformBChanged);
-
-            mPolyphonic = mAudioComponent->getObject<audio::PolyphonicInstance>();
-            if (mPolyphonic == nullptr)
-            {
-                errorState.fail("Polyphonic not found");
-                return false;
-            }
-
-            return true;
-        }
-
-
+        // Inherited from ComponentInstance
+        bool init(utility::ErrorState &errorState) override;
         void update(double deltaTime) override;
 
     private:
+        Slot<const MidiEvent&> noteOnSlot = { this, &SynthControllerInstance::noteOn };
         void noteOn(const MidiEvent& event);
+        Slot<const MidiEvent&> noteOffSlot = { this, &SynthControllerInstance::noteOff };
         void noteOff(const MidiEvent& event);
+        Slot<float> fmChangedSlot = { this, &SynthControllerInstance::fmChanged };
         void fmChanged(float);
+        Slot<int> voicingChangedSlot = { this, &SynthControllerInstance::voicingChanged };
         void voicingChanged(int);
+        Slot<float> filterResonanceChangedSlot = { this, &SynthControllerInstance::filterResonanceChanged };
         void filterResonanceChanged(float);
+        Slot<float> envelopeModulationChangedSlot = { this, &SynthControllerInstance::envelopeModulationChanged };
         void envelopeModulationChanged(float);
+        Slot<int> waveformAChangedSlot = { this, &SynthControllerInstance::waveformAChanged };
         void waveformAChanged(int);
+        Slot<int> waveformBChangedSlot = { this, &SynthControllerInstance::waveformBChanged };
         void waveformBChanged(int);
+        Slot<float> reverbLevelChangedSlot = { this, &SynthControllerInstance::reverbLevelChanged };
+        void reverbLevelChanged(float);
 
         audio::PolyphonicInstance* mPolyphonic = nullptr;
         int mLastPlayedNote = 0;

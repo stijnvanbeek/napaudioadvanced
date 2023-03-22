@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 // Local includes
 #include "keytomidi.h"
@@ -85,8 +85,8 @@ namespace nap
         RGBAColor8 mTextHighlightColor = { 0xC8, 0x69, 0x69, 0xFF };    //< GUI text highlight color
 		KeyToMidiConverter mKeyToMidiConverter;
 		ObjectPtr<ParameterGroup> mParameterGroup = nullptr;
-		std::unique_ptr<RenderWindow> mRenderWindow = nullptr;			//< Pointer to the render window
-		std::unique_ptr<ParameterGUI> mParameterGUI = nullptr;
-		std::unique_ptr<MidiInputPort> mMidiInputPort = nullptr;
+		ObjectPtr<RenderWindow> mRenderWindow = nullptr;			//< Pointer to the render window
+		ObjectPtr<ParameterGUI> mParameterGUI = nullptr;
+		ObjectPtr<MidiInputPort> mMidiInputPort = nullptr;
 	};
 }

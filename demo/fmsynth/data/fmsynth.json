@@ -8,12 +8,9 @@
                     "Type": "nap::audio::AudioComponent",
                     "mID": "nap::audio::AudioComponent_1869e951",
                     "Object": {
-                        "Type": "nap::audio::Polyphonic",
-                        "mID": "Polyphonic",
-                        "Voice": "SynthVoice",
-                        "VoiceCount": 50,
-                        "VoiceStealing": true,
-                        "ChannelCount": 1
+                        "Type": "nap::audio::GraphObject",
+                        "mID": "GraphObject",
+                        "Graph": "Graph"
                     },
                     "Links": []
                 },
@@ -53,9 +50,41 @@
                     "ProgramChange": false,
                     "ChannelPressure": false,
                     "PitchBend": false
+                },
+                {
+                    "Type": "nap::SynthController",
+                    "mID": "nap::SynthController_fd75c8fc",
+                    "AudioComponent": "./nap::audio::AudioComponent_1869e951",
+                    "NoteOn": "./noteOn",
+                    "NoteOff": "./noteOff",
+                    "FrequencyModulation": "OscillatorALevel",
+                    "Voicing": "Voicing",
+                    "GlideTime": "GlideTime",
+                    "FilterCutoff": "FilterCutoff",
+                    "FilterResonance": "FilterResonance",
+                    "EnvelopeModulation": "EnvelopeModulation",
+                    "Attack": "Attack",
+                    "Decay": "Decay",
+                    "Sustain": "Sustain",
+                    "Release": "Release",
+                    "WaveformA": "WaveformA",
+                    "WaveformB": "WaveformB",
+                    "ReverbLevel": "ReverbLevel"
                 }
             ],
             "Children": []
+        },
+        {
+            "Type": "nap::MidiInputPort",
+            "mID": "MidiInputPort",
+            "Ports": [],
+            "EnableDebugOutput": false
+        },
+        {
+            "Type": "nap::ParameterGUI",
+            "mID": "ParameterGUI",
+            "Serializable": true,
+            "Group": "Parameters"
         },
         {
             "Type": "nap::ParameterGroup",
@@ -68,17 +97,6 @@
                     "Value": 0.0,
                     "Minimum": 0.0,
                     "Maximum": 10.0
-                },
-                {
-                    "Type": "nap::ParameterOptionList",
-                    "mID": "Tuning",
-                    "Name": "Tuning",
-                    "Value": 0,
-                    "Options": [
-                        "Equal Temperament",
-                        "Pythagorean",
-                        "Pure Intonation"
-                    ]
                 },
                 {
                     "Type": "nap::ParameterOptionList",
@@ -157,7 +175,7 @@
                 {
                     "Type": "nap::ParameterOptionList",
                     "mID": "WaveformA",
-                    "Name": "Waveform Oscillator A",
+                    "Name": "Waveform Modulator",
                     "Value": 0,
                     "Options": [
                         "Sine",
@@ -168,16 +186,59 @@
                 {
                     "Type": "nap::ParameterOptionList",
                     "mID": "WaveformB",
-                    "Name": "Waveform Oscillator B",
-                    "Value": 0,
+                    "Name": "Waveform Carrier",
+                    "Value": 1,
                     "Options": [
                         "Sine",
                         "Saw",
                         "Square"
                     ]
+                },
+                {
+                    "Type": "nap::ParameterFloat",
+                    "mID": "ReverbLevel",
+                    "Name": "Reverb",
+                    "Value": 0.5,
+                    "Minimum": 0.0,
+                    "Maximum": 1.0
                 }
             ],
             "Groups": []
+        },
+        {
+            "Type": "nap::ParameterOptionList",
+            "mID": "Tuning",
+            "Name": "Tuning",
+            "Value": 0,
+            "Options": [
+                "Equal Temperament",
+                "Pythagorean",
+                "Pure Intonation"
+            ]
+        },
+        {
+            "Type": "nap::RenderWindow",
+            "mID": "Window0",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "",
+            "Width": 512,
+            "Height": 512,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
         },
         {
             "Type": "nap::Scene",
@@ -193,6 +254,57 @@
             "Type": "nap::audio::EqualPowerTable",
             "mID": "EqualPowerTable_9aa95e35",
             "Size": 256
+        },
+        {
+            "Type": "nap::audio::Graph",
+            "mID": "Graph",
+            "Objects": [
+                {
+                    "Type": "nap::audio::Polyphonic",
+                    "mID": "Polyphonic",
+                    "Voice": "SynthVoice",
+                    "VoiceCount": 10,
+                    "VoiceStealing": true,
+                    "ChannelCount": 1
+                },
+                {
+                    "Type": "nap::audio::verb47::Reverb47",
+                    "mID": "Reverb",
+                    "Input": "Polyphonic",
+                    "ChannelCount": 2,
+                    "CorrelationMultiplier": [
+                        1.0,
+                        1.100000023841858
+                    ],
+                    "DiffusionCrossover": true
+                },
+                {
+                    "Type": "nap::audio::Multiply",
+                    "mID": "ReverbMultiply",
+                    "Input": "Reverb",
+                    "ChannelCount": 2,
+                    "Inputs": [
+                        "ReverbControl"
+                    ]
+                },
+                {
+                    "Type": "nap::audio::Mixer",
+                    "mID": "Mixer",
+                    "Input": "Polyphonic",
+                    "ChannelCount": 2,
+                    "Inputs": [
+                        "ReverbMultiply"
+                    ]
+                },
+                {
+                    "Type": "nap::audio::Control",
+                    "mID": "ReverbControl",
+                    "Value": 0.5,
+                    "EqualPowerTable": ""
+                }
+            ],
+            "Output": "Mixer",
+            "Input": ""
         },
         {
             "Type": "nap::audio::Voice",
@@ -247,6 +359,7 @@
                 {
                     "Type": "nap::audio::Multiply",
                     "mID": "Multiply",
+                    "Input": "",
                     "ChannelCount": 1,
                     "Inputs": [
                         "Filter",
@@ -269,7 +382,7 @@
                         "SawWaveform",
                         "SquareWaveform"
                     ],
-                    "WaveTableSelection": 0
+                    "WaveTableSelection": 1
                 },
                 {
                     "Type": "nap::audio::Control",
@@ -280,6 +393,7 @@
                 {
                     "Type": "nap::audio::Filter",
                     "mID": "Filter",
+                    "Input": "OscillatorB",
                     "ChannelCount": 1,
                     "Mode": "LowRes",
                     "Frequency": [
@@ -294,7 +408,7 @@
                     "Gain": [
                         0.10000000149011612
                     ],
-                    "Input": "OscillatorB"
+                    "Input": ""
                 }
             ],
             "Output": "Multiply",

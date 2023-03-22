@@ -1,7 +1,5 @@
 #include "keytomidi.h"
 
-#include <nap/logger.h>
-
 namespace nap
 {
 
@@ -14,7 +12,6 @@ namespace nap
 			if (it == mState.end())
 				return nullptr;
 
-            Logger::info("key release %i", keyEvent.mKey);
 			// Otherwise retrieve the note number.
 			auto noteNr = it->second;
 			// Erase the keypress state
@@ -36,7 +33,6 @@ namespace nap
 			if (it != mState.end())
 				return nullptr;
 
-            Logger::info("key press %i", keyEvent.mKey);
 			bool isNoteKey = true;
 			MidiValue noteNr;
 

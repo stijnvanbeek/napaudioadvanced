@@ -21,6 +21,7 @@ RTTI_BEGIN_CLASS(nap::SynthController)
     RTTI_PROPERTY("Release", &nap::SynthController::mRelease, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("WaveformA", &nap::SynthController::mWaveformA, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("WaveformB", &nap::SynthController::mWaveformB, nap::rtti::EPropertyMetaData::Required)
+    RTTI_PROPERTY("ReverbLevel", &nap::SynthController::mReverbLevel, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::SynthControllerInstance)
@@ -29,6 +30,51 @@ RTTI_END_CLASS
 
 namespace nap
 {
+
+    bool SynthControllerInstance::init(utility::ErrorState &errorState)
+    {
+        mNoteOn->messageReceived.connect(noteOnSlot);
+        mNoteOff->messageReceived.connect(noteOffSlot);
+        mResource->mFrequencyModulation->valueChanged.connect(fmChangedSlot);
+        mResource->mVoicing->valueChanged.connect(voicingChangedSlot);
+        mResource->mFilterResonance->valueChanged.connect(filterResonanceChangedSlot);
+        mResource->mEnvelopeModulation->valueChanged.connect(envelopeModulationChangedSlot);
+        mResource->mWaveformA->valueChanged.connect(waveformAChangedSlot);
+        mResource->mWaveformB->valueChanged.connect(waveformBChangedSlot);
+        mResource->mReverbLevel->valueChanged.connect(reverbLevelChangedSlot);
+
+        mPolyphonic = mAudioComponent->getObject<audio::GraphObjectInstance>()->getObject<audio::PolyphonicInstance>("Polyphonic");
+        if (mPolyphonic == nullptr)
+        {
+            errorState.fail("Polyphonic not found");
+            return false;
+        }
+        auto reverb = mAudioComponent->getObject<audio::GraphObjectInstance>()->getObject<audio::verb47::ReverbInstance47>("Reverb");
+        reverb->getChannel(0)->setDecay(0.5f);
+        reverb->getChannel(1)->setDecay(0.5f);
+        auto reverbLevel = mAudioComponent->getObject<audio::GraphObjectInstance>()->getObject<audio::ControlInstance>("ReverbControl");
+        reverbLevel->setValue(mResource->mReverbLevel->mValue);
+
+        return true;
+    }
+
+
+    void SynthControllerInstance::update(double deltaTime)
+    {
+        for (auto& pair : mNoteVoices)
+        {
+            auto voice = pair.second;
+            auto filter = voice->getObject<audio::FilterInstance>("Filter")->getChannel(0);
+            auto envelope = voice->getObject<audio::EnvelopeInstance>("Envelope");
+            auto cutoff = audio::mtof(mResource->mFilterCutoff->mValue);
+            auto envelopeValue = envelope->getValue();
+            auto freq = math::lerp(cutoff, envelopeValue * cutoff, mResource->mEnvelopeModulation->mValue);
+            if (freq < 20.f)
+                freq = 20.f;
+            filter->setFrequency(freq);
+        }
+    }
+
 
     void SynthControllerInstance::noteOn(const MidiEvent& event)
     {
@@ -183,20 +229,10 @@ namespace nap
     }
 
 
-    void SynthControllerInstance::update(double deltaTime)
+    void SynthControllerInstance::reverbLevelChanged(float value)
     {
-        for (auto& pair : mNoteVoices)
-        {
-            auto voice = pair.second;
-            auto filter = voice->getObject<audio::FilterInstance>("Filter")->getChannel(0);
-            auto envelope = voice->getObject<audio::EnvelopeInstance>("Envelope");
-            auto cutoff = audio::mtof(mResource->mFilterCutoff->mValue);
-            auto envelopeValue = envelope->getValue();
-            auto freq = math::lerp(cutoff, envelopeValue * cutoff, mResource->mEnvelopeModulation->mValue);
-            if (freq < 20.f)
-                freq = 20.f;
-            filter->setFrequency(freq);
-        }
+        auto reverbLevel = mAudioComponent->getObject<audio::GraphObjectInstance>()->getObject<audio::ControlInstance>("ReverbControl");
+        reverbLevel->setValue(value);
     }
 
 

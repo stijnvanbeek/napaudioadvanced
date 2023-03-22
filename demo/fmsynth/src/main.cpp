@@ -2,11 +2,11 @@
 //
 // Local Includes
 #include "audioapp.h"
+#include "synthappeventhandler.h"
 
 // Nap includes
 #include <nap/logger.h>
 #include <apprunner.h>
-#include <guiappeventhandler.h>
 
 /**
  * Hello World Demo
@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 	// Create core
 	nap::Core core;
 
-	// Create app runner using default event handler
-	nap::AppRunner<nap::AudioTestApp, nap::GUIAppEventHandler> app_runner(core);
+	// Create app runner using the SynthAppEventHandler specialized in the use of the virtual midi keyboard
+	nap::AppRunner<nap::AudioTestApp, nap::SynthAppEventHandler> app_runner(core);
 
 	// Start
 	nap::utility::ErrorState error;

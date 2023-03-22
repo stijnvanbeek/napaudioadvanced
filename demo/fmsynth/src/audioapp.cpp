@@ -89,35 +89,31 @@ namespace nap
 		{
 			registerParameterEditors(*getCore().getService<ParameterGUIService>());
 		}
-
-		mRenderWindow = std::make_unique<nap::RenderWindow>(getCore());
-		mRenderWindow->mID = "Window0";
-		mRenderWindow->mMode = RenderWindow::EPresentationMode::Immediate;
-		if (!mRenderWindow->init(error))
-		{
-			error.fail("Fail to initialize window");
-			return false;
-		}
-
-		mMidiInputPort = std::make_unique<MidiInputPort>();
-		mMidiInputPort->mID = "MidiInputPort";
-		if (!mMidiInputPort->init(error))
-		{
-			error.fail("Fail to initialize midi input port");
-			return false;
-		}
-
-		mParameterGUI = std::make_unique<ParameterGUI>(getCore());
-		mParameterGUI->mID = "ParameterGUI";
-        mParameterGUI->mParameterGroup = mParameterGroup.get();
-        if (!mParameterGUI->init(error))
-        {
-            error.fail("Fail to initialize GUI");
+        else {
+            error.fail("Couldn't find parameter group");
             return false;
         }
 
-		// Find the audio entity
-		ObjectPtr<Scene> scene = mResourceManager->findObject<Scene>("Scene");
+        mRenderWindow = mResourceManager->findObject<RenderWindow>("Window0");
+        if (mRenderWindow == nullptr)
+        {
+            error.fail("Couldn't find render window");
+            return false;
+        }
+
+        mMidiInputPort = mResourceManager->findObject<MidiInputPort>("MidiInputPort");
+        if (mMidiInputPort == nullptr)
+        {
+            error.fail("Couldn't find midi input port");
+            return false;
+        }
+
+        mParameterGUI = mResourceManager->findObject<ParameterGUI>("ParameterGUI");
+        if (mParameterGUI == nullptr)
+        {
+            error.fail("Couldn't findparameter GUI");
+            return false;
+        }
 
 		return true;
 	}
@@ -127,13 +123,15 @@ namespace nap
 	 */
 	void AudioTestApp::update(double deltaTime)
 	{
+        ImGui::Begin("Control Panel", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 		if (mParameterGroup != nullptr)
 		{
 			if (mParameterGUI != nullptr)
-				mParameterGUI->show(mParameterGroup.get());
+				mParameterGUI->show(false);
 		}
 		ImGui::NewLine();
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
+        ImGui::End();
     }
 
 	
