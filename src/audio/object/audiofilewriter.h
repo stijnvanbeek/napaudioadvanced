@@ -49,7 +49,7 @@ namespace nap
             /**
              * Initializes the AudioFileWriterInstance
              * @param nodeManager The NodeManager the processing runs on
-             * @param audioFiles An AudioFIleIO audio file descriptor for each channel. Currently only writing monon files per channel is supported.
+             * @param audioFiles An AudioFIleIO audio file descriptor for each channel. Currently only writing mono files per channel is supported.
              * @param input Pointer to AudioObjectInstance providing audio input to record to disk.
              * @param errorState Logs errors during the initialization.
              * @return True on success
