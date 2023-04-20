@@ -31,7 +31,7 @@ namespace nap
         class NAPAPI Polyphonic : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
-            
+
         public:
             Polyphonic() : AudioObject() { }
 
@@ -54,7 +54,11 @@ namespace nap
         class NAPAPI PolyphonicInstance : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
-            
+
+        public:
+            template <typename ObjectInstanceType>
+            using ObjectMap = std::map<VoiceInstance*, ObjectInstanceType*>;
+
         public:
             PolyphonicInstance() : AudioObjectInstance() { }
             PolyphonicInstance(const std::string& name) : AudioObjectInstance(name) { }
@@ -119,6 +123,33 @@ namespace nap
              * @return the number of voices that are currently playing.
              */
             int getBusyVoiceCount() const;
+
+            /**
+             * Fills a map with the AudioObjectInstances with a certain name for each voice.
+             * This function can be used at init to gather the AudioObjectInstances from the voices that will be manipulated at runtime.
+             * This makes sure the string lookup within the voices is done only once at init.
+             * @tparam ObjectInstanceType The type of the AudioObjectInstance that will be looked up from the VoiceInstances.
+             * @param name The name of the AudioObjectInstance within the Voice.
+             * @param objectMap The map that will be filled with the AudioObjectInstances mapped to the corresponding VoiceInstance in which they live.
+             * @param errorState If no AudioObjectInstance of ObjectInstanceType with this name was found within the voices, this is logged here.
+             * @return  True on success
+             */
+            template <typename ObjectInstanceType>
+            bool getObjectMap(const std::string& name, ObjectMap<ObjectInstanceType>& objectMap, utility::ErrorState& errorState)
+            {
+                for (auto& voice : mVoices)
+                {
+                    ObjectInstanceType* object = voice->getObject<ObjectInstanceType>(name);
+                    if (object == nullptr)
+                    {
+                        errorState.fail("No object %s with corresponding type found in polyphonic.", name.c_str());
+                        objectMap.clear();
+                        return false;
+                    }
+                    objectMap[voice.get()] = object;
+                }
+                return true;
+            }
             
         private:
             void connectVoice(VoiceInstance* voice);
