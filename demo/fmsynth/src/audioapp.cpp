@@ -24,6 +24,9 @@ RTTI_END_CLASS
 namespace nap 
 {
 
+    /**
+     * Register an editor for the the ParameterOptionList parameter type with the ParameterGUIService
+     */
     void registerParameterEditors(ParameterGUIService& parameterGUIService)
     {
         parameterGUIService.registerParameterEditor(RTTI_OF(ParameterOptionList), [](Parameter& parameter)
@@ -51,19 +54,6 @@ namespace nap
             ImGui::PopID();
 
         });
-
-        parameterGUIService.registerParameterEditor(RTTI_OF(ParameterString), [](Parameter& parameter)
-        {
-            ParameterString* parameterString = rtti_cast<ParameterString>(&parameter);
-            char buf[128];
-            strcpy(buf, parameterString->mValue.c_str());
-            ImGui::PushID(&parameter);
-            if (ImGui::InputText(parameterString->getDisplayName().c_str(), buf, 128))
-            {
-                parameterString->mValue = buf;
-            }
-            ImGui::PopID();
-        });
     }
 
 
@@ -77,23 +67,25 @@ namespace nap
 		mSceneService	= getCore().getService<nap::SceneService>();
 		mInputService	= getCore().getService<nap::InputService>();
 		mGuiService		= getCore().getService<nap::IMGuiService>();
-		mMidiService = getCore().getService<nap::MidiService>();
+        mMidiService	= getCore().getService<nap::MidiService>();
 
-		// Get resource manager and load
+        // Register the custom parameter editor
+        registerParameterEditors(*getCore().getService<ParameterGUIService>());
+
+		// Get resource manager and load and deserialize app structure
 		mResourceManager = getCore().getResourceManager();
 		if (!mResourceManager->loadFile(appJson, error))
 			return false;
 
+        // Find the parameter group
 		mParameterGroup = mResourceManager->findObject<ParameterGroup>("Parameters");
-		if (mParameterGroup != nullptr)
-		{
-			registerParameterEditors(*getCore().getService<ParameterGUIService>());
-		}
-        else {
+		if (mParameterGroup == nullptr)
+        {
             error.fail("Couldn't find parameter group");
             return false;
         }
 
+        // Find the window resource
         mRenderWindow = mResourceManager->findObject<RenderWindow>("Window0");
         if (mRenderWindow == nullptr)
         {
@@ -101,13 +93,7 @@ namespace nap
             return false;
         }
 
-        mMidiInputPort = mResourceManager->findObject<MidiInputPort>("MidiInputPort");
-        if (mMidiInputPort == nullptr)
-        {
-            error.fail("Couldn't find midi input port");
-            return false;
-        }
-
+        // Find the parameter GUI
         mParameterGUI = mResourceManager->findObject<ParameterGUI>("ParameterGUI");
         if (mParameterGUI == nullptr)
         {
@@ -119,11 +105,9 @@ namespace nap
 	}
 	
 	
-	/**
-	 */
 	void AudioTestApp::update(double deltaTime)
 	{
-        ImGui::Begin("Control Panel", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin(appName.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 		if (mParameterGroup != nullptr)
 		{
 			if (mParameterGUI != nullptr)
@@ -135,8 +119,6 @@ namespace nap
     }
 
 	
-	/**
-	 */
 	void AudioTestApp::render()
 	{
 		// Signal the beginning of a new frame, allowing it to be recorded.
@@ -178,7 +160,7 @@ namespace nap
 
 	/**
 	 * Called by the app loop. It's best to forward messages to the input service for further processing later on
-	 * In this case we also check if we need to toggle full-screen or exit the running app
+	 * In this case we also check if we need to exit the running app or forward certain key input events as midi notes
 	 */
 	void AudioTestApp::inputMessageReceived(InputEventPtr inputEvent)
 	{
@@ -190,6 +172,7 @@ namespace nap
 				quit();
 		}
 
+        // In case of a key event try converting it to a midi note and forward to the midi service
 		auto keyEvent = rtti_cast<KeyEvent>(inputEvent.get());
 		if (keyEvent != nullptr)
 		{

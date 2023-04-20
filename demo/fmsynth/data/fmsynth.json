@@ -57,7 +57,7 @@
                     "AudioComponent": "./nap::audio::AudioComponent_1869e951",
                     "NoteOn": "./noteOn",
                     "NoteOff": "./noteOff",
-                    "FrequencyModulation": "OscillatorALevel",
+                    "FrequencyModulation": "FrequencyModulation",
                     "Voicing": "Voicing",
                     "GlideTime": "GlideTime",
                     "FilterCutoff": "FilterCutoff",
@@ -67,8 +67,7 @@
                     "Decay": "Decay",
                     "Sustain": "Sustain",
                     "Release": "Release",
-                    "WaveformA": "WaveformA",
-                    "WaveformB": "WaveformB",
+                    "Waveform": "Waveform",
                     "ReverbLevel": "ReverbLevel"
                 }
             ],
@@ -92,7 +91,7 @@
             "Parameters": [
                 {
                     "Type": "nap::ParameterFloat",
-                    "mID": "OscillatorALevel",
+                    "mID": "FrequencyModulation",
                     "Name": "FM",
                     "Value": 0.0,
                     "Minimum": 0.0,
@@ -174,20 +173,9 @@
                 },
                 {
                     "Type": "nap::ParameterOptionList",
-                    "mID": "WaveformA",
-                    "Name": "Waveform Modulator",
+                    "mID": "Waveform",
+                    "Name": "Waveform",
                     "Value": 0,
-                    "Options": [
-                        "Sine",
-                        "Saw",
-                        "Square"
-                    ]
-                },
-                {
-                    "Type": "nap::ParameterOptionList",
-                    "mID": "WaveformB",
-                    "Name": "Waveform Carrier",
-                    "Value": 1,
                     "Options": [
                         "Sine",
                         "Saw",
@@ -204,17 +192,6 @@
                 }
             ],
             "Groups": []
-        },
-        {
-            "Type": "nap::ParameterOptionList",
-            "mID": "Tuning",
-            "Name": "Tuning",
-            "Value": 0,
-            "Options": [
-                "Equal Temperament",
-                "Pythagorean",
-                "Pure Intonation"
-            ]
         },
         {
             "Type": "nap::RenderWindow",
@@ -241,6 +218,148 @@
             "RestorePosition": true
         },
         {
+            "Type": "nap::ResourceGroup",
+            "mID": "Synth",
+            "Members": [
+                {
+                    "Type": "nap::audio::WaveTableResource",
+                    "mID": "SawWaveform",
+                    "Size": 2048,
+                    "Waveform": "Saw",
+                    "NumberOfBands": 20
+                },
+                {
+                    "Type": "nap::audio::WaveTableResource",
+                    "mID": "SineWaveform",
+                    "Size": 2048,
+                    "Waveform": "Sine",
+                    "NumberOfBands": 100
+                },
+                {
+                    "Type": "nap::audio::WaveTableResource",
+                    "mID": "SquareWaveform",
+                    "Size": 2048,
+                    "Waveform": "Square",
+                    "NumberOfBands": 100
+                },
+                {
+                    "Type": "nap::audio::Voice",
+                    "mID": "SynthVoice",
+                    "Objects": [
+                        {
+                            "Type": "nap::audio::Oscillator",
+                            "mID": "ModulatorOscillator",
+                            "Frequency": [
+                                220.0
+                            ],
+                            "Amplitude": [
+                                1.0
+                            ],
+                            "FmInput": "",
+                            "WaveTables": [
+                                "SineWaveform",
+                                "SawWaveform",
+                                "SquareWaveform"
+                            ],
+                            "WaveTableSelection": 0
+                        },
+                        {
+                            "Type": "nap::audio::Envelope",
+                            "mID": "Envelope",
+                            "Envelope": [
+                                {
+                                    "Duration": 10.0,
+                                    "Destination": 1.0,
+                                    "DurationRelative": false,
+                                    "RampMode": "Linear",
+                                    "Translate": false
+                                },
+                                {
+                                    "Duration": 200.0,
+                                    "Destination": 0.5,
+                                    "DurationRelative": false,
+                                    "RampMode": "Linear",
+                                    "Translate": true
+                                },
+                                {
+                                    "Duration": 50.0,
+                                    "Destination": 0.0,
+                                    "DurationRelative": false,
+                                    "RampMode": "Exponential",
+                                    "Translate": false
+                                }
+                            ],
+                            "AutoTrigger": false,
+                            "EqualPowerTable": "EqualPowerTable"
+                        },
+                        {
+                            "Type": "nap::audio::Multiply",
+                            "mID": "Multiply",
+                            "Input": "",
+                            "ChannelCount": 1,
+                            "Inputs": [
+                                "Filter",
+                                "Envelope",
+                                "Gain"
+                            ]
+                        },
+                        {
+                            "Type": "nap::audio::Oscillator",
+                            "mID": "CarrierOscillator",
+                            "Frequency": [
+                                220.0
+                            ],
+                            "Amplitude": [
+                                1.0
+                            ],
+                            "FmInput": "ModulatorOscillator",
+                            "WaveTables": [
+                                "SineWaveform",
+                                "SawWaveform",
+                                "SquareWaveform"
+                            ],
+                            "WaveTableSelection": 1
+                        },
+                        {
+                            "Type": "nap::audio::Control",
+                            "mID": "Gain",
+                            "Value": 0.009999999776482582,
+                            "EqualPowerTable": "EqualPowerTable"
+                        },
+                        {
+                            "Type": "nap::audio::Filter",
+                            "mID": "Filter",
+                            "Input": "CarrierOscillator",
+                            "ChannelCount": 1,
+                            "Mode": "LowRes",
+                            "Frequency": [
+                                440.0
+                            ],
+                            "Resonance": [
+                                0.0
+                            ],
+                            "Band": [
+                                100.0
+                            ],
+                            "Gain": [
+                                0.10000000149011612
+                            ],
+                            "Input": ""
+                        }
+                    ],
+                    "Output": "Multiply",
+                    "Input": "",
+                    "Envelope": "Envelope"
+                },
+                {
+                    "Type": "nap::audio::EqualPowerTable",
+                    "mID": "EqualPowerTable",
+                    "Size": 256
+                }
+            ],
+            "Children": []
+        },
+        {
             "Type": "nap::Scene",
             "mID": "Scene",
             "Entities": [
@@ -249,11 +368,6 @@
                     "InstanceProperties": []
                 }
             ]
-        },
-        {
-            "Type": "nap::audio::EqualPowerTable",
-            "mID": "EqualPowerTable_9aa95e35",
-            "Size": 256
         },
         {
             "Type": "nap::audio::Graph",
@@ -305,136 +419,6 @@
             ],
             "Output": "Mixer",
             "Input": ""
-        },
-        {
-            "Type": "nap::audio::Voice",
-            "mID": "SynthVoice",
-            "Objects": [
-                {
-                    "Type": "nap::audio::Oscillator",
-                    "mID": "OscillatorA",
-                    "Frequency": [
-                        220.0
-                    ],
-                    "Amplitude": [
-                        1.0
-                    ],
-                    "FmInput": "",
-                    "WaveTables": [
-                        "SineWaveform",
-                        "SawWaveform",
-                        "SquareWaveform"
-                    ],
-                    "WaveTableSelection": 0
-                },
-                {
-                    "Type": "nap::audio::Envelope",
-                    "mID": "Envelope",
-                    "Envelope": [
-                        {
-                            "Duration": 10.0,
-                            "Destination": 1.0,
-                            "DurationRelative": false,
-                            "RampMode": "Linear",
-                            "Translate": false
-                        },
-                        {
-                            "Duration": 200.0,
-                            "Destination": 0.5,
-                            "DurationRelative": false,
-                            "RampMode": "Linear",
-                            "Translate": true
-                        },
-                        {
-                            "Duration": 50.0,
-                            "Destination": 0.0,
-                            "DurationRelative": false,
-                            "RampMode": "Exponential",
-                            "Translate": false
-                        }
-                    ],
-                    "AutoTrigger": false,
-                    "EqualPowerTable": "EqualPowerTable_9aa95e35"
-                },
-                {
-                    "Type": "nap::audio::Multiply",
-                    "mID": "Multiply",
-                    "Input": "",
-                    "ChannelCount": 1,
-                    "Inputs": [
-                        "Filter",
-                        "Envelope",
-                        "Gain"
-                    ]
-                },
-                {
-                    "Type": "nap::audio::Oscillator",
-                    "mID": "OscillatorB",
-                    "Frequency": [
-                        220.0
-                    ],
-                    "Amplitude": [
-                        1.0
-                    ],
-                    "FmInput": "OscillatorA",
-                    "WaveTables": [
-                        "SineWaveform",
-                        "SawWaveform",
-                        "SquareWaveform"
-                    ],
-                    "WaveTableSelection": 1
-                },
-                {
-                    "Type": "nap::audio::Control",
-                    "mID": "Gain",
-                    "Value": 0.009999999776482582,
-                    "EqualPowerTable": "EqualPowerTable_9aa95e35"
-                },
-                {
-                    "Type": "nap::audio::Filter",
-                    "mID": "Filter",
-                    "Input": "OscillatorB",
-                    "ChannelCount": 1,
-                    "Mode": "LowRes",
-                    "Frequency": [
-                        440.0
-                    ],
-                    "Resonance": [
-                        0.0
-                    ],
-                    "Band": [
-                        100.0
-                    ],
-                    "Gain": [
-                        0.10000000149011612
-                    ],
-                    "Input": ""
-                }
-            ],
-            "Output": "Multiply",
-            "Input": "",
-            "Envelope": "Envelope"
-        },
-        {
-            "Type": "nap::audio::WaveTableResource",
-            "mID": "SawWaveform",
-            "Size": 2048,
-            "Waveform": "Saw",
-            "NumberOfBands": 20
-        },
-        {
-            "Type": "nap::audio::WaveTableResource",
-            "mID": "SineWaveform",
-            "Size": 2048,
-            "Waveform": "Sine",
-            "NumberOfBands": 100
-        },
-        {
-            "Type": "nap::audio::WaveTableResource",
-            "mID": "SquareWaveform",
-            "Size": 2048,
-            "Waveform": "Square",
-            "NumberOfBands": 100
         }
     ]
 }

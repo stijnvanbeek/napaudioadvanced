@@ -17,13 +17,16 @@
 #include <parametergui.h>
 #include <midiinputport.h>
 
-// Audio includes
-#include <audio/component/playbackcomponent.h>
-
-/*
- * Select your serialized json audio demo app here:
+/**
+ * Name of the app structure file of the audio application
  */
 const std::string appJson = "fmsynth.json";
+
+/**
+ * Name of the application as it is displayed in the window caption.
+ */
+const std::string appName = "FM Synth";
+
 
 namespace nap
 {
@@ -34,8 +37,7 @@ namespace nap
 	void registerParameterEditors(ParameterGUI& parameterGUI);
 
 	/**
-     * This demo application shows how to playback an audio file using audio::PlaybackComponent.
-     * It shows how to start and stop playback and how to modify playback parameters.
+	 * This App functions as a template for an application that generates audio based on midi input and/or a selection of parameters.
 	 */
 	class AudioTestApp : public App
 	{
@@ -76,17 +78,17 @@ namespace nap
 
 	private:
 		// Nap Services
-		RenderService* mRenderService = nullptr;						//< Render Service that handles render calls
-		ResourceManager* mResourceManager = nullptr;					//< Manages all the loaded resources
-		SceneService* mSceneService = nullptr;							//< Manages all the objects in the scene
-		InputService* mInputService = nullptr;							//< Input service for processing input
-		IMGuiService* mGuiService = nullptr;							//< Manages gui related update / draw calls
-		MidiService* mMidiService = nullptr;
-        RGBAColor8 mTextHighlightColor = { 0xC8, 0x69, 0x69, 0xFF };    //< GUI text highlight color
-		KeyToMidiConverter mKeyToMidiConverter;
-		ObjectPtr<ParameterGroup> mParameterGroup = nullptr;
-		ObjectPtr<RenderWindow> mRenderWindow = nullptr;			//< Pointer to the render window
-		ObjectPtr<ParameterGUI> mParameterGUI = nullptr;
-		ObjectPtr<MidiInputPort> mMidiInputPort = nullptr;
+		RenderService* mRenderService = nullptr;						// Render Service that handles render calls
+		ResourceManager* mResourceManager = nullptr;					// Manages all the loaded resources
+		SceneService* mSceneService = nullptr;							// Manages all the objects in the scene
+		InputService* mInputService = nullptr;							// Input service for processing input
+		IMGuiService* mGuiService = nullptr;							// Manages gui related update / draw calls
+		MidiService* mMidiService = nullptr;                            // Service managing midi input events and distributing across MidiInputComponents
+
+        RGBAColor8 mTextHighlightColor = { 0xC8, 0x69, 0x69, 0xFF };    // GUI text highlight color
+        ObjectPtr<RenderWindow> mRenderWindow = nullptr;			    // Pointer to the render window
+        KeyToMidiConverter mKeyToMidiConverter;                         // Helper object that converts character key input to midi note events
+		ObjectPtr<ParameterGroup> mParameterGroup = nullptr;            // The parameter group containing the parameters for the audio generation
+		ObjectPtr<ParameterGUI> mParameterGUI = nullptr;                // Gui object to display and edit the parameter group in the GUI
 	};
 }
