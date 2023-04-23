@@ -39,9 +39,8 @@ namespace nap
             ///< Each element in the array represents one channel of the circular buffer.
             ///< The value of the element indicates the channel from the input that will be routed to the corresponding channel.
 
-            bool mRootProcess = true; ///< Property: 'RootProcess'
-            
-            int mBufferSize = 65536;  ///< Property: 'BufferSize'
+            bool mRootProcess = true; ///< Property: 'RootProcess' Indicates if the CircularBufferNOde objects are added as root process to the NodeManager
+            int mBufferSize = 65536;  ///< Property: 'BufferSize' The size of the circular buffer in samples
             
         private:
             // Inherited from AudioObject
