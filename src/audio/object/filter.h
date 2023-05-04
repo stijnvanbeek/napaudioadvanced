@@ -30,8 +30,7 @@ namespace nap
             std::vector<ControllerValue> mResonance = { 0.f };    ///< Property: 'Resonance' In the case of a resonant filter the resonance around the cutoff frequency for each band.
             std::vector<ControllerValue> mBand = { 100.f };       ///< Property: 'Band' Bandwidth in Hz for each band in case of a bandpass filter
             std::vector<ControllerValue> mGain = { 1.f };         ///< Property: 'Gain' Gain multiplier for each band
-            ResourcePtr<AudioObject> mInput = nullptr;            ///< property: "Input" @AudioObject whose output channels will be used as inputs for the filter channels.
-            
+
         private:
             bool initNode(int channel, FilterNode& node, utility::ErrorState& errorState) override;
         };
