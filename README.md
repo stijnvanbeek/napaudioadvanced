@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="manual/media/piano.jpg" width="500" height="300">
+  <img src="manual/media/nap_audio_logo.png" width="500" height="100">
 </p>
 
 # Description
