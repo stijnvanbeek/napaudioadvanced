@@ -1,5 +1,6 @@
+<br>
 <p align="center">
-  <img src="manual/media/nap_audio_logo.png" width="500" height="100">
+  <img width=384 src="manual/media/nap_audio_logo.svg">
 </p>
 
 # Description
