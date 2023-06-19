@@ -5,7 +5,6 @@
 #include "reverb47.h"
 
 RTTI_BEGIN_CLASS(nap::audio::verb47::Reverb47)
-        RTTI_PROPERTY("Input", &nap::audio::verb47::Reverb47::mInput, nap::rtti::EPropertyMetaData::Default)
         RTTI_PROPERTY("CorrelationMultiplier", &nap::audio::verb47::Reverb47::mCorrelationMultiplier, nap::rtti::EPropertyMetaData::Default)
         RTTI_PROPERTY("DiffusionCrossover", &nap::audio::verb47::Reverb47::mDiffusionCrossover, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS

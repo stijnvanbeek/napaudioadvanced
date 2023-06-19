@@ -35,7 +35,12 @@ namespace nap
         private:
             bool initNode(int channel, BufferPlayerNode& node, utility::ErrorState& errorState) override;
         };
-        
+
+
+        /**
+         * Instance of BufferPlayer
+         */
+        using BufferPlayerInstance = ParallelNodeObjectInstance<BufferPlayerNode>;
         
     }
     

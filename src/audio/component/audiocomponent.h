@@ -57,9 +57,15 @@ namespace nap
             virtual OutputPin* getOutputForChannel(int channel) override { return mObject->getOutputForChannel(channel); }
 
             /**
+             * @return the wrapped audio object. Nullptr if T does not match the object type.
+             */
+            template <typename T>
+            T* getObject() { return rtti_cast<T>(mObject.get()); }
+
+            /**
              * @return the wrapped audio object
              */
-            AudioObjectInstance* getObject();
+            AudioObjectInstance* getObjectNonTyped();
             
         private:
             std::unique_ptr<AudioObjectInstance> mObject = nullptr;

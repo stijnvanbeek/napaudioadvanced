@@ -212,7 +212,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return *mChannels[channel]->getOutputs().begin(); }
             int getChannelCount() const override { return mChannels.size(); }
             void connect(unsigned int channel, OutputPin& pin) override { (*mChannels[channel]->getInputs().begin())->connect(pin); }
-            int getInputChannelCount() const override { return (mChannels[0]->getInputs().size() == 1) ? mChannels.size() : 0; }
+            int getInputChannelCount() const override { return (mChannels[0]->getInputs().size() >= 1) ? mChannels.size() : 0; }
 
         private:
             std::vector<SafeOwner<NodeType>> mChannels;

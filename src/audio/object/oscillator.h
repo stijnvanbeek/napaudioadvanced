@@ -72,7 +72,7 @@ namespace nap
         /**
          * Instance of Oscillator
          */
-		class OscillatorInstance : public AudioObjectInstance
+		class NAPAPI OscillatorInstance : public AudioObjectInstance
 		{
 			RTTI_ENABLE(AudioObjectInstance)
 

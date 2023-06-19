@@ -32,8 +32,14 @@ namespace nap
         private:
             bool initNode(int channel, MixNode& node, utility::ErrorState& errorState) override;
         };
-        
-        
+
+
+        /**
+         * Instance of Mixer
+         */
+        using MixerInstance = ParallelNodeObjectInstance<MixNode>;
+
+
     }
     
 }

@@ -33,8 +33,13 @@ namespace nap
         private:
             bool initNode(int channel, DelayNode& node, utility::ErrorState& errorState) override;
         };
-        
-        
+
+
+        /**
+         * Instance of DelayObject
+         */
+        using DelayObjectInstance = ParallelNodeObjectInstance<DelayNode>;
+
     }
     
 }

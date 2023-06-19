@@ -9,7 +9,8 @@
 #if defined(__AVX__)
 	#include <immintrin.h> // AVX (float8) intrinsics
 #else
-	#error "AVX instructions are disabled. Something is wrong in your CMake config."
+    #include <immintrin.h> // AVX (float8) intrinsics
+//	#error "AVX instructions are disabled. Something is wrong in your CMake config."
 #endif
 
 #include <emmintrin.h> // SSE2 (float4) intrinsics

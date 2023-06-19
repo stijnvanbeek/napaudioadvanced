@@ -42,7 +42,7 @@ namespace nap
         {
             mCutOff = cutoff;
             auto c = mCutOff / getNodeManager().getSampleRate();
-            auto x = pow(M_E, -2 * M_PI * c);
+            auto x = pow(math::E, -math::PIX2 * c);
             a0.setValue(1.0 - x);
             b1.setValue(x);
         }
@@ -76,7 +76,7 @@ namespace nap
         {
             mCutOff = cutoff;
             auto c = mCutOff / getNodeManager().getSampleRate();
-            auto x = pow(M_E, -2 * M_PI * c);
+            auto x = pow(math::E, -math::PIX2 * c);
             a0.setValue((1.0 + x) / 2.0);
             a1.setValue(-(1.0 + x) / 2.0);
             b1.setValue(x);
