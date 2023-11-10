@@ -13,6 +13,7 @@ RTTI_BEGIN_CLASS(nap::audio::Polyphonic)
     RTTI_PROPERTY("VoiceCount", &nap::audio::Polyphonic::mVoiceCount, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("VoiceStealing", &nap::audio::Polyphonic::mVoiceStealing, nap::rtti::EPropertyMetaData::Default)
     RTTI_PROPERTY("ChannelCount", &nap::audio::Polyphonic::mChannelCount, nap::rtti::EPropertyMetaData::Default)
+    RTTI_PROPERTY("Input", &nap::audio::Polyphonic::mInput, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS(nap::audio::PolyphonicInstance)
@@ -35,7 +36,19 @@ namespace nap
             auto instance = std::make_unique<PolyphonicInstance>();
             if (!instance->init(*mVoice, mVoiceCount, mVoiceStealing, mChannelCount, nodeManager, errorState))
                 return nullptr;
-            
+
+            // Connect the input
+            if (mInput != nullptr)
+            {
+                if (instance->getInputChannelCount() == 0)
+                {
+                    errorState.fail("Failed to init Polyphonic: Input property specified but Polyphonic (voice) has no inputs");
+                    return nullptr;
+                }
+                for (auto channel = 0; channel < instance->getInputChannelCount(); ++channel)
+                    instance->connect(channel, *mInput->getInstance()->getOutputForChannel(channel % mInput->getInstance()->getChannelCount()));
+            }
+
             return std::move(instance);
         }
 
@@ -47,9 +60,11 @@ namespace nap
             for (auto i = 0; i < voiceCount; ++i)
             {
                 mVoices.emplace_back(std::make_unique<VoiceInstance>());
-                if (!mVoices.back()->init(voice, nodeManager, errorState))
+                auto voiceInstance = mVoices.back().get();
+                if (!voiceInstance->init(voice, nodeManager, errorState))
                     return false;
-                mVoices.back()->finishedSignal.connect(voiceFinishedSlot);
+
+                voiceInstance->finishedSignal.connect(voiceFinishedSlot);
             }
 
             // Create the mix nodes to mix output of all the voices
@@ -125,6 +140,27 @@ namespace nap
         }
 
 
+        void PolyphonicInstance::playSectionOnChannels(VoiceInstance* voice, std::vector<unsigned int> channels, int startSegment, int endSegment, ControllerValue startValue, TimeValue totalDuration)
+        {
+            if (!voice)
+                return;
+
+            voice->playSection(startSegment, endSegment, startValue, totalDuration);
+
+            // We cache the channel numbers of the output mixer that the voice will be connected to within the voice object.
+            // We do that here already and not in the enqueued task to avoid allocations on the audio thread.
+            voice->mConnectedToChannels.clear();
+            for (auto channel : channels)
+                if (channel < mMixNodes.size())
+                    voice->mConnectedToChannels.emplace_back(channel);
+
+            mNodeManager->enqueueTask([&, voice](){
+                for (auto i = 0; i < voice->mConnectedToChannels.size(); ++i)
+                    mMixNodes[voice->mConnectedToChannels[i]]->inputs.connect(*voice->getOutput()->getOutputForChannel(i % voice->getOutput()->getChannelCount()));
+            });
+        }
+
+
         void PolyphonicInstance::stop(VoiceInstance* voice, TimeValue fadeOutTime)
         {
             if (!voice)
@@ -166,6 +202,26 @@ namespace nap
         int PolyphonicInstance::getChannelCount() const
         {
             return mMixNodes.size();
+        }
+
+
+        void PolyphonicInstance::connect(unsigned int channel, OutputPin& pin)
+        {
+            for (auto& voice : mVoices)
+            {
+                auto input = voice->getInput();
+                input->connect(channel, pin);
+            }
+        }
+
+
+        int PolyphonicInstance::getInputChannelCount() const
+        {
+            auto firstVoiceInput = (*mVoices.begin())->getInput();
+            if (firstVoiceInput != nullptr)
+                return firstVoiceInput->getInputChannelCount();
+            else
+                return 0;
         }
 
 
