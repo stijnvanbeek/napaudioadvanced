@@ -93,7 +93,7 @@ namespace nap
              * @return the input object of the graph as specified in the resource
              */
             AudioObjectInstance* getInput() { return mInput; }
-            const AudioObjectInstance* getInput() const { return mOutput; }
+            const AudioObjectInstance* getInput() const { return mInput; }
             
              /**
               * Adds an object to the graph at runtime. The graph takes over ownership.
