@@ -25,6 +25,7 @@ namespace nap
 			KarplusStrongNode(NodeManager& nodeManager) : Node(nodeManager)
 			{
 				reset(1000.f);
+                mLowCut.setCutoffFrequency(20.f, nodeManager.getSampleRate());
 			}
 
 			/**
@@ -62,9 +63,11 @@ namespace nap
 
 		private:
 			void process() override;
+            void sampleRateChanged(float sampleRate) override;
 
 			bool mNegativePolarity = false;
 			KarplusStrong<SampleValue> mKarplusStrong;
+            OnePoleHighPass<SampleValue> mLowCut;
 		};
 
 	}

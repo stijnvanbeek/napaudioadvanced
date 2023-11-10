@@ -25,10 +25,16 @@ namespace nap
             auto inputBuffer = audioInput.pull();
             if (mNegativePolarity)
                 for (auto i = 0; i < getBufferSize(); ++i)
-                    outputBuffer[i] = mKarplusStrong.processNegative((*inputBuffer)[i]);
+                    outputBuffer[i] = mLowCut.process(mKarplusStrong.processNegative((*inputBuffer)[i]));
             else
                 for (auto i = 0; i < getBufferSize(); ++i)
-                    outputBuffer[i] = mKarplusStrong.processPositive((*inputBuffer)[i]);
+                    outputBuffer[i] = mLowCut.process(mKarplusStrong.processPositive((*inputBuffer)[i]));
+        }
+
+
+        void KarplusStrongNode::sampleRateChanged(float sampleRate)
+        {
+            mLowCut.setCutoffFrequency(20.f, sampleRate);
         }
 
     }
