@@ -12,6 +12,7 @@ RTTI_BEGIN_ENUM(nap::audio::WaveTable::Waveform)
 RTTI_END_ENUM
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::WaveTableResource)
+    RTTI_CONSTRUCTOR(nap::Core&)
     RTTI_PROPERTY("Size", &nap::audio::WaveTableResource::mSize, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("Waveform", &nap::audio::WaveTableResource::mWaveform, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("NumberOfBands", &nap::audio::WaveTableResource::mNumberOfBands, nap::rtti::EPropertyMetaData::Default)
@@ -40,12 +41,19 @@ namespace nap
 
         bool WaveTableResource::init(utility::ErrorState& errorState)
         {
-            mWave = mNodeManager.makeSafe<WaveTable>(mSize, mWaveform, mNumberOfBands);
+            mWave = mNodeManager->makeSafe<WaveTable>(mSize, mWaveform, mNumberOfBands);
             return true;
         }
 
+        WaveTableResource::WaveTableResource(Core &core) : Resource()
+        {
+            auto audioService = core.getService<AudioService>();
+            assert(audioService != nullptr);
+            mNodeManager = &audioService->getNodeManager();
+        }
 
-		std::unique_ptr<AudioObjectInstance> Oscillator::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
+
+        std::unique_ptr<AudioObjectInstance> Oscillator::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
 		{
 			auto result = std::make_unique<OscillatorInstance>();
 			if (!result->init(mChannelCount, nodeManager, errorState))

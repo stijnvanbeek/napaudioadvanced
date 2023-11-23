@@ -4,8 +4,11 @@
 
 #include "equalpowertable.h"
 
+// Nap includes
+#include <nap/core.h>
+
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::EqualPowerTable)
-        RTTI_CONSTRUCTOR(nap::audio::NodeManager&)
+        RTTI_CONSTRUCTOR(nap::Core&)
         RTTI_PROPERTY("Size", &nap::audio::EqualPowerTable::mSize, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
@@ -14,6 +17,14 @@ namespace nap
 
     namespace audio
     {
+
+        EqualPowerTable::EqualPowerTable(Core &core) : Resource()
+        {
+            auto audioService = core.getService<AudioService>();
+            assert(audioService != nullptr);
+            mNodeManager = &audioService->getNodeManager();
+        }
+
 
         bool EqualPowerTable::init(utility::ErrorState& errorState)
         {
@@ -26,7 +37,6 @@ namespace nap
             mTable = mNodeManager->makeSafe<EqualPowerTranslator<float>>(mSize);
             return true;
         }
-
 
     }
 

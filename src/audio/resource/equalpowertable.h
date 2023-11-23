@@ -15,6 +15,9 @@
 namespace nap
 {
 
+    // Forward declarations
+    class Core;
+
     namespace audio
     {
 
@@ -26,7 +29,7 @@ namespace nap
             RTTI_ENABLE(Resource)
 
         public:
-            EqualPowerTable(NodeManager& nodeManager) : mNodeManager(&nodeManager) {  }
+            EqualPowerTable(Core& core);
 
             // Inherited from Resource
             bool init(utility::ErrorState& errorState) override;
@@ -49,9 +52,6 @@ namespace nap
             NodeManager* mNodeManager = nullptr;
             audio::SafeOwner<EqualPowerTranslator<float>> mTable = nullptr;
         };
-
-
-        using EqualPowerTableObjectCreator = rtti::ObjectCreator<EqualPowerTable, NodeManager>;
 
     }
 

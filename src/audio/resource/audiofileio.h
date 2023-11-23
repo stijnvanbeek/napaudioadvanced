@@ -17,6 +17,8 @@ struct SNDFILE_tag;
 namespace nap
 {
 
+    class Core;
+
     namespace audio
     {
 
@@ -95,7 +97,7 @@ namespace nap
             RTTI_ENABLE(Resource)
 
         public:
-            AudioFileIO(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
+            AudioFileIO(Core& core);
 
             // Inherited from Resource
             bool init(utility::ErrorState& errorState) override;
@@ -110,12 +112,9 @@ namespace nap
             SafePtr<AudioFileDescriptor> getDescriptor() { return mAudioFileDescriptor; }
 
         private:
-            NodeManager& mNodeManager;
+            NodeManager* mNodeManager = nullptr;
             SafeOwner<AudioFileDescriptor> mAudioFileDescriptor = nullptr;
         };
-
-
-        using AudioFileIOObjectCreator = rtti::ObjectCreator<AudioFileIO, NodeManager>;
 
 
     }

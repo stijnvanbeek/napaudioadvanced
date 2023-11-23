@@ -9,6 +9,10 @@
 
 // Audio includes
 #include <audio/core/audionodemanager.h>
+#include <audio/service/audioservice.h>
+
+// Nap includes
+#include <nap/core.h>
 
 RTTI_BEGIN_ENUM(nap::audio::AudioFileDescriptor::Mode)
     RTTI_ENUM_VALUE(nap::audio::AudioFileDescriptor::Mode::WRITE, "Write"),
@@ -17,7 +21,7 @@ RTTI_BEGIN_ENUM(nap::audio::AudioFileDescriptor::Mode)
 RTTI_END_ENUM
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::AudioFileIO)
-    RTTI_CONSTRUCTOR(nap::audio::NodeManager&)
+    RTTI_CONSTRUCTOR(nap::Core&)
     RTTI_PROPERTY("Path", &nap::audio::AudioFileIO::mPath, nap::rtti::EPropertyMetaData::FileLink)
     RTTI_PROPERTY("Mode", &nap::audio::AudioFileIO::mMode, nap::rtti::EPropertyMetaData::Required)
     RTTI_PROPERTY("ChannelCount", &nap::audio::AudioFileIO::mChannelCount, nap::rtti::EPropertyMetaData::Default)
@@ -77,9 +81,17 @@ namespace nap
 
 
 
+        AudioFileIO::AudioFileIO(Core &core) : Resource()
+        {
+            auto audioService = core.getService<AudioService>();
+            assert(audioService != nullptr);
+            mNodeManager = &audioService->getNodeManager();
+        }
+
+
         bool AudioFileIO::init(utility::ErrorState& errorState)
         {
-            mAudioFileDescriptor = mNodeManager.makeSafe<AudioFileDescriptor>(mPath, mMode, mChannelCount, mNodeManager.getSampleRate());
+            mAudioFileDescriptor = mNodeManager->makeSafe<AudioFileDescriptor>(mPath, mMode, mChannelCount, mNodeManager->getSampleRate());
 
             if (!mAudioFileDescriptor->isValid())
             {
