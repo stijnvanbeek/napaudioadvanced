@@ -9,6 +9,7 @@
         "naprender",
         "napparameter",
         "napparametergui",
+        "napportaudio",
         "napfmsynth"
     ],
     "Data": "data/fmsynth.json",
