@@ -4,9 +4,6 @@
 
 #include "audiofileio.h"
 
-// Third party includes
-#include <sndfile.h>
-
 // Audio includes
 #include <audio/core/audionodemanager.h>
 #include <audio/service/audioservice.h>

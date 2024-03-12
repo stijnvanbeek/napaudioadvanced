@@ -11,8 +11,8 @@
 // Audio includes
 #include <audio/core/audionodemanager.h>
 
-// Forward declarations
-struct SNDFILE_tag;
+// Third party includes
+#include <sndfile.h>
 
 namespace nap
 {
@@ -83,7 +83,7 @@ namespace nap
             Mode getMode() const { return mMode; }
 
         private:
-            SNDFILE_tag* mSndFile = nullptr;
+            SNDFILE* mSndFile;
             int mChannelCount = 1;
             float mSampleRate = 44100.f;
             Mode mMode = Mode::WRITE;
