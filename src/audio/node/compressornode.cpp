@@ -4,6 +4,7 @@
 
 #include "compressornode.h"
 
+#include <cmath>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::CompressorNode)
     RTTI_PROPERTY("audioInput", &nap::audio::CompressorNode::audioInput, nap::rtti::EPropertyMetaData::Embedded)
