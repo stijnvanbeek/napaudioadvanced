@@ -1,3 +1,5 @@
+set(NAP_AUDIOFILE_SUPPORT ON)
+
 # Add sources to target
 if(NAP_BUILD_CONTEXT MATCHES "source")
     if (NAP_AUDIOFILE_SUPPORT)
