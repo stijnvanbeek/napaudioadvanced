@@ -21,9 +21,13 @@ namespace nap
         bool BufferPlayer::initNode(int channel, BufferPlayerNode& node, utility::ErrorState& errorState)
         {
             if (mBufferResource != nullptr)
+            {
                 node.setBuffer(mBufferResource->getBuffer());
+                node.setChannel(channel);
+            }
+
             if (mAutoPlay)
-                node.play(0, 1.);
+                node.play(channel, 1.);
             return true;
         }
                 

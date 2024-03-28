@@ -41,7 +41,7 @@ namespace nap
              * @param errorState Logs errors during the initialization
              * @return True on sucess.
              */
-            virtual bool initNode(NodeType& node, utility::ErrorState& errorState) { }
+            virtual bool initNode(NodeType& node, utility::ErrorState& errorState) { return true; }
 
             // Inherited from AudioObject
             std::unique_ptr<AudioObjectInstance> createInstance(NodeManager& nodeManager, utility::ErrorState& errorState) override;

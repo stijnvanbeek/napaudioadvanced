@@ -6,6 +6,7 @@
 
 #include <audio/utility/audiofunctions.h>
 #include <audio/core/audionodemanager.h>
+#include <cmath>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::DelayNode)
     RTTI_PROPERTY("input", &nap::audio::DelayNode::input, nap::rtti::EPropertyMetaData::Embedded)
