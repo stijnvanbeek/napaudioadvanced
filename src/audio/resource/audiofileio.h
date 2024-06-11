@@ -11,11 +11,13 @@
 // Audio includes
 #include <audio/core/audionodemanager.h>
 
-// Forward declarations
-struct SNDFILE_tag;
+// Third party includes
+#include <sndfile.h>
 
 namespace nap
 {
+
+    class Core;
 
     namespace audio
     {
@@ -81,7 +83,7 @@ namespace nap
             Mode getMode() const { return mMode; }
 
         private:
-            SNDFILE_tag* mSndFile = nullptr;
+            SNDFILE* mSndFile;
             int mChannelCount = 1;
             float mSampleRate = 44100.f;
             Mode mMode = Mode::WRITE;
@@ -95,7 +97,7 @@ namespace nap
             RTTI_ENABLE(Resource)
 
         public:
-            AudioFileIO(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
+            AudioFileIO(Core& core);
 
             // Inherited from Resource
             bool init(utility::ErrorState& errorState) override;
@@ -110,12 +112,9 @@ namespace nap
             SafePtr<AudioFileDescriptor> getDescriptor() { return mAudioFileDescriptor; }
 
         private:
-            NodeManager& mNodeManager;
+            NodeManager* mNodeManager = nullptr;
             SafeOwner<AudioFileDescriptor> mAudioFileDescriptor = nullptr;
         };
-
-
-        using AudioFileIOObjectCreator = rtti::ObjectCreator<AudioFileIO, NodeManager>;
 
 
     }

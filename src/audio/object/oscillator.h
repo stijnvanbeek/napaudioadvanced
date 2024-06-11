@@ -6,8 +6,10 @@
 
 // Nap includes
 #include <nap/resourceptr.h>
+#include <nap/core.h>
 
 // Audio includes
+#include <audio/service/audioservice.h>
 #include <audio/core/nodeobject.h>
 #include <audio/node/oscillatornode.h>
 #include <audio/utility/safeptr.h>
@@ -30,8 +32,8 @@ namespace nap
             RTTI_ENABLE(Resource)
 
         public:
-            WaveTableResource(NodeManager& nodeManager) : Resource(), mNodeManager(nodeManager) { }
-            bool init(utility::ErrorState& errorState);
+            WaveTableResource(Core& core);
+            bool init(utility::ErrorState& errorState) override;
 
             int mSize = 2048;                                          ///< Property: 'Size' Size of the wavetable. Has to be a power of two.
             int mNumberOfBands = 100;                                  ///< Property: 'NumberOfBands' Number of bands used for band limiting
@@ -44,7 +46,7 @@ namespace nap
 
         private:
             SafeOwner<WaveTable> mWave = nullptr;
-            NodeManager& mNodeManager;
+            NodeManager* mNodeManager = nullptr;
         };
 
 
@@ -117,8 +119,6 @@ namespace nap
 			std::vector<SafeOwner<OscillatorNode>> mNodes;
 		};
 
-
-		using WaveTableResourceObjectCreator = rtti::ObjectCreator<WaveTableResource, NodeManager>;
 
     }
     

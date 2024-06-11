@@ -19,7 +19,7 @@
 #include <app.h>
 #include <parameter.h>
 #include <parametergui.h>
-#include <midiinputport.h>
+#include <midiport/midiinputport.h>
 
 /**
  * Name of the app structure file of the audio application
