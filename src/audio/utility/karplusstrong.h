@@ -28,6 +28,7 @@ namespace nap
 
 			/**
 			 * Reset the filter
+             * Should only be called from the audio thread.
 			 * @param maxDelay New size of the delay line, therefore the maximum delay value in samples
 			 */
 			void reset(int maxDelay)
@@ -105,7 +106,7 @@ namespace nap
 		private:
 			OnePoleLowPass<real> mDampingFilter;
 			std::unique_ptr<VectorDelay<real>> mDelay = nullptr;
-			real mFeedback = { 0.f };
+			std::atomic<real> mFeedback = { 0.f };
 			FastLinearSmoothedValue<real> mTime = { 0.f, 44 };
 		};
 

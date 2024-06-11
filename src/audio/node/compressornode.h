@@ -70,10 +70,10 @@ namespace nap
         private:
             int fSamplingFreq;
             
-            float fVslider0 = 0.001; // attack
-            float fVslider1 = 4; // ratio
-            float fVslider2 = 0.5; // release
-            float fVslider3 = -6; // threshold
+            std::atomic<float> fVslider0 = 0.001; // attack
+            std::atomic<float> fVslider1 = 4; // ratio
+            std::atomic<float> fVslider2 = 0.5; // release
+            std::atomic<float> fVslider3 = -6; // threshold
             
             float fConst0 = 0.f;
             float fConst1 = 0.f;

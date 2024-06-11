@@ -30,6 +30,7 @@ namespace nap
 
 			/**
 			 * Reset the buffers to zero.
+             * Should only be called from the audio thread.
 			 * @param maxDelay Size of the delay lines (and therefore maximum delay) in samples.
 			 */
 			void reset(int maxDelay)
@@ -71,8 +72,8 @@ namespace nap
 			void setDelay(int value) { assert(value <= mInputBuffer.size()); mDelay = value; }
 
 		private:
-			ControllerValue mGain = 1.f;
-			int mDelay = 0;
+			std::atomic<ControllerValue> mGain = 1.f;
+			std::atomic<int> mDelay = 0;
 			SampleBuffer mInputBuffer;
 			SampleBuffer mOutputBuffer;
 			int mBufferIndex = 0;
