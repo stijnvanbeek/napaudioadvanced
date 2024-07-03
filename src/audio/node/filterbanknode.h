@@ -72,7 +72,7 @@ namespace nap
 			std::atomic<int> mFilterCount = { 1 };
 			BiquadFilter<float8> mFilter;
             OnePoleLowPass<SampleValue> mLowShelf;
-			ControllerValue mLowShelfGain = 0.f;
+			std::atomic<ControllerValue> mLowShelfGain = 0.f;
 
 			using UpdateFunction = std::function<void()>;
 			std::atomic<UpdateFunction*> mUpdateFunction = { nullptr };

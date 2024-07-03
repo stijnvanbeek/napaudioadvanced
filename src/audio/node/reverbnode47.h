@@ -140,12 +140,12 @@ namespace nap
                 void sampleRateChanged(float sampleRate) override;
                 void applySettingsToDSP();
 
-                ControllerValue mSize = 0.f;
+                std::atomic<ControllerValue> mSize = 0.f;
                 ControllerValue mDiffusion = 0.f;
-                ControllerValue mDecay = 0.f;
+                std::atomic<ControllerValue> mDecay = 0.f;
                 ControllerValue mDamping = 0.f;
                 ControllerValue mInputLowCut = 20.f;
-                ControllerValue mModulationBandWidth = 2.f;
+                std::atomic<ControllerValue> mModulationBandWidth = 2.f;
                 ControllerValue mModulationTime = 200.f;
 
                 OnePoleLowPass<SampleValue> mInputHighCutOnePole;

@@ -24,6 +24,7 @@ namespace nap
 
 			/**
 			 * Flushes the delay line
+             * Should only be called from the audio thread.
 			 * @param maxDelay Size of the delay line, also maximum delay time in samples.
 			 */
 			void reset(int maxDelay)
@@ -68,7 +69,7 @@ namespace nap
 
 		private:
 			std::unique_ptr<Delay> mDelay = nullptr;
-			ControllerValue mTime = 0.f;
+			std::atomic<ControllerValue> mTime = 0.f;
 		};
 
 	}

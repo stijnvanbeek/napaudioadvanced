@@ -124,17 +124,16 @@ namespace nap
                 {
                     if (isActive)
                         for (auto channel = 0; channel < mMixers.size(); ++channel)
-                            mMixers[channel]->inputs.enqueueConnect(*object->getOutputForChannel(channel));
+                            mMixers[channel]->inputs.connect(*object->getOutputForChannel(channel));
                     else
                         for (auto channel = 0; channel < mMixers.size(); ++channel)
-                            mMixers[channel]->inputs.enqueueDisconnect(*object->getOutputForChannel(channel));
+                            mMixers[channel]->inputs.disconnect(*object->getOutputForChannel(channel));
                     
                     return true;
                 }
             return false;
         }
 
-        
         
         OutputPin* MultiObjectInstance::getOutputForChannel(int channel)
         {
@@ -154,7 +153,6 @@ namespace nap
                 return 0;
             return mObjects[0]->getInputChannelCount();
         }
-
 
 
         void MultiObjectInstance::connect(unsigned int channel, OutputPin& pin)

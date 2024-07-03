@@ -48,7 +48,7 @@ namespace nap
 			}
 
 		private:
-			real cf = { 0.f };
+			std::atomic<real> cf = { 0.f };
 			real output = { 0.f };
 		};
 
@@ -92,9 +92,9 @@ namespace nap
 			}
 
 		private:
-			real a0 = { 1.0 };
-			real a1 = { 0.f };
-			real b1 = { 0.f };
+			std::atomic<real> a0 = { 1.0 };
+			std::atomic<real> a1 = { 0.f };
+			std::atomic<real> b1 = { 0.f };
 			real output = { 0.f };
 			real previousInput = { 0.f };
 		};

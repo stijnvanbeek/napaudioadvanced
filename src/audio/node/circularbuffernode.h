@@ -66,6 +66,8 @@ namespace nap
             DiscreteTimeValue mWritePosition = 0;
             
             bool mRootProcess = false;
+
+			std::mutex mMutex; // Mutex lock to guard against probably false positive thread sanitizer warnings about process() and clear().
         };
         
     }
