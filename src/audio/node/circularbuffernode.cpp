@@ -37,6 +37,8 @@ namespace nap
         
         void CircularBufferNode::process()
         {
+			std::lock_guard<std::mutex> lock(mMutex);
+
             auto inputBuffer = audioInput.pull();
             if (inputBuffer == nullptr)
             {
@@ -58,6 +60,8 @@ namespace nap
 
 		void CircularBufferNode::clear()
 		{
+			std::lock_guard<std::mutex> lock(mMutex);
+
 			for (auto i = 0; i < mBuffer.size(); ++i)
 				mBuffer[i] = 0.f;
 		}
