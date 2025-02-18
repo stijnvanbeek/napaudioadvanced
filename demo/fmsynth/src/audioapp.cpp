@@ -89,14 +89,6 @@ namespace nap
             return false;
         }
 
-        // Find the window resource
-        mRenderWindow = mResourceManager->findObject<RenderWindow>("Window0");
-        if (mRenderWindow == nullptr)
-        {
-            error.fail("Couldn't find render window");
-            return false;
-        }
-
         // Find the parameter GUI
         mParameterGUI = mResourceManager->findObject<ParameterGUI>("ParameterGUI");
         if (mParameterGUI == nullptr)
@@ -104,6 +96,25 @@ namespace nap
             error.fail("Couldn't findparameter GUI");
             return false;
         }
+
+		mRenderWindow = std::make_unique<RenderWindow>(getCore());
+		if (!mRenderWindow->init(error))
+		{
+			error.fail("Couldn't initialize render window");
+			return false;
+		}
+
+		mMidiInputPort = std::make_unique<MidiInputPort>(*mMidiService);
+		if (!mMidiInputPort->init(error))
+		{
+			error.fail("Couldn't initialize midi input port");
+			return false;
+		}
+		if (!mMidiInputPort->start(error))
+		{
+			error.fail("Couldn't start midi input port");
+			return false;
+		}
 
 		return true;
 	}

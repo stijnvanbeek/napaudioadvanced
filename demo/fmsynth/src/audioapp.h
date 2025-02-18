@@ -90,9 +90,12 @@ namespace nap
 		MidiService* mMidiService = nullptr;                            // Service managing midi input events and distributing across MidiInputComponents
 
         RGBAColor8 mTextHighlightColor = { 0xC8, 0x69, 0x69, 0xFF };    // GUI text highlight color
-        ObjectPtr<RenderWindow> mRenderWindow = nullptr;			    // Pointer to the render window
         KeyToMidiConverter mKeyToMidiConverter;                         // Helper object that converts character key input to midi note events
 		ObjectPtr<ParameterGroup> mParameterGroup = nullptr;            // The parameter group containing the parameters for the audio generation
 		ObjectPtr<ParameterGUI> mParameterGUI = nullptr;                // Gui object to display and edit the parameter group in the GUI
+
+		std::unique_ptr<RenderWindow> mRenderWindow = nullptr;	// The render window is managed by the app instead of the ResourceManager because it's always there.
+
+		std::unique_ptr<MidiInputPort> mMidiInputPort = nullptr; // The midi input port is managed by the app instead of the ResourceManager
 	};
 }
