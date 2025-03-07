@@ -61,6 +61,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return nullptr; }
             int getInputChannelCount() const override { return mNodes.size(); }
             void connect(unsigned int channel, OutputPin& pin) override { mNodes[channel]->audioInput.connect(pin); }
+			void disconnect(unsigned int channel, OutputPin& pin) override { mNodes[channel]->audioInput.disconnect(pin); }
 
             /**
              * Starts or stops recording to disk

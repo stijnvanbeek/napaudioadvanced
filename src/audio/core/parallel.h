@@ -80,6 +80,7 @@ namespace nap
             audio::OutputPin* getOutputForChannel(int channel) override { return mChannels[channel]->getOutputForChannel(0); }
             int getChannelCount() const override { return mChannels.size(); }
             void connect(unsigned int channel, audio::OutputPin& pin) override { mChannels[channel]->connect(0, pin); }
+			void disconnect(unsigned int channel, audio::OutputPin& pin) override { mChannels[channel]->disconnect(0, pin); }
             int getInputChannelCount() const override { return (mChannels[0]->getInputChannelCount() == 1) ? mChannels.size() : 0; }
 
         protected:

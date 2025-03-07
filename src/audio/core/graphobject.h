@@ -92,6 +92,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override;
             int getChannelCount() const override;
             void connect(unsigned int channel, OutputPin& pin) override;
+			void disconnect(unsigned int channel, OutputPin& pin) override;
             int getInputChannelCount() const override;
             
         private:
