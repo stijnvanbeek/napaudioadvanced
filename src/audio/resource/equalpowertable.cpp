@@ -34,7 +34,7 @@ namespace nap
                 return false;
             }
 
-            mTable = mNodeManager->makeSafe<EqualPowerTranslator<float>>(mSize);
+            mTable = mNodeManager->makeSafe<EqualPowerTranslator>(mSize);
             return true;
         }
 

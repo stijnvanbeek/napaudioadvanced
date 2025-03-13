@@ -44,13 +44,13 @@ namespace nap
             /**
              * @return Pointer to the lookup table object
              */
-            audio::SafePtr<EqualPowerTranslator<float>> getTable() { return mTable.get(); }
+            audio::SafePtr<EqualPowerTranslator> getTable() { return mTable.get(); }
 
             int mSize = 256; // Property: 'Size' Size of the table in floats.
 
         private:
             NodeManager* mNodeManager = nullptr;
-            audio::SafeOwner<EqualPowerTranslator<float>> mTable = nullptr;
+            audio::SafeOwner<EqualPowerTranslator> mTable = nullptr;
         };
 
     }

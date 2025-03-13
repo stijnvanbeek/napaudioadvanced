@@ -27,6 +27,7 @@ namespace nap
          */
         class NAPAPI AudioFileDescriptor
         {
+			RTTI_ENABLE()
         public:
             enum class Mode { READ, WRITE, READWRITE };
 
