@@ -18,20 +18,15 @@ namespace nap
     {
         
         
-        CircularBufferNode::CircularBufferNode(NodeManager& nodeManager, unsigned int bufferSize, bool rootProcess) : Node(nodeManager), mRootProcess(rootProcess)
+        CircularBufferNode::CircularBufferNode(NodeManager& nodeManager, unsigned int bufferSize) : Node(nodeManager)
         {
 //            TODO check if bufferSize is power of two
             mBuffer.resize(bufferSize);
-            
-            if (rootProcess)
-                getNodeManager().registerRootProcess(*this);
         }
         
         
         CircularBufferNode::~CircularBufferNode()
         {
-            if (mRootProcess)
-                getNodeManager().unregisterRootProcess(*this);
         }
         
         

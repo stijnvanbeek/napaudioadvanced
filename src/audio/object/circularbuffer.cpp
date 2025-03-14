@@ -64,7 +64,9 @@ namespace nap
                     return false;
                 }
                 
-                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize, rootProcess);
+                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize);
+				if (rootProcess)
+					nodeManager.registerRootProcess(node.get());
                 node->audioInput.connect(*input.getOutputForChannel(channelRouting[channel]));
                 mNodes.emplace_back(std::move(node));
             }
@@ -76,7 +78,9 @@ namespace nap
                                           utility::ErrorState &errorState) {
             for (auto channel = 0; channel < channelCount; ++channel)
             {
-                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize, rootProcess);
+                auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize);
+				if (rootProcess)
+					nodeManager.registerRootProcess(node.get());
                 mNodes.emplace_back(std::move(node));
             }
 

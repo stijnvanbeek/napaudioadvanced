@@ -29,9 +29,8 @@ namespace nap
              * Differs to the default signature of @Node constructors and therefore cannot be wrapped in a NodeObject.
              * @param nodeManager @NodeManager that de Node will be processed by.
              * @param bufferSize Size of the circular buffer. Has to be a power of two.
-             * @param rootProcess Indicates wether the @CircularBufferNode will be processed automatically by the @NodeManager.
              */
-            CircularBufferNode(NodeManager& nodeManager, unsigned int bufferSize, bool rootProcess = true);
+            CircularBufferNode(NodeManager& nodeManager, unsigned int bufferSize);
 
             ~CircularBufferNode() override;
 
@@ -65,8 +64,6 @@ namespace nap
             SampleBuffer mBuffer;
             DiscreteTimeValue mWritePosition = 0;
             
-            bool mRootProcess = false;
-
 			std::mutex mMutex; // Mutex lock to guard against probably false positive thread sanitizer warnings about process() and clear().
         };
         

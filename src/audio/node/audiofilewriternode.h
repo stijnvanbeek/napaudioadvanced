@@ -26,7 +26,7 @@ namespace nap
             RTTI_ENABLE(Node)
 
         public:
-            AudioFileWriterNode(NodeManager& nodeManager, int bufferQueueSize = 4, bool rootProcess = true);
+            AudioFileWriterNode(NodeManager& nodeManager, int bufferQueueSize = 4);
             ~AudioFileWriterNode();
 
 			/**
@@ -60,7 +60,6 @@ namespace nap
             WorkerThread mThread;
             int mBufferSizeInBytes = 0;
             SafePtr<AudioFileDescriptor> mAudioFileDescriptor = nullptr;
-            bool mRootProcess = false;
 
 			std::atomic<int> mActive = { 0 }; // Indicates wether the node is active. Active when greater than zero.
         };

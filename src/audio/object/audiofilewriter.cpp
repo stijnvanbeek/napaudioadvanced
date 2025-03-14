@@ -58,7 +58,8 @@ namespace nap
                     return false;
                 }
 
-                auto node = nodeManager.makeSafe<AudioFileWriterNode>(nodeManager, 4, true);
+                auto node = nodeManager.makeSafe<AudioFileWriterNode>(nodeManager, 4);
+				nodeManager.registerRootProcess(node.get());
                 node->setAudioFile(audioFile->getDescriptor());
                 if (input != nullptr)
                     node->audioInput.connect(*input->getOutputForChannel(inputChannel % input->getChannelCount()));

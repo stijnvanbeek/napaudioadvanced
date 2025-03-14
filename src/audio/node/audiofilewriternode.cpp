@@ -14,22 +14,18 @@ namespace nap
     {
 
 
-        AudioFileWriterNode::AudioFileWriterNode(NodeManager& nodeManager, int bufferQueueSize, bool rootProcess) : Node(nodeManager), mRootProcess(rootProcess)
+        AudioFileWriterNode::AudioFileWriterNode(NodeManager& nodeManager, int bufferQueueSize) : Node(nodeManager)
         {
             mBufferQueue.resize(bufferQueueSize);
             for (auto& buffer : mBufferQueue)
                 buffer.resize(nodeManager.getInternalBufferSize());
             mBufferSizeInBytes = sizeof(float) * getBufferSize();
             mThread.start();
-            if (mRootProcess)
-                nodeManager.registerRootProcess(*this);
         }
 
 
         AudioFileWriterNode::~AudioFileWriterNode()
         {
-            if (mRootProcess)
-                getNodeManager().unregisterRootProcess(*this);
         }
 
 
