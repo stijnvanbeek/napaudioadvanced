@@ -195,7 +195,8 @@ namespace nap
         
         void OscillatorNode::sampleRateChanged(float sampleRate)
         {
-            mStep = mWave->getSize() / sampleRate;
+			if (mWave != nullptr)
+	            mStep = mWave->getSize() / sampleRate;
         }
     }
 }
