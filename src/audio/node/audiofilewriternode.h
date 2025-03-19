@@ -50,6 +50,12 @@ namespace nap
 			  */
             InputPin audioInput = { this };
 
+			/**
+			 * This pin just outputs the inpus.
+			 * Connecting to this pin can be an alternative to process this node without registering it as root process.
+			 */
+			OutputPin audioOutput = { this };
+
         private:
             void process() override;
             void bufferSizeChanged(int) override;
@@ -61,7 +67,7 @@ namespace nap
             int mBufferSizeInBytes = 0;
             SafePtr<AudioFileDescriptor> mAudioFileDescriptor = nullptr;
 
-			std::atomic<int> mActive = { 0 }; // Indicates wether the node is active. Active when greater than zero.
+			std::atomic<int> mActive = { 0 }; // Indicates whether the node is active. Active when greater than zero.
         };
 
 

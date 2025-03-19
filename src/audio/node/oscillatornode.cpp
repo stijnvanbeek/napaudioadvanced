@@ -28,7 +28,7 @@ namespace nap
     namespace audio
     {
         
-// --- Wavetable --- //
+		// --- Wavetable --- //
 
 		WaveTable::WaveTable(long size, Waveform waveform, int numberOfBands)
         {
@@ -112,7 +112,7 @@ namespace nap
         }
 
         
-// --- Oscillator --- //
+		// --- Oscillator --- //
 
 
         OscillatorNode::OscillatorNode(NodeManager& manager) : Node(manager)

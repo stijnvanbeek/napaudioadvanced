@@ -63,6 +63,9 @@ namespace nap
         void AudioFileWriterNode::process()
         {
             auto inputBuffer = audioInput.pull();
+			auto& outputBuffer = getOutputBuffer(audioOutput);
+			outputBuffer = *inputBuffer; // Copy throughput
+
             std::memcpy(mBufferQueue[mInputIndex].data(), inputBuffer->data(), mBufferSizeInBytes);
             mThread.enqueue([&](){
                 if (mActive > 0 && mAudioFileDescriptor != nullptr)
