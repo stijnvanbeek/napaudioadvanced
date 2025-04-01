@@ -20,6 +20,7 @@ namespace nap
          */
         class NAPAPI NestedNodeManagerNode : public Node
         {
+			RTTI_ENABLE(Node)
         public:
             /**
              * Constructor
@@ -38,12 +39,12 @@ namespace nap
             /**
              * @return input pin with given index that will be fed into the nested node system.
              */
-            InputPin& getInput(int index) { return _mInputs[index]; }
+            InputPin& getInput(int index) { return *_mInputs[index]; }
 
             /**
              * @return output pin with given index that holds the output of the nested node system.
              */
-            OutputPin& getOutput(int index) { return _mOutputs[index]; }
+            OutputPin& getOutput(int index) { return *_mOutputs[index]; }
 
             /**
              * @return number of input channels of the nested node system.
@@ -65,8 +66,8 @@ namespace nap
             void process() override;
 
             NodeManager mNestedNodeManager;
-            std::vector<InputPin> _mInputs;
-            std::vector<OutputPin> _mOutputs;
+            std::vector<std::unique_ptr<InputPin>> _mInputs;
+            std::vector<std::unique_ptr<OutputPin>> _mOutputs;
             std::vector<audio::SampleBuffer*> mOutputBuffers;
             std::vector<audio::SampleBuffer*> mInputBuffers;
         };

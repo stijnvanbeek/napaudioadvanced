@@ -74,8 +74,8 @@ namespace nap
         }
 
 
-        bool CircularBufferInstance::init(int channelCount, bool rootProcess, int bufferSize, NodeManager &nodeManager,
-                                          utility::ErrorState &errorState) {
+        bool CircularBufferInstance::init(int channelCount, bool rootProcess, int bufferSize, NodeManager &nodeManager, utility::ErrorState &errorState)
+		{
             for (auto channel = 0; channel < channelCount; ++channel)
             {
                 auto node = nodeManager.makeSafe<CircularBufferNode>(nodeManager, bufferSize);
