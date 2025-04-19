@@ -7,6 +7,8 @@
 #include <cassert>
 #include <audio/utility/audiotypes.h>
 
+#include <atomic>
+
 namespace nap
 {
 
@@ -72,8 +74,8 @@ namespace nap
 			void setDelay(int value) { assert(value <= mInputBuffer.size()); mDelay = value; }
 
 		private:
-			std::atomic<ControllerValue> mGain = 1.f;
-			std::atomic<int> mDelay = 0;
+			std::atomic<ControllerValue> mGain = { 1.f };
+			std::atomic<int> mDelay = { 0 };
 			SampleBuffer mInputBuffer;
 			SampleBuffer mOutputBuffer;
 			int mBufferIndex = 0;

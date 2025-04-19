@@ -8,6 +8,8 @@
 #include <mathutils.h>
 #include <audio/utility/vectorextension.h>
 
+#include <atomic>
+
 namespace nap
 {
 
