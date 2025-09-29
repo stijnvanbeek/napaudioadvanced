@@ -7,6 +7,10 @@
 RTTI_BEGIN_CLASS(nap::audio::verb47::Reverb47)
         RTTI_PROPERTY("CorrelationMultiplier", &nap::audio::verb47::Reverb47::mCorrelationMultiplier, nap::rtti::EPropertyMetaData::Default)
         RTTI_PROPERTY("DiffusionCrossover", &nap::audio::verb47::Reverb47::mDiffusionCrossover, nap::rtti::EPropertyMetaData::Default)
+		RTTI_PROPERTY("Size", &nap::audio::verb47::Reverb47::mSize, nap::rtti::EPropertyMetaData::Default)
+		RTTI_PROPERTY("Decay", &nap::audio::verb47::Reverb47::mDecay, nap::rtti::EPropertyMetaData::Default)
+		RTTI_PROPERTY("Damping", &nap::audio::verb47::Reverb47::mDamping, nap::rtti::EPropertyMetaData::Default)
+		RTTI_PROPERTY("Diffusion", &nap::audio::verb47::Reverb47::mDiffusion, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_DEFINE_CLASS(nap::audio::verb47::ReverbInstance47)
@@ -24,10 +28,10 @@ namespace nap
                 ReverbSettings settings;
                 settings.multiply(mCorrelationMultiplier[channel % mCorrelationMultiplier.size()]);
                 node.applySettings(settings);
-                node.setSize(0.85);
-                node.setDecay(0.8);
-                node.setDamping(0.55);
-                node.setDiffusion(0.55);
+                node.setSize(mSize);
+                node.setDecay(mDecay);
+                node.setDamping(mDamping);
+                node.setDiffusion(mDiffusion);
                 node.setModulationAmplitude(0.1f);
                 node.setModulationSpeed(0.5f);
                 if (mInput != nullptr)

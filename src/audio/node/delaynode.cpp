@@ -34,14 +34,14 @@ namespace nap
         
         void DelayNode::setTime(TimeValue value, TimeValue rampTime)
         {
-//            mTime.setStepCount(rampTime * getNodeManager().getSamplesPerMillisecond());
+            mTime.setStepCount(rampTime * getNodeManager().getSamplesPerMillisecond());
             mTime.setValue(value * getNodeManager().getSamplesPerMillisecond());
         }
         
         
         void DelayNode::setDryWet(ControllerValue value, TimeValue rampTime)
         {
-//            mDryWet.setStepCount(rampTime * getNodeManager().getSamplesPerMillisecond());
+            mDryWet.setStepCount(rampTime * getNodeManager().getSamplesPerMillisecond());
             mDryWet.setValue(value);
         }
 

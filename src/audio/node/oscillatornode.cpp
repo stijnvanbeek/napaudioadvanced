@@ -167,6 +167,7 @@ namespace nap
         
         void OscillatorNode::setAmplitude(ControllerValue amplitude, TimeValue rampTime)
         {
+			mAmplitude.setStepCount(rampTime * getNodeManager().getSamplesPerMillisecond());
             mAmplitude.setValue(amplitude);
         }
         
