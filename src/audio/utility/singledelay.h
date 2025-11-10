@@ -41,7 +41,7 @@ namespace nap
 			 */
 			void setDelay(ControllerValue sampleTime)
 			{
-				assert(mTime <= mDelay->getMaxDelay());
+				assert(sampleTime <= mDelay->getMaxDelay());
 				mTime = sampleTime;
 			}
 
