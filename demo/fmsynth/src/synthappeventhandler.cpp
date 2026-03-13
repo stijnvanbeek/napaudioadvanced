@@ -5,6 +5,7 @@
 // Local includes
 #include "synthappeventhandler.h"
 #include "imguiservice.h"
+#include <nap/logger.h>
 
 // External includes
 #include <sdlinputservice.h>
@@ -64,14 +65,14 @@ namespace nap
                 if (input_event == nullptr)
                     continue;
 
-//              This is what distinguishes this call from the GUIAppEventHandler: always forward key events, even if the GUI is receiving input
+                // This is what distinguishes this call from the GUIAppEventHandler: always forward key events, even if the GUI is receiving input
                 getApp<App>().inputMessageReceived(std::move(input_event));
 
-//                ImGuiContext* ctx = mGuiService->processInputEvent(*input_event);
-//                if (ctx != nullptr && !mGuiService->isCapturingKeyboard(ctx))
-//                {
-//                    getApp<App>().inputMessageReceived(std::move(input_event));
-//                }
+                // ImGuiContext* ctx = mGuiService->processInputEvent(*input_event);
+                // if (ctx != nullptr && !mGuiService->isCapturingKeyboard(ctx))
+                // {
+                //     getApp<App>().inputMessageReceived(std::move(input_event));
+                // }
             }
 
             // Always forward touch events
@@ -118,7 +119,7 @@ namespace nap
             else if (mEventConverter->isWindowEvent(event))
             {
                 // Quit when request to close
-                if (event.window.event == SDL_WINDOWEVENT_CLOSE && getApp<App>().shutdownRequested())
+                if (event.window.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && getApp<App>().shutdownRequested())
                 {
                     getApp<App>().quit();
                 }
@@ -131,7 +132,7 @@ namespace nap
             }
 
                 // Stop if the event tells us to quit
-            else if (event.type == SDL_QUIT && getApp<App>().shutdownRequested())
+            else if (event.type == SDL_EVENT_QUIT && getApp<App>().shutdownRequested())
             {
                 getApp<App>().quit();
             }

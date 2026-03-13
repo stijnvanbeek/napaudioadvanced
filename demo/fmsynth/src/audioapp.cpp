@@ -89,21 +89,21 @@ namespace nap
             return false;
         }
 
-        // Find the window resource
-        mRenderWindow = mResourceManager->findObject<RenderWindow>("Window0");
-        if (mRenderWindow == nullptr)
-        {
-            error.fail("Couldn't find render window");
-            return false;
-        }
+        // Create the window resource
+    	mRenderWindow = std::make_unique<RenderWindow>(getCore());
+    	if (!mRenderWindow->init(error))
+    		return false;
 
-        // Find the parameter GUI
-        mParameterGUI = mResourceManager->findObject<ParameterGUI>("ParameterGUI");
-        if (mParameterGUI == nullptr)
-        {
-            error.fail("Couldn't findparameter GUI");
-            return false;
-        }
+    	// Create the parameter GUI
+    	mParameterGUI = std::make_unique<ParameterGUI>(getCore());
+    	mParameterGUI->mParameterGroup = mParameterGroup;
+    	if (!mParameterGUI->init(error))
+    		return false;
+
+    	// Create the midi input port
+    	mMidiInputPort = std::make_unique<MidiInputPort>(getCore());
+    	if (!mMidiInputPort->start(error))
+    		return false;
 
 		return true;
 	}
