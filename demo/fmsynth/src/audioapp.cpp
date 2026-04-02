@@ -4,15 +4,12 @@
 
 #include "audioapp.h"
 
-#include <parameteroptionlist.h>
-
 // Nap includes
 #include <nap/core.h>
 #include <renderablemeshcomponent.h>
 #include <perspcameracomponent.h>
 #include <mathutils.h>
 #include <scene.h>
-#include <inputrouter.h>
 #include <imgui/imgui.h>
 #include <renderwindow.h>
 #include <renderservice.h>
@@ -22,7 +19,6 @@
 
 #include "fftaudionodecomponent.h"
 #include "meshutils.h"
-#include <audio/utility/audiofunctions.h>
 
 // Register this application with RTTI, this is required by the AppRunner to 
 // validate that this object is indeed an application
@@ -32,38 +28,6 @@ RTTI_END_CLASS
 
 namespace nap 
 {
-
-    /**
-     * Register an editor for the the ParameterOptionList parameter type with the ParameterGUIService
-     */
-    void registerParameterEditors(ParameterGUIService& parameterGUIService)
-    {
-        parameterGUIService.registerParameterEditor(RTTI_OF(ParameterOptionList), [](Parameter& parameter)
-        {
-            ParameterOptionList* optionList = rtti_cast<ParameterOptionList>(&parameter);
-
-            std::vector<rttr::string_view> items(optionList->getOptions().begin(), optionList->getOptions().end());
-
-            int value = optionList->getValue();
-
-            ImGui::PushID(&parameter);
-
-            if (ImGui::Combo(optionList->getDisplayName().c_str(), &value,
-                             [](void* data, int index, const char** out_text)
-                             {
-                                 std::vector<rttr::string_view>* items = (std::vector<rttr::string_view>*)data;
-                                 *out_text = (*items)[index].data();
-                                 return true;
-                             },
-                             &items, items.size()))
-            {
-                optionList->setValue(value);
-            }
-
-            ImGui::PopID();
-
-        });
-    }
 
 
 	/**
@@ -77,9 +41,6 @@ namespace nap
 		mInputService	= getCore().getService<nap::InputService>();
 		mGuiService		= getCore().getService<nap::IMGuiService>();
         mMidiService	= getCore().getService<nap::MidiService>();
-
-        // Register the custom parameter editor
-        registerParameterEditors(*getCore().getService<ParameterGUIService>());
 
 		// Get resource manager and load and deserialize app structure
 		mResourceManager = getCore().getResourceManager();

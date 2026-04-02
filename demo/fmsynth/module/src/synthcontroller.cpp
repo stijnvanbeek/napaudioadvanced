@@ -41,9 +41,9 @@ namespace nap
 
         // Connect slots handling certain parameter changes
         mResource->mFrequencyModulation->valueChanged.connect(fmChangedSlot);
-        mResource->mVoicing->valueChanged.connect(voicingChangedSlot);
+        mResource->mVoicing->indexChanged.connect(voicingChangedSlot);
         mResource->mFilterResonance->valueChanged.connect(filterResonanceChangedSlot);
-        mResource->mWaveform->valueChanged.connect(waveformChangedSlot);
+        mResource->mWaveform->indexChanged.connect(waveformChangedSlot);
         mResource->mReverbLevel->valueChanged.connect(reverbLevelChangedSlot);
 
         // Find Graph in sibling AudioComponent
@@ -135,7 +135,7 @@ namespace nap
         // Determine the voice and the glide time for the new note
         audio::VoiceInstance* voice = nullptr;
         float glideTime = 0.f;
-        if (mResource->mVoicing->mValue == 0)
+        if (mResource->mVoicing->mSelectedIndex == 0)
         {
             // In polyphonic mode a new note is always played on a free voice.
             // The glide time remains zero because gliding only occurs in monophonic mode
@@ -161,7 +161,7 @@ namespace nap
         oscA->setAmplitude(mResource->mFrequencyModulation->mValue, 0); // The amplitude of the modulator oscillator is determined by the frequency modulation amount.
 
         // Update the carrier oscillator. This is the oscillator that is generating the audible signal.
-        mCarrierOscillators[voice]->selectWaveTable(mResource->mWaveform->mValue);
+        mCarrierOscillators[voice]->selectWaveTable(mResource->mWaveform->mSelectedIndex);
         auto oscB = mCarrierOscillators[voice]->getChannel(0);  // Because the oscillator is mono we operate on channel 0
         oscB->setFrequency(freq, glideTime);
 
@@ -181,7 +181,7 @@ namespace nap
         mNoteVoices[event.getNoteNumber()] = voice;
         mLastPlayedNote = event.getNoteNumber();
 
-        if (mResource->mVoicing->mValue == 0)
+        if (mResource->mVoicing->mSelectedIndex == 0)
         {
             // In polyphonic mode: prepare the filter for playback and play the attack and decay sections of the envelope
             filter->prepare(cutoffFreq, mResource->mFilterResonance->mValue, 1.0);
@@ -212,7 +212,7 @@ namespace nap
             auto voice = mNoteVoices[event.getNoteNumber()];
             auto envelope = mEnvelopes[voice];
 
-            if (mResource->mVoicing->mValue == 0)
+            if (mResource->mVoicing->mSelectedIndex == 0)
                 // In polyphonic mode play the release section of the playing voice
                 mPolyphonic->playSection(voice, 2, 2, envelope->getValue(), 0);
             else

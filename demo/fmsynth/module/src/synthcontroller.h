@@ -18,7 +18,7 @@
 #include <parametergroup.h>
 #include <parameternumeric.h>
 #include <parametersimple.h>
-#include <parameteroptionlist.h>
+#include <parameterdropdown.h>
 #include <entity.h>
 #include <componentptr.h>
 
@@ -46,7 +46,7 @@ namespace nap
         ComponentPtr<MidiInputComponent> mNoteOn = nullptr; ///< Property: 'NoteOn' MidiInputComponent that captures all note on events.
         ComponentPtr<MidiInputComponent> mNoteOff = nullptr; ///< Property: 'NoteOff' MidiInputComponent that captures all note off events.
         ResourcePtr<ParameterFloat> mFrequencyModulation = nullptr; ///< Property: 'FrequencyModulation' Parameter that controls the frequency modulation amount
-        ResourcePtr<ParameterOptionList> mVoicing = nullptr; ///< Property: 'Voicing' Parameter that indicates of the synth is playing in polyphonic or monophonic mode. Monophonic meaning that the already playing note is gliding to the new played note.
+        ResourcePtr<ParameterDropDown> mVoicing = nullptr; ///< Property: 'Voicing' Parameter that indicates of the synth is playing in polyphonic or monophonic mode. Monophonic meaning that the already playing note is gliding to the new played note.
         ResourcePtr<ParameterFloat> mGlideTime  = nullptr; ///< Property: 'GlideTime' Parameter indicating the glide time in milliseconds between two notes playing in overlap in monophonic mode.
         ResourcePtr<ParameterFloat> mFilterCutoff = nullptr; ///< Property: 'FilterCutoff' Parameter indicating the cutoff frequency in of the filter expressed in a floating point midi note number.
         ResourcePtr<ParameterFloat> mFilterResonance = nullptr; ///< Property: 'Resonance' Parameter indicating the resonance value of the filter.
@@ -55,7 +55,7 @@ namespace nap
         ResourcePtr<ParameterFloat> mDecay = nullptr; ///< Property: 'Decay' Decay parameter in ms of the ADSR envelope
         ResourcePtr<ParameterFloat> mSustain = nullptr; ///< Property: 'Sustain' Sustain amplitude of the ADSR envelope
         ResourcePtr<ParameterFloat> mRelease = nullptr; ///< Property: 'Release' Release parameter in ms of the ADSR envelope
-        ResourcePtr<ParameterOptionList> mWaveform = nullptr; ///< Property: 'Waveform' Waveform of the carrier oscillator. 0: sine, 1: saw, 2: square
+        ResourcePtr<ParameterDropDown> mWaveform = nullptr; ///< Property: 'Waveform' Waveform of the carrier oscillator. 0: sine, 1: saw, 2: square
         ResourcePtr<ParameterFloat> mReverbLevel = nullptr; ///< Property: 'ReverbLevel' Level of the reverberated signal.
     };
 
