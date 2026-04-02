@@ -2,6 +2,127 @@
     "Objects": [
         {
             "Type": "nap::Entity",
+            "mID": "CameraEntity",
+            "Components": [
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "TransformComponent",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 4.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                },
+                {
+                    "Type": "nap::PerspCameraComponent",
+                    "mID": "nap::PerspCameraComponent",
+                    "Properties": {
+                        "FieldOfView": 50.0,
+                        "NearClippingPlane": 1.0,
+                        "FarClippingPlane": 1000.0,
+                        "GridDimensions": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "GridLocation": {
+                            "x": 0,
+                            "y": 0
+                        }
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "PlaneEntity",
+            "Components": [
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "PlaneTranformComponent",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": -40.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 5.0,
+                            "y": 5.0,
+                            "z": 5.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                },
+                {
+                    "Type": "nap::RenderableMeshComponent",
+                    "mID": "RenderableMeshComponent",
+                    "Visible": true,
+                    "Tags": [],
+                    "Layer": "",
+                    "Mesh": "PlaneMesh",
+                    "MaterialInstance": {
+                        "Uniforms": [
+                            {
+                                "Type": "nap::UniformStruct",
+                                "mID": "nap::UniformStruct",
+                                "Name": "UBO",
+                                "Uniforms": [
+                                    {
+                                        "Type": "nap::UniformVec3",
+                                        "mID": "nap::UniformVec3",
+                                        "Name": "Color",
+                                        "Value": {
+                                            "x": 0.50000001192092896,
+                                            "y": 0.50000001192092896,
+                                            "z": 0.50000001192092896
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "Samplers": [],
+                        "Buffers": [],
+                        "Constants": [],
+                        "Material": "Material",
+                        "BlendMode": "Opaque",
+                        "DepthMode": "InheritFromBlendMode"
+                    },
+                    "LineWidth": 1.0,
+                    "ClipRect": {
+                        "Min": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "Max": {
+                            "x": 0.0,
+                            "y": 0.0
+                        }
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "SynthEntity",
             "Components": [
                 {
@@ -69,6 +190,13 @@
                     "Release": "Release",
                     "Waveform": "Waveform",
                     "ReverbLevel": "ReverbLevel"
+                },
+                {
+                    "Type": "nap::FFTAudioNodeComponent",
+                    "mID": "FFTAudioNodeComponent",
+                    "Input": "./nap::audio::AudioComponent_1869e951",
+                    "Overlaps": "Eleven",
+                    "Channel": 0
                 }
             ],
             "Children": []
@@ -180,6 +308,78 @@
                 }
             ],
             "Groups": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "Rendering",
+            "Members": [
+                {
+                    "Type": "nap::PlaneMesh",
+                    "mID": "PlaneMesh",
+                    "Usage": "DynamicWrite",
+                    "CullMode": "None",
+                    "PolygonMode": "Line",
+                    "Size": {
+                        "x": 1.0,
+                        "y": 1.0
+                    },
+                    "Position": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "Color": {
+                        "Values": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    },
+                    "Rows": 50,
+                    "Columns": 50
+                },
+                {
+                    "Type": "nap::ConstantShader",
+                    "mID": "ConstantShader"
+                },
+                {
+                    "Type": "nap::Material",
+                    "mID": "Material",
+                    "Uniforms": [
+                        {
+                            "Type": "nap::UniformStruct",
+                            "mID": "UBO",
+                            "Name": "UBO",
+                            "Uniforms": [
+                                {
+                                    "Type": "nap::UniformVec3",
+                                    "mID": "color",
+                                    "Name": "color",
+                                    "Value": {
+                                        "x": 0.50000000298023224,
+                                        "y": 0.50000000298023224,
+                                        "z": 0.50000000298023224
+                                    }
+                                },
+                                {
+                                    "Type": "nap::UniformFloat",
+                                    "mID": "alpha",
+                                    "Name": "alpha",
+                                    "Value": 0.0
+                                }
+                            ]
+                        }
+                    ],
+                    "Samplers": [],
+                    "Buffers": [],
+                    "Constants": [],
+                    "Shader": "ConstantShader",
+                    "VertexAttributeBindings": [],
+                    "BlendMode": "Opaque",
+                    "DepthMode": "InheritFromBlendMode"
+                }
+            ],
+            "Children": []
         },
         {
             "Type": "nap::ResourceGroup",
@@ -307,8 +507,7 @@
                             ],
                             "Gain": [
                                 0.10000000149011612
-                            ],
-                            "Input": ""
+                            ]
                         }
                     ],
                     "Output": "Multiply",
@@ -330,6 +529,14 @@
                 {
                     "Entity": "SynthEntity",
                     "InstanceProperties": []
+                },
+                {
+                    "Entity": "PlaneEntity",
+                    "InstanceProperties": []
+                },
+                {
+                    "Entity": "CameraEntity",
+                    "InstanceProperties": []
                 }
             ]
         },
@@ -343,7 +550,8 @@
                     "Voice": "SynthVoice",
                     "VoiceCount": 10,
                     "VoiceStealing": true,
-                    "ChannelCount": 1
+                    "ChannelCount": 1,
+                    "Input": ""
                 },
                 {
                     "Type": "nap::audio::verb47::Reverb47",
@@ -354,7 +562,11 @@
                         1.0,
                         1.100000023841858
                     ],
-                    "DiffusionCrossover": true
+                    "DiffusionCrossover": true,
+                    "Size": 0.800000011920929,
+                    "Decay": 0.800000011920929,
+                    "Damping": 0.550000011920929,
+                    "Diffusion": 0.550000011920929
                 },
                 {
                     "Type": "nap::audio::Multiply",

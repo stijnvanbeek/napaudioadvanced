@@ -10,7 +10,8 @@
         "napparameter",
         "napparametergui",
         "napportaudio",
-        "napfmsynth"
+        "napfmsynth",
+        "napfft"
     ],
     "Data": "data/fmsynth.json",
     "ServiceConfig": "",

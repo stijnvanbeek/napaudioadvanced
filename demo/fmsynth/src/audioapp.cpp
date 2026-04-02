@@ -9,7 +9,7 @@
 // Nap includes
 #include <nap/core.h>
 #include <renderablemeshcomponent.h>
-#include <orthocameracomponent.h>
+#include <perspcameracomponent.h>
 #include <mathutils.h>
 #include <scene.h>
 #include <inputrouter.h>
@@ -18,6 +18,11 @@
 #include <renderservice.h>
 #include <nap/logger.h>
 #include <parametersimple.h>
+#include <renderglobals.h>
+
+#include "fftaudionodecomponent.h"
+#include "meshutils.h"
+#include <audio/utility/audiofunctions.h>
 
 // Register this application with RTTI, this is required by the AppRunner to 
 // validate that this object is indeed an application
@@ -91,12 +96,15 @@ namespace nap
 
         // Create the window resource
     	mRenderWindow = std::make_unique<RenderWindow>(getCore());
+    	mRenderWindow->mWidth = 600;
+    	mRenderWindow->mHeight = 500;
     	if (!mRenderWindow->init(error))
     		return false;
 
     	// Create the parameter GUI
     	mParameterGUI = std::make_unique<ParameterGUI>(getCore());
     	mParameterGUI->mParameterGroup = mParameterGroup;
+    	mParameterGUI->mSerializable = false;
     	if (!mParameterGUI->init(error))
     		return false;
 
@@ -105,21 +113,65 @@ namespace nap
     	if (!mMidiInputPort->start(error))
     		return false;
 
+    	auto scene = mResourceManager->findObject<Scene>("Scene");
+    	mPlaneEntity = scene->findEntity("PlaneEntity");
+    	mCameraEntity = scene->findEntity("CameraEntity");
+    	mSynthEntity = scene->findEntity("SynthEntity");
+
+    	auto& mesh = mResourceManager->findObject<Mesh>("PlaneMesh")->getMeshInstance();
+    	Vec3VertexAttribute& positions = mesh.getOrCreateAttribute<glm::vec3>(vertexid::position);
+    	for (int i = 0; i < positions.getCount(); i++)
+    		originalHeights.push_back(positions[i].z);
+
 		return true;
 	}
 	
 	
 	void AudioTestApp::update(double deltaTime)
 	{
-        ImGui::Begin(appName.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-		if (mParameterGroup != nullptr)
-		{
-			if (mParameterGUI != nullptr)
-				mParameterGUI->show(false);
-		}
-		ImGui::NewLine();
-		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
-        ImGui::End();
+    	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    	ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    	ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.0f, 0.0f, 0.0f, 0.7f));
+    	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+
+    	ImGui::SetNextWindowPos(ImVec2(150, 25));
+    	ImGui::SetNextWindowSize(ImVec2(400, 500));
+    	ImGui::SetNextWindowBgAlpha(0.0f);
+
+    	ImGui::Begin("FM Synth", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+    	if (mParameterGUI != nullptr)
+    		mParameterGUI->show(false);
+    	ImGui::NewLine();
+
+    	std::string formattedText = nap::utility::stringFormat("Framerate: %.02f", getCore().getFramerate());
+    	ImGui::Text(formattedText.c_str());
+    	ImGui::End();
+
+    	ImGui::PopStyleVar();
+    	ImGui::PopStyleColor();
+    	ImGui::PopStyleColor();
+    	ImGui::PopStyleColor();
+    	ImGui::PopStyleColor();
+    	ImGui::PopStyleColor();
+
+    	auto fftComponent = mSynthEntity->findComponent<FFTAudioNodeComponentInstance>();
+    	auto& buffer = fftComponent->getFFTBuffer();
+    	auto& mesh = mResourceManager->findObject<Mesh>("PlaneMesh")->getMeshInstance();
+    	Vec3VertexAttribute& positions = mesh.getOrCreateAttribute<glm::vec3>(vertexid::position);
+    	auto& amplitudes = buffer.getAmplitudeSpectrum();
+    	for (int i = 0; i < positions.getCount(); ++i)
+    	{
+    		int index = static_cast<int>(pow(positions[i].x + 0.5f, 2.5) * (amplitudes.size() - 1));
+    		index = math::clamp<int>(index, 0, amplitudes.size() - 1);
+
+    		float displacement = amplitudes[index] * 10.f;
+			positions[i].z = originalHeights[i] + displacement;
+    	}
+    	utility::ErrorState error_state;
+    	bool result = mesh.update(error_state);
+    	assert(result);
     }
 
 	
@@ -135,6 +187,16 @@ namespace nap
 		{
 			// Begin render pass
 			mRenderWindow->beginRendering();
+
+			std::vector<nap::RenderableComponentInstance*> components_to_render;
+			auto& plane = mPlaneEntity->getComponent<nap::RenderableMeshComponentInstance>();
+			components_to_render.emplace_back(&plane);
+
+			// Find the perspective camera
+			auto& camera = mCameraEntity->getComponent<nap::PerspCameraComponentInstance>();
+
+			// Render the world with the right camera directly to screen
+			mRenderService->renderObjects(*mRenderWindow, camera, components_to_render);
 
 			// Render GUI elements
 			mGuiService->draw();

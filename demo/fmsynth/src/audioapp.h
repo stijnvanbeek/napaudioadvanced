@@ -95,5 +95,10 @@ namespace nap
 		std::unique_ptr<ParameterGUI> mParameterGUI = nullptr;          // Gui object to display and edit the parameter group in the GUI
         std::unique_ptr<RenderWindow> mRenderWindow = nullptr;			// Pointer to the render window
 		std::unique_ptr<MidiInputPort> mMidiInputPort = nullptr;
+
+		ObjectPtr<EntityInstance> mPlaneEntity = nullptr;
+		ObjectPtr<EntityInstance> mCameraEntity = nullptr;
+		ObjectPtr<EntityInstance> mSynthEntity = nullptr;
+		std::vector<float> originalHeights;
 	};
 }
