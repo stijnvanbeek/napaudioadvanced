@@ -14,7 +14,6 @@
 #include <renderwindow.h>
 #include <renderservice.h>
 #include <nap/logger.h>
-#include <parametersimple.h>
 #include <renderglobals.h>
 
 #include "fftaudionodecomponent.h"
