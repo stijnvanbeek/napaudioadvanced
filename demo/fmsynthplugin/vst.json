@@ -1,0 +1,23 @@
+{
+  "Name": "FM Synth",
+  "Version": "0.0.1",
+  "Description": "A simple FM synth plugin.",
+  "Company": "NAP Framework",
+  "CompanyWeb": "https://github.com/napframework/nap",
+  "CompanyEmail": "",
+  "Data": "data/objects.json",
+  "Class": "nap::FMSynthPlugin",
+  "Category": "Instrument|Synth",
+  "AudioInput": "Empty",
+  "AudioOutput": "Stereo",
+  "UID": "0xBD58B550, 0xF9E5634E, 0x9D2EFF39, 0xEA0927B3",
+  "RequiredModules": [
+    "napparametergui",
+    "napimgui",
+    "napfmsynth",
+    "napmidi",
+    "napsdlinput",
+    "napcontrol",
+    "napfft"
+  ]
+}
