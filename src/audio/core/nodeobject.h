@@ -27,7 +27,7 @@ namespace nap
          * @tparam NodeType The type of the Node that will be wrapped by this object's instance.
          */
         template <typename NodeType>
-        class NodeObject : public AudioObject
+        class NAPAPI NodeObject : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
 
@@ -51,7 +51,7 @@ namespace nap
         /**
          * Non templated base class for NodeObjectInstance
          */
-        class NodeObjectInstanceBase : public AudioObjectInstance
+        class NAPAPI NodeObjectInstanceBase : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
@@ -70,7 +70,7 @@ namespace nap
          * @tparam NodeType type of the wrapped node.
          */
         template <typename NodeType>
-        class NodeObjectInstance : public NodeObjectInstanceBase
+        class NAPAPI NodeObjectInstance : public NodeObjectInstanceBase
         {
             RTTI_ENABLE(NodeObjectInstanceBase)
             
@@ -135,7 +135,7 @@ namespace nap
          * @tparam NodeType The type of the nodes that process one single channel of the NodeObject.
          */
         template <typename NodeType>
-        class ParallelNodeObject : public ParallelNodeObjectBase
+        class NAPAPI ParallelNodeObject : public ParallelNodeObjectBase
         {
             RTTI_ENABLE(ParallelNodeObjectBase)
 
@@ -160,7 +160,7 @@ namespace nap
         /**
          * Non templated base class for ParallelNodeObjectInstance
          */
-        class ParallelNodeObjectInstanceBase : public AudioObjectInstance
+        class NAPAPI ParallelNodeObjectInstanceBase : public AudioObjectInstance
         {
             RTTI_ENABLE(AudioObjectInstance)
         public:
@@ -179,7 +179,7 @@ namespace nap
          * @tparam NodeType
          */
         template <typename NodeType>
-        class ParallelNodeObjectInstance : public ParallelNodeObjectInstanceBase
+        class NAPAPI ParallelNodeObjectInstance : public ParallelNodeObjectInstanceBase
         {
             RTTI_ENABLE(ParallelNodeObjectInstanceBase)
 

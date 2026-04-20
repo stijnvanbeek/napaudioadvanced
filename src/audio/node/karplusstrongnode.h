@@ -19,7 +19,7 @@ namespace nap
 	     * a comb filter (or tuned feedback loop) with a onepole lowpass filter within th feedback loop.
 	     * Wraps the KarplusStrong class in a Node.
 	     */
-		class KarplusStrongNode : public Node
+		class NAPAPI KarplusStrongNode : public Node
 		{
 		public:
 			KarplusStrongNode(NodeManager& nodeManager) : Node(nodeManager)
