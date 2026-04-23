@@ -93,12 +93,13 @@ namespace nap
             /**
              * This signal is emitted whenever an envelope finishes playing and the output signal has reached zero.
              */
-            nap::Signal<EnvelopeNode&> envelopeFinishedSignal;
+            nap::Signal<> envelopeFinishedSignal;
             
             /**
              * This signal is emitted whenever a segment of the envelope has finfished playing.
+             * Passes the index o the finished segment.
              */
-            nap::Signal<EnvelopeNode&> segmentFinishedSignal;
+            nap::Signal<int> segmentFinishedSignal;
             
             /**
              * Use this to edit the envelope data. Handle with care and don't use this while the EnvelopeGenerator is playing!

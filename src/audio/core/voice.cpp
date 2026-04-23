@@ -45,7 +45,7 @@ namespace nap
             if (!GraphInstance::init(resource, nodeManager, errorState))
                 return false;
 
-            mEnvelope = getObject<EnvelopeInstance>(resource.mEnvelope->mID.c_str());
+            mEnvelope = getObject<EnvelopeInstanceBase>(resource.mEnvelope->mID.c_str());
             if (mEnvelope == nullptr)
             {
                 errorState.fail("%s envelope not found", resource.mID.c_str());
@@ -79,7 +79,6 @@ namespace nap
             mEnvelope->triggerSection(startSegment, endSegment, startValue, totalDuration);
             mStartTime = getNodeManager().getSampleTime();
         }
-
         
         
         void VoiceInstance::stop(TimeValue rampTime)
@@ -102,7 +101,7 @@ namespace nap
         }
 
         
-        void VoiceInstance::envelopeFinished(EnvelopeNode&)
+        void VoiceInstance::envelopeFinished()
         {
             finishedSignal(*this);
             mBusy = false;

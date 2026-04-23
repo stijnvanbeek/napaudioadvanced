@@ -7,6 +7,8 @@
 #include <audio/object/bufferplayer.h>
 #include <audio/object/multiply.h>
 #include <audio/core/polyphonic.h>
+#include <audio/resource/equalpowertable.h>
+#include <audio/object/envelope.h>
 
 namespace nap
 {
@@ -129,8 +131,8 @@ namespace nap
         private:
             BufferLooper::Settings mSettings;
             
-            Slot<EnvelopeNode&> segmentFinishedSlot = {this, &BufferLooperInstance::segmentFinished };
-            void segmentFinished(EnvelopeNode& envelope);
+            Slot<int> segmentFinishedSlot = {this, &BufferLooperInstance::segmentFinished };
+            void segmentFinished(int);
             
             void startVoice(bool fromStart);
 

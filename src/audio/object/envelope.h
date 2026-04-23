@@ -9,7 +9,7 @@
 #include <nap/resourceptr.h>
 
 // Audio includes
-#include <audio/core/audioobject.h>
+#include <audio/core/envelopebase.h>
 #include <audio/node/envelopenode.h>
 #include <audio/resource/equalpowertable.h>
 
@@ -24,7 +24,7 @@ namespace nap
         /**
          * Audio object resource for an envelope generator.
          */
-        class NAPAPI Envelope : public AudioObject
+        class NAPAPI Envelope : public EnvelopeBase
         {
             RTTI_ENABLE(AudioObject)
         public:
@@ -43,12 +43,12 @@ namespace nap
         /**
          * Instance of an envelope generator.
          */
-        class NAPAPI EnvelopeInstance : public AudioObjectInstance
+        class NAPAPI EnvelopeInstance : public EnvelopeInstanceBase
         {
-            RTTI_ENABLE(AudioObjectInstance)
+            RTTI_ENABLE(EnvelopeInstanceBase)
         public:
-            EnvelopeInstance() : AudioObjectInstance() { }
-            EnvelopeInstance(const std::string& name) : AudioObjectInstance(name) { }
+            EnvelopeInstance() : EnvelopeInstanceBase() { }
+            EnvelopeInstance(const std::string& name) : EnvelopeInstanceBase(name) { }
 
             // Inherited from AudioObjectInstance
             bool init(EnvelopeNode::Envelope segments, bool autoTrigger, NodeManager& nodeManager, audio::SafePtr<Translator<float>> translator, utility::ErrorState& errorState);
@@ -56,11 +56,15 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return &mEnvelopeGenerator->output; }
             int getChannelCount() const override { return 1; }
 
+            // Inherited from EnvelopeInstanceBase
+            nap::Signal<>& getEnvelopeFinishedSignal() override { return mEnvelopeGenerator->envelopeFinishedSignal; }
+            nap::Signal<int>& getSegmentFinishedSignal() override { return mEnvelopeGenerator->segmentFinishedSignal; }
+
             /**
              * Triggers the envelope to start playing from the start segment.
              * If @totalDuration does not equal zero the relative durations in the segments will be scaled in order to get the total duration of the envelope to match this parameter.
              */
-            void trigger(TimeValue totalDuration = 0)
+            void trigger(TimeValue totalDuration = 0) override
             {
                 mEnvelopeGenerator->trigger(totalDuration);
             }
@@ -74,7 +78,7 @@ namespace nap
              * @param totalDuration: if this value is greater than the total of all durations of segments that have durationRelative = false
              the resting time wille be divided over the segments with durationRelative = true, using their duration values as denominator.
              */
-            void triggerSection(int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0)
+            void triggerSection(int startSegment, int endSegment, ControllerValue startValue = 0, TimeValue totalDuration = 0) override
             {
                 mEnvelopeGenerator->trigger(startSegment, endSegment, startValue, totalDuration);
             }
@@ -83,9 +87,14 @@ namespace nap
              * Stops playing the envelope
              * @param rampTime fade out time in ms
              */
-            void stop(TimeValue rampTime) { mEnvelopeGenerator->stop(rampTime); }
+            void stop(TimeValue rampTime) override { mEnvelopeGenerator->stop(rampTime); }
 
-             /**
+            /**
+             * @return the current output value of the envelope generator.
+             */
+            ControllerValue getValue() const override { return mEnvelopeGenerator->getValue(); }
+
+            /**
               * Sets the envelope data for one segment of the envelope.
               * @param segmentIndex Specifies which segment will be edited.
               * If the index out of bounds no action will be taken.
@@ -103,21 +112,6 @@ namespace nap
              */
             void setEnvelopeData(const EnvelopeNode::Envelope& envelope) { mEnvelopeGenerator->getEnvelope() = envelope; }
 
-            /**
-             * @return the current output value of the envelope generator.
-             */
-            ControllerValue getValue() const { return mEnvelopeGenerator->getValue(); }
-
-            /**
-             * @return A signal that will be emitted when the total envelope shape has finished and the generator outputs zero again.
-             */
-            nap::Signal<EnvelopeNode&>& getEnvelopeFinishedSignal() { return mEnvelopeGenerator->envelopeFinishedSignal; }
-
-            /**
-             * @return A sginal that will be emitted when one segment of the envelope has finished playing. The semgent index of the ENvelopeGenerator still contains the number of the segment that has just finished.
-             */
-            nap::Signal<EnvelopeNode&>& getSegmentFinishedSignal() { return mEnvelopeGenerator->segmentFinishedSignal; }
-            
         private:
             SafeOwner<EnvelopeNode> mEnvelopeGenerator = nullptr;
             SafePtr<Translator<ControllerValue>> mTranslator = nullptr;

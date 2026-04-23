@@ -212,9 +212,9 @@ namespace nap
         }
         
         
-        void BufferLooperInstance::segmentFinished(EnvelopeNode& envelope)
+        void BufferLooperInstance::segmentFinished(int finishedSegmentIndex)
         {
-            if (envelope.getCurrentSegment() == 1)
+            if (finishedSegmentIndex == 1)
             {
                 startVoice(false);
             }
@@ -227,7 +227,7 @@ namespace nap
             assert(voice != nullptr);
             mVoices.emplace(voice);
             auto bufferPlayer = voice->getObject<ParallelNodeObjectInstance<BufferPlayerNode>>("BufferPlayer");
-            auto& envelope = voice->getEnvelope();
+            auto envelope = rtti_cast<EnvelopeInstance>(&voice->getEnvelope());
             
             for (auto channel = 0; channel < bufferPlayer->getChannelCount(); ++channel)
             {
@@ -236,25 +236,25 @@ namespace nap
                 bufferPlayerChannel->setBuffer(mSettings.mBufferResource->getBuffer());
             }
             
-            envelope.getSegmentFinishedSignal().disconnect(segmentFinishedSlot); // We need to disconnect first to avoid connecting to the same signal twice.
-            envelope.getSegmentFinishedSignal().connect(segmentFinishedSlot);
+            envelope->getSegmentFinishedSignal().disconnect(segmentFinishedSlot); // We need to disconnect first to avoid connecting to the same signal twice.
+            envelope->getSegmentFinishedSignal().connect(segmentFinishedSlot);
             
             auto speed = mtof(64.f + mSettings.mTranspose) / mtof(64.f);
             
             if (fromStart)
             {
-                envelope.setSegmentData(0, 0, 1.f, false, false, false);
-                envelope.setSegmentData(1, mSettings.getFirstSustainDuration() * speed, 1.f, false, false, true);
-                envelope.setSegmentData(2, mSettings.mCrossFadeTime * speed, 0.f, false, false, true);
+                envelope->setSegmentData(0, 0, 1.f, false, false, false);
+                envelope->setSegmentData(1, mSettings.getFirstSustainDuration() * speed, 1.f, false, false, true);
+                envelope->setSegmentData(2, mSettings.mCrossFadeTime * speed, 0.f, false, false, true);
                 for (auto channel = 0; channel < getChannelCount(); ++channel)
                 {
                     bufferPlayer->getChannel(channel)->play(channel, mSettings.mBufferResource->toSamples(mSettings.mStart), speed);
                 }
             }
             else {
-                envelope.setSegmentData(0, mSettings.mCrossFadeTime * speed, 1.f, false, false, true);
-                envelope.setSegmentData(1, mSettings.getLoopSustainDuration() * speed, 1.f, false, false, true);
-                envelope.setSegmentData(2, mSettings.mCrossFadeTime * speed, 0.f, false, false, true);
+                envelope->setSegmentData(0, mSettings.mCrossFadeTime * speed, 1.f, false, false, true);
+                envelope->setSegmentData(1, mSettings.getLoopSustainDuration() * speed, 1.f, false, false, true);
+                envelope->setSegmentData(2, mSettings.mCrossFadeTime * speed, 0.f, false, false, true);
                 for (auto channel = 0; channel < getChannelCount(); ++channel)
                 {
                     bufferPlayer->getChannel(channel)->play(channel, mSettings.mBufferResource->toSamples(mSettings.mStart), speed);

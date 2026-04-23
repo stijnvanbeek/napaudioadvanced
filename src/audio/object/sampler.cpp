@@ -135,11 +135,11 @@ namespace nap
 				return nullptr;
 			}
             auto bufferLooper = voice->getObject<BufferLooperInstance>("BufferLooper");
-            auto& envelope = voice->getEnvelope();
+            auto envelope = rtti_cast<EnvelopeInstance>(&voice->getEnvelope());
 
             bufferLooper->reset();
             bufferLooper->start(mSamplerEntries[samplerEntryIndex]);
-            envelope.setEnvelopeData(mEnvelopeData);
+            envelope->setEnvelopeData(mEnvelopeData);
 
             mPolyphonicInstance->play(voice, duration);
             

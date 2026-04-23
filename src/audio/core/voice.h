@@ -7,7 +7,7 @@
 #include <atomic>
 
 #include <audio/core/graph.h>
-#include <audio/object/envelope.h>
+#include <audio/core/envelopebase.h>
 
 
 namespace nap
@@ -30,7 +30,7 @@ namespace nap
         public:
             Voice() : Graph()  { }
             
-            ResourcePtr<Envelope> mEnvelope = nullptr; ///< Property: 'Envelope' Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice. When the voice is played this envelope will be triggered. When it has finished it emits a signal that will cause the voice to be disconnected and enter idle state again.
+            ResourcePtr<EnvelopeBase> mEnvelope = nullptr; ///< Property: 'Envelope' Points to an envelope within the graph that controls the amplitude of a single audio event processed by the voice. When the voice is played this envelope will be triggered. When it has finished it emits a signal that will cause the voice to be disconnected and enter idle state again.
             
         private:
         };
@@ -51,12 +51,12 @@ namespace nap
             /**
              * @return The envelope controlling the overall amplitude of the voice
              */
-            EnvelopeInstance& getEnvelope() { return *mEnvelope; }
+            EnvelopeInstanceBase& getEnvelope() { return *mEnvelope; }
             
             /**
              * @return The envelope controlling the overall amplitude of the voice
              */
-            const EnvelopeInstance& getEnvelope() const { return *mEnvelope; }
+            const EnvelopeInstanceBase& getEnvelope() const { return *mEnvelope; }
 
             /**
              * Starts playback of the voice by triggering the envelope
@@ -105,10 +105,10 @@ namespace nap
             void free();
             
             // Responds to the signal emitted by the envelope generator of the main envelope by emitting the finishedSignal.
-            Slot<EnvelopeNode&> envelopeFinishedSlot = {this, &VoiceInstance::envelopeFinished };
-            void envelopeFinished(EnvelopeNode&);
+            Slot<> envelopeFinishedSlot = {this, &VoiceInstance::envelopeFinished };
+            void envelopeFinished();
 
-            EnvelopeInstance* mEnvelope = nullptr;
+            EnvelopeInstanceBase* mEnvelope = nullptr;
             std::atomic<bool> mBusy = { false };
             DiscreteTimeValue mStartTime = 0;
             

@@ -141,14 +141,14 @@ namespace nap
 
         void EnvelopeNode::rampFinished(ControllerValue value)
         {
-            segmentFinishedSignal(*this);
+            segmentFinishedSignal(mCurrentSegment);
             if (mCurrentSegment < mEndSegment)
                 playSegment(mCurrentSegment + 1);
             else {
                 if (value == 0.f)
                 {
                     mCurrentValue.store(0.f);
-                    envelopeFinishedSignal(*this);
+                    envelopeFinishedSignal();
                 }
             }
         }
