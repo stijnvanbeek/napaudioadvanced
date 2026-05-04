@@ -49,7 +49,10 @@ namespace nap
              * @param startValue
              * @param endValue
              */
-            virtual void triggerSection(int startSegment, int endSegment, ControllerValue startValue, ControllerValue endValue) = 0;
+            virtual void triggerSection(int startSegment, int endSegment, ControllerValue startValue, ControllerValue endValue)
+            {
+                throw std::runtime_error(get_type().get_name().to_string() + ".triggerSection() not implemented.");
+            }
 
             /**
              * Breaks playback of the envelope and fades out.
@@ -71,7 +74,10 @@ namespace nap
              * @return A sginal that will be emitted when one segment of the envelope has finished playing.
              * The signal passes the index of the segment that has just finished playing.
              */
-            virtual nap::Signal<int>& getSegmentFinishedSignal() = 0;
+            virtual nap::Signal<int>& getSegmentFinishedSignal()
+            {
+                throw std::runtime_error(get_type().get_name().to_string() + ".getSegmentFinishedSignal() not implemented.");
+            }
         };
     
     }
