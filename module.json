@@ -4,7 +4,8 @@
     "RequiredModules": [
         "napmath",
         "napscene",
-        "napaudio"
+        "napaudio",
+        "napparameter"
     ],
     "WindowsDllSearchPaths": [],
     "DemoApp": "fmsynth"
