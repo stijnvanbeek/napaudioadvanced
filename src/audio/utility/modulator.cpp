@@ -72,15 +72,28 @@ namespace nap
                     result = result * mod.mSource->update() * amount;
                 }
 
+            math::clamp(result, 0.0f, 1.0f);
             return result;
         }
 
         
         ControllerValue ModulatorParameter::getValueNormalized()
         {
+            return normalize(mValue);
+        }
+
+        
+        void ModulatorParameter::setValueNormalized(ControllerValue value)
+        {
+            mValue = denormalize(value);
+        }
+
+
+        ControllerValue ModulatorParameter::normalize(ControllerValue input)
+        {
             if (mValueType == amplitude)
             {
-                ControllerValue result = toDB(mValue);
+                ControllerValue result = toDB(input);
                 if (result < 48.f)
                     result = 48.f;
                 result = (result + 48.f) / 48.f;
@@ -88,42 +101,42 @@ namespace nap
             }
             else if (mValueType == frequency)
             {
-                ControllerValue result = ftom(mValue);
+                ControllerValue result = ftom(input);
                 result = result / 127.f;
                 return result;
             }
             else
             {
-                ControllerValue result = (mValue - mMinimum) / (mMaximum - mMinimum);
+                ControllerValue result = (input - mMinimum) / (mMaximum - mMinimum);
                 result = pow(result, 1 / mPower);
                 return result;
             }
         }
 
-        
-        void ModulatorParameter::setValueNormalized(ControllerValue value)
+
+        ControllerValue ModulatorParameter::denormalize(ControllerValue input)
         {
-            if (mValueType == normal)
+            if (mValueType == amplitude)
             {
-                ControllerValue result = pow(value, mPower);
-                setValue(mMinimum + (mMaximum - mMinimum) * result);
-            }
-            else if (mValueType == amplitude)
-            {
-                ControllerValue result = dbToA(value * 48.f - 48.f);
-                setValue(result);
+                ControllerValue result = dbToA(input * 48.f - 48.f);
+                return result;
             }
             else if (mValueType == frequency)
             {
-                ControllerValue result = mtof(value * 127.f);
-                setValue(result);
+                ControllerValue result = mtof(input * 127.f);
+                return result;
+            }
+            else
+            {
+                ControllerValue result = pow(input, mPower);
+                return mMinimum + (mMaximum - mMinimum) * result;
             }
         }
 
 
         ControllerValue ParameterModulator::update()
         {
-            ControllerValue result = modulate(mParameter->getValueNormalized());
+            ControllerValue result = modulate(mNormalizedInput);
             mParameter->setValueNormalized(result);
             return result;
         }

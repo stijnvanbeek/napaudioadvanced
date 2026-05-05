@@ -14,7 +14,6 @@ namespace nap
     {
 
 
-
         class NAPAPI ModulatorSource : public Resource
         {
             RTTI_ENABLE(Resource)
@@ -27,7 +26,7 @@ namespace nap
 
         class NAPAPI ModulatorTarget : public ModulatorSource
         {
-            RTTI_ENABLE(Resource)
+            RTTI_ENABLE(ModulatorSource)
 
         public:
             enum ModulationType { add, multiply };
@@ -60,6 +59,9 @@ namespace nap
             ModulatorParameter() = default;
             ControllerValue getValueNormalized();
             void setValueNormalized(ControllerValue value);
+
+            ControllerValue normalize(ControllerValue input);
+            ControllerValue denormalize(ControllerValue input);
         };
 
 
@@ -74,6 +76,14 @@ namespace nap
 
             // Inherited from ModulatorSource
             ControllerValue update() override;
+
+            void setInput(ControllerValue input) { mNormalizedInput = mParameter->normalize(input); }
+            void setInputNormalized(ControllerValue input) { mNormalizedInput = input; }
+            ControllerValue getInput() const { return mParameter->denormalize(mNormalizedInput); }
+            ControllerValue getInputNormalized() const { return mNormalizedInput; }
+
+        private:
+            ControllerValue mNormalizedInput = 0.f;
         };
 
 
