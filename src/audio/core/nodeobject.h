@@ -94,6 +94,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override;
             int getChannelCount() const override { return mNode->getOutputs().size();; }
             void connect(unsigned int channel, OutputPin& pin) override;
+			void disconnect(unsigned int channel, OutputPin& pin) override;
             int getInputChannelCount() const override { return mNode->getInputs().size(); }
 
             /**
@@ -212,6 +213,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return *mChannels[channel]->getOutputs().begin(); }
             int getChannelCount() const override { return mChannels.size(); }
             void connect(unsigned int channel, OutputPin& pin) override { (*mChannels[channel]->getInputs().begin())->connect(pin); }
+			void disconnect(unsigned int channel, OutputPin& pin) override { (*mChannels[channel]->getInputs().begin())->disconnect(pin); }
             int getInputChannelCount() const override { return (mChannels[0]->getInputs().size() >= 1) ? mChannels.size() : 0; }
 
         private:
@@ -263,7 +265,23 @@ namespace nap
         }
 
 
-        template <typename NodeType>
+		template <typename NodeType>
+		void NodeObjectInstance<NodeType>::disconnect(unsigned int channel, OutputPin& pin)
+		{
+			auto i = 0;
+			for (auto& input : mNode->getInputs())
+			{
+				if (i == channel)
+				{
+					input->disconnect(pin);
+					return;
+				}
+				i++;
+			}
+		}
+
+
+		template <typename NodeType>
         std::unique_ptr<AudioObjectInstance> ParallelNodeObject<NodeType>::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             // Initialize the instance

@@ -14,22 +14,18 @@ namespace nap
     {
 
 
-        AudioFileWriterNode::AudioFileWriterNode(NodeManager& nodeManager, int bufferQueueSize, bool rootProcess) : Node(nodeManager), mRootProcess(rootProcess)
+        AudioFileWriterNode::AudioFileWriterNode(NodeManager& nodeManager, int bufferQueueSize) : Node(nodeManager)
         {
             mBufferQueue.resize(bufferQueueSize);
             for (auto& buffer : mBufferQueue)
                 buffer.resize(nodeManager.getInternalBufferSize());
             mBufferSizeInBytes = sizeof(float) * getBufferSize();
             mThread.start();
-            if (mRootProcess)
-                nodeManager.registerRootProcess(*this);
         }
 
 
         AudioFileWriterNode::~AudioFileWriterNode()
         {
-            if (mRootProcess)
-                getNodeManager().unregisterRootProcess(*this);
         }
 
 
@@ -67,6 +63,9 @@ namespace nap
         void AudioFileWriterNode::process()
         {
             auto inputBuffer = audioInput.pull();
+			auto& outputBuffer = getOutputBuffer(audioOutput);
+			outputBuffer = *inputBuffer; // Copy throughput
+
             std::memcpy(mBufferQueue[mInputIndex].data(), inputBuffer->data(), mBufferSizeInBytes);
             mThread.enqueue([&](){
                 if (mActive > 0 && mAudioFileDescriptor != nullptr)

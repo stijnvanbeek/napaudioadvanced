@@ -159,8 +159,15 @@ namespace nap
              * @param pin The pin to connect to each of the managed objects.
              */
             void connect(unsigned int channel, OutputPin& pin) override;
-            
-            /**
+
+			/**
+			 * Tries to disconnect &pin from @channel for each object in the MultiObject.
+			 * @param channel The channel within the managed object to disconnect the pin from.
+			 * @param pin The pin to connect to each of the managed objects.
+			 */
+			void disconnect(unsigned int channel, OutputPin& pin) override;
+
+			/**
              * @return the number of input channels of each object in the MultiObject.
              */
             int getInputChannelCount() const override;

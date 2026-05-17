@@ -51,6 +51,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return mObjects.back()->getOutputForChannel(channel); }
             int getChannelCount() const override { return mObjects.back()->getChannelCount(); }
             void connect(unsigned int channel, OutputPin& pin) override { mObjects[0]->connect(channel, pin); }
+			void disconnect(unsigned int channel, OutputPin& pin) override { mObjects[0]->disconnect(channel, pin); }
             int getInputChannelCount() const override { return mObjects[0]->getInputChannelCount(); }
             
             /**

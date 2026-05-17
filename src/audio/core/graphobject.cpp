@@ -72,9 +72,16 @@ namespace nap
             if (mGraphInstance.getInput() != nullptr)
                 mGraphInstance.getInput()->connect(channel, pin);
         }
-        
-        
-        int GraphObjectInstance::getInputChannelCount() const
+
+
+		void GraphObjectInstance::disconnect(unsigned int channel, OutputPin& pin)
+		{
+			if (mGraphInstance.getInput() != nullptr)
+				mGraphInstance.getInput()->disconnect(channel, pin);
+		}
+
+
+		int GraphObjectInstance::getInputChannelCount() const
         {
             if (mGraphInstance.getInput() != nullptr)
                 return mGraphInstance.getInput()->getInputChannelCount();
