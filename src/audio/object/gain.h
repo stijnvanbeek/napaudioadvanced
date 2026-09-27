@@ -7,7 +7,6 @@
 // Audio includes
 #include <audio/core/nodeobject.h>
 #include <audio/node/gainnode.h>
-#include <nap/resourceptr.h>
 
 namespace nap
 {

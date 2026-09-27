@@ -6,7 +6,6 @@
 
 RTTI_BEGIN_CLASS(nap::audio::Gain)
     RTTI_PROPERTY("Gain", &nap::audio::Gain::mGain, nap::rtti::EPropertyMetaData::Default)
-    RTTI_PROPERTY("Input", &nap::audio::Gain::mInput, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::ParallelNodeObjectInstance<nap::audio::GainNode>)
