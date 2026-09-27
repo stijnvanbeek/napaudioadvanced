@@ -119,8 +119,9 @@ namespace nap
                 
                 mObjects.emplace_back(std::move(instance));
             }
-                        
-            mOutput = getObject<AudioObjectInstance>(resource.mOutput->mID);
+
+
+            mOutput = getObject<AudioObjectInstance>(utility::removeNamespaces(resource.mOutput->mID));
             if (mOutput == nullptr)
             {
                 errorState.fail("Output not found: %s", resource.mOutput->mID.c_str());
@@ -129,7 +130,7 @@ namespace nap
             
             if (resource.mInput != nullptr)
             {
-                mInput = getObject<AudioObjectInstance>(resource.mInput->mID);
+                mInput = getObject<AudioObjectInstance>(utility::removeNamespaces(resource.mInput->mID));
                 if (mInput == nullptr)
                 {
                     errorState.fail("Input not found: %s", resource.mInput->mID.c_str());

@@ -111,7 +111,9 @@ namespace nap
             auto instance = createInstance(nodeManager, errorState);
             if (instance == nullptr)
                 return nullptr;
-            instance->mName = mID;
+
+            instance->mName = utility::removeNamespaces(mID);
+
             mInstance = instance.release();
             return std::unique_ptr<T>(rtti_cast<T>(mInstance));
         }
