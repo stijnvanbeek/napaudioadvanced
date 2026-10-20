@@ -10,13 +10,14 @@ namespace nap
     namespace audio
     {
 
-        void NestedNodeManagerNode::init(int inputChannelCount, int outputChannelCount, int internalBufferSize)
+        void NestedNodeManagerNode::init(int inputChannelCount, int outputChannelCount, int internalBufferSize, int reserveProcesses, int reserveRootProcesses)
         {
+            mNestedNodeManager = std::make_unique<NodeManager>(getNodeManager().getDeletionQueue(), reserveProcesses, reserveRootProcesses);
 
-            mNestedNodeManager.setInputChannelCount(inputChannelCount);
-            mNestedNodeManager.setOutputChannelCount(outputChannelCount);
-            mNestedNodeManager.setSampleRate(getNodeManager().getSampleRate());
-            mNestedNodeManager.setInternalBufferSize(internalBufferSize);
+            mNestedNodeManager->setInputChannelCount(inputChannelCount);
+            mNestedNodeManager->setOutputChannelCount(outputChannelCount);
+            mNestedNodeManager->setSampleRate(getNodeManager().getSampleRate());
+            mNestedNodeManager->setInternalBufferSize(internalBufferSize);
 
             for (auto i = 0; i < outputChannelCount; ++i)
             {
@@ -47,14 +48,21 @@ namespace nap
                 auto outputBuffer = &getOutputBuffer(*_mOutputs[i]);
                 mOutputBuffers[i] = outputBuffer;
             }
-            mNestedNodeManager.process(mInputBuffers, mOutputBuffers, getBufferSize());
+            mNestedNodeManager->process(mInputBuffers, mOutputBuffers, getBufferSize());
         }
 
 
-        bool NestedNodeManagerInstance::init(NodeManager &nodeManager, int inputChannelCount, int outputChannelCount, int internalBufferSize, utility::ErrorState &errorState)
+        void NestedNodeManagerNode::sampleRateChanged(float sampleRate)
+        {
+            if (mNestedNodeManager != nullptr)
+                mNestedNodeManager->setSampleRate(sampleRate);
+        }
+
+
+        bool NestedNodeManagerInstance::init(NodeManager &nodeManager, int inputChannelCount, int outputChannelCount, int internalBufferSize, int reserveProcesses, int reserveRootProcesses, utility::ErrorState &errorState)
         {
             mNode = nodeManager.makeSafe<NestedNodeManagerNode>(nodeManager);
-            mNode->init(inputChannelCount, outputChannelCount, internalBufferSize);
+            mNode->init(inputChannelCount, outputChannelCount, internalBufferSize, reserveProcesses, reserveRootProcesses);
             return true;
         }
 

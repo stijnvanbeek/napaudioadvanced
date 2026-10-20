@@ -26,7 +26,9 @@ namespace nap
              * Constructor
              * @param parentNodeManager the node manager that this NestedNodeManagerNode runs in. The parent node manager should run an internal buffersize that is a whole number of times the internal buffersize of the nested node manager.
              */
-            NestedNodeManagerNode(NodeManager& parentNodeManager) : Node(parentNodeManager), mNestedNodeManager(parentNodeManager.getDeletionQueue()) { }
+            NestedNodeManagerNode(NodeManager& parentNodeManager) : Node(parentNodeManager)
+            {
+            }
 
             /**
              * Initialize the node.
@@ -34,7 +36,7 @@ namespace nap
              * @param outputChannelCount  the number of output channels the nested node manager has
              * @param internalBufferSize the internal buffersize of the nested node manager. Should be smaller than the parent node manager's.
              */
-            void init(int inputChannelCount, int outputChannelCount, int internalBufferSize);
+            void init(int inputChannelCount, int outputChannelCount, int internalBufferSize, int reserveProcesses = 0, int reserveRootProcesses = 0);
 
             /**
              * @return input pin with given index that will be fed into the nested node system.
@@ -60,12 +62,13 @@ namespace nap
             /**
              * @return the nested node manager managed by this node.
              */
-            NodeManager& getNestedNodeManager() { return mNestedNodeManager; }
+            NodeManager& getNestedNodeManager() { return *mNestedNodeManager; }
 
         private:
             void process() override;
+            void sampleRateChanged(float sampleRate) override;
 
-            NodeManager mNestedNodeManager;
+            std::unique_ptr<NodeManager> mNestedNodeManager = nullptr;
             std::vector<std::unique_ptr<InputPin>> _mInputs;
             std::vector<std::unique_ptr<OutputPin>> _mOutputs;
             std::vector<audio::SampleBuffer*> mOutputBuffers;
@@ -82,7 +85,7 @@ namespace nap
             NestedNodeManagerInstance() = default;
             NestedNodeManagerInstance(const std::string& name) : AudioObjectInstance(name) { }
 
-            bool init(NodeManager& nodeManager, int inputChannelCount, int outputChannelCount, int internalBufferSize, utility::ErrorState& errorState);
+            bool init(NodeManager& nodeManager, int inputChannelCount, int outputChannelCount, int internalBufferSize, int reserveProcesses, int reserveRootProcesses, utility::ErrorState& errorState);
 
             // Inherited from AudioObjectInstance
             OutputPin* getOutputForChannel(int channel) override { return &mNode->getOutput(channel); }

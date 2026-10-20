@@ -103,7 +103,7 @@ namespace nap
 			auto band = 0;
 			while (frequency > mBandBottoms[band] && band < mBandBottoms.size() - 1)
 				band++;
-			auto& data = mData.channels[band];
+			auto& data = mData[band];
             
             auto v1 = data[wrap(floor, data.size())];
             auto v2 = data[wrap(floor + 1, data.size())];

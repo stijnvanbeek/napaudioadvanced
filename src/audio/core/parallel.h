@@ -83,6 +83,12 @@ namespace nap
 			void disconnect(unsigned int channel, audio::OutputPin& pin) override { mChannels[channel]->disconnect(0, pin); }
             int getInputChannelCount() const override { return (mChannels[0]->getInputChannelCount() == 1) ? mChannels.size() : 0; }
 
+            // Vector behaviour
+            AudioObjectInstance& operator[](int index) { return *mChannels[index]; }
+            const AudioObjectInstance& operator[](int index) const { return *mChannels[index]; }
+            std::vector<std::unique_ptr<AudioObjectInstance>>::iterator begin() { return mChannels.begin(); }
+            std::vector<std::unique_ptr<AudioObjectInstance>>::iterator end() { return mChannels.end(); }
+
         protected:
             std::vector<std::unique_ptr<AudioObjectInstance>> mChannels;
 

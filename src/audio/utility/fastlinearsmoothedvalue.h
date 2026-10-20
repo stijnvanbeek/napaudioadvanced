@@ -50,7 +50,22 @@ namespace nap
             {
                 mNewDestination = destination;
             }
+			
+			
+			/**
+			 * Resets value without ramping.
+			 * @param value The value.
+			 */
+			void reset(const T& value)
+			{
+				mValue = value;
+				mNewDestination = value;
+				mDestination = value;
+				mIncrement = 0;
+				mStepCounter = 0;
+			}
 
+			
             /**
              * Should be called each audio callback in order to update the status.
              * This way the (mNewDestination != mDestination) will be performed per buffer instead of per sample, and therefore performs a little more efficient than the regular LinearSmoothedValue

@@ -34,6 +34,7 @@ namespace nap
         {
             // Initialize a cascade of onepole lowpass filters for every 2 octaves down from nyquist
             mFilters.clear();
+            mAmplitudes.clear();
             auto f = sampleRate / 2.f;
             while (f > 20.f)
             {
