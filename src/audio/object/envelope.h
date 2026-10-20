@@ -26,7 +26,7 @@ namespace nap
          */
         class NAPAPI Envelope : public EnvelopeBase
         {
-            RTTI_ENABLE(AudioObject)
+            RTTI_ENABLE(EnvelopeBase)
         public:
             Envelope() = default;
 
