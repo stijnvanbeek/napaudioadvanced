@@ -215,7 +215,17 @@ namespace nap
         }
 
 
-        int PolyphonicInstance::getInputChannelCount() const
+		void PolyphonicInstance::disconnect(unsigned int channel, OutputPin& pin)
+		{
+			for (auto& voice : mVoices)
+			{
+				auto input = voice->getInput();
+				input->disconnect(channel, pin);
+			}
+		}
+
+
+		int PolyphonicInstance::getInputChannelCount() const
         {
             auto firstVoiceInput = (*mVoices.begin())->getInput();
             if (firstVoiceInput != nullptr)

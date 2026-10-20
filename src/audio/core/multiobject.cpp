@@ -160,9 +160,16 @@ namespace nap
             for (auto& object : mObjects)
                 object->tryConnect(channel, pin);
         }
-        
-        
-        void MultiObjectInstance::connect(MultiObjectInstance& inputMulti)
+
+
+		void MultiObjectInstance::disconnect(unsigned int channel, OutputPin& pin)
+		{
+			for (auto& object : mObjects)
+				object->tryDisconnect(channel, pin);
+		}
+
+
+		void MultiObjectInstance::connect(MultiObjectInstance& inputMulti)
         {
             for (auto index = 0; index < getObjectCount(); ++index)
             {

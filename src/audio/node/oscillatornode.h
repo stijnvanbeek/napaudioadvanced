@@ -24,6 +24,7 @@ namespace nap
          */
         class NAPAPI WaveTable
         {
+			RTTI_ENABLE()
 		public:
 			enum class Waveform { Sine, Saw, Square, Triangle };
 			static constexpr float Nyquist = 22500.f;

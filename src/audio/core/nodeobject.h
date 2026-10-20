@@ -27,7 +27,7 @@ namespace nap
          * @tparam NodeType The type of the Node that will be wrapped by this object's instance.
          */
         template <typename NodeType>
-        class NAPAPI NodeObject : public AudioObject
+        class NodeObject : public AudioObject
         {
             RTTI_ENABLE(AudioObject)
 
@@ -70,7 +70,7 @@ namespace nap
          * @tparam NodeType type of the wrapped node.
          */
         template <typename NodeType>
-        class NAPAPI NodeObjectInstance : public NodeObjectInstanceBase
+        class NodeObjectInstance : public NodeObjectInstanceBase
         {
             RTTI_ENABLE(NodeObjectInstanceBase)
             
@@ -94,6 +94,7 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override;
             int getChannelCount() const override { return mNode->getOutputs().size();; }
             void connect(unsigned int channel, OutputPin& pin) override;
+			void disconnect(unsigned int channel, OutputPin& pin) override;
             int getInputChannelCount() const override { return mNode->getInputs().size(); }
 
             /**
@@ -135,7 +136,7 @@ namespace nap
          * @tparam NodeType The type of the nodes that process one single channel of the NodeObject.
          */
         template <typename NodeType>
-        class NAPAPI ParallelNodeObject : public ParallelNodeObjectBase
+        class ParallelNodeObject : public ParallelNodeObjectBase
         {
             RTTI_ENABLE(ParallelNodeObjectBase)
 
@@ -179,7 +180,7 @@ namespace nap
          * @tparam NodeType
          */
         template <typename NodeType>
-        class NAPAPI ParallelNodeObjectInstance : public ParallelNodeObjectInstanceBase
+        class ParallelNodeObjectInstance : public ParallelNodeObjectInstanceBase
         {
             RTTI_ENABLE(ParallelNodeObjectInstanceBase)
 
@@ -212,7 +213,14 @@ namespace nap
             OutputPin* getOutputForChannel(int channel) override { return *mChannels[channel]->getOutputs().begin(); }
             int getChannelCount() const override { return mChannels.size(); }
             void connect(unsigned int channel, OutputPin& pin) override { (*mChannels[channel]->getInputs().begin())->connect(pin); }
+			void disconnect(unsigned int channel, OutputPin& pin) override { (*mChannels[channel]->getInputs().begin())->disconnect(pin); }
             int getInputChannelCount() const override { return (mChannels[0]->getInputs().size() >= 1) ? mChannels.size() : 0; }
+
+            // Vector behaviour
+            NodeType& operator[](int index) { return *mChannels[index]; }
+            const NodeType& operator[](int index) const { return *mChannels[index]; }
+            typename std::vector<SafeOwner<NodeType>>::iterator begin() { return mChannels.begin(); }
+            typename std::vector<SafeOwner<NodeType>>::iterator end() { return mChannels.end(); }
 
         private:
             std::vector<SafeOwner<NodeType>> mChannels;
@@ -263,7 +271,23 @@ namespace nap
         }
 
 
-        template <typename NodeType>
+		template <typename NodeType>
+		void NodeObjectInstance<NodeType>::disconnect(unsigned int channel, OutputPin& pin)
+		{
+			auto i = 0;
+			for (auto& input : mNode->getInputs())
+			{
+				if (i == channel)
+				{
+					input->disconnect(pin);
+					return;
+				}
+				i++;
+			}
+		}
+
+
+		template <typename NodeType>
         std::unique_ptr<AudioObjectInstance> ParallelNodeObject<NodeType>::createInstance(NodeManager& nodeManager, utility::ErrorState& errorState)
         {
             // Initialize the instance

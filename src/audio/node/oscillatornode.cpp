@@ -28,7 +28,7 @@ namespace nap
     namespace audio
     {
         
-// --- Wavetable --- //
+		// --- Wavetable --- //
 
 		WaveTable::WaveTable(long size, Waveform waveform, int numberOfBands)
         {
@@ -103,7 +103,7 @@ namespace nap
 			auto band = 0;
 			while (frequency > mBandBottoms[band] && band < mBandBottoms.size() - 1)
 				band++;
-			auto& data = mData.channels[band];
+			auto& data = mData[band];
             
             auto v1 = data[wrap(floor, data.size())];
             auto v2 = data[wrap(floor + 1, data.size())];
@@ -112,7 +112,7 @@ namespace nap
         }
 
         
-// --- Oscillator --- //
+		// --- Oscillator --- //
 
 
         OscillatorNode::OscillatorNode(NodeManager& manager) : Node(manager)
@@ -167,6 +167,7 @@ namespace nap
         
         void OscillatorNode::setAmplitude(ControllerValue amplitude, TimeValue rampTime)
         {
+			mAmplitude.setStepCount(rampTime * getNodeManager().getSamplesPerMillisecond());
             mAmplitude.setValue(amplitude);
         }
         
@@ -195,7 +196,8 @@ namespace nap
         
         void OscillatorNode::sampleRateChanged(float sampleRate)
         {
-            mStep = mWave->getSize() / sampleRate;
+			if (mWave != nullptr)
+	            mStep = mWave->getSize() / sampleRate;
         }
     }
 }

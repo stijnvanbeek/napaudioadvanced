@@ -184,14 +184,14 @@ namespace nap
         if (mResource->mVoicing->mValue == 0)
         {
             // In polyphonic mode: prepare the filter for playback and play the attack and decay sections of the envelope
-            filter->prepare(cutoffFreq, mResource->mFilterResonance->mValue, 1.0);
+            filter->prepare(audio::FilterNode::EMode::LowRes, cutoffFreq, mResource->mFilterResonance->mValue, 1.f, 1.0);
             mPolyphonic->playSection(voice, 0, 1, 0, 0);
         }
         else {
             if (mMonophonicVoice == nullptr)
             {
                 // In monophonic mode, if we start a new line: prepare the filter for playback and play the attack and decay sections of the envelope
-                filter->prepare(cutoffFreq, mResource->mFilterResonance->mValue, 1.0);
+                filter->prepare(audio::FilterNode::EMode::LowRes, cutoffFreq, mResource->mFilterResonance->mValue, 1.f, 1.0);
                 mPolyphonic->playSection(voice, 0, 1, 0, 0);
                 mMonophonicVoice = voice; // Update the pointer to the voice playing the monophonic line
             }
