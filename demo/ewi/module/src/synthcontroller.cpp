@@ -176,8 +176,8 @@ namespace nap
         // Update the ADSR envelope's segment data
         auto envelope = mEnvelopes[voice];
         envelope->setSegmentData(0, mResource->mAttack->mValue, 1.0, false, false, false);
-        envelope->setSegmentData(1, mResource->mDecay->mValue, mResource->mSustain->mValue, false, true, true);
-        envelope->setSegmentData(2, mResource->mRelease->mValue, 0, false, true, false);
+        envelope->setSegmentData(1, mResource->mDecay->mValue, mResource->mSustain->mValue, false, false, false);
+        envelope->setSegmentData(2, mResource->mRelease->mValue, 0, false, false, false);
 
         // Update the note voice map and last played note variable for internal administration
         mNoteVoices[event.getNoteNumber()] = voice;
@@ -191,7 +191,7 @@ namespace nap
         }
         else {
             if (mMonophonicVoice == nullptr)
-            {
+            {	
                 // In monophonic mode, if we start a new line: prepare the filter for playback and play the attack and decay sections of the envelope
                 filter->prepare(audio::FilterNode::EMode::LowRes, cutoffFreq, mResource->mFilterResonance->mValue, 1.f, 1.0);
                 mPolyphonic->playSection(voice, 0, 1, 0, 0);
@@ -269,7 +269,7 @@ namespace nap
         {
             auto filter = mFilters[pair.second]->getChannel(0);
             filter->setResonance(mResource->mFilterResonance->mValue);
-        }
+      	  }
     }
 
 
