@@ -95,8 +95,7 @@ namespace nap
 		ObjectPtr<ParameterGroup> mParameterGroup = nullptr;            // The parameter group containing the parameters for the audio generation
 		std::unique_ptr<ParameterGUI> mParameterGUI = nullptr;          // Gui object to display and edit the parameter group in the GUI
         std::unique_ptr<RenderWindow> mRenderWindow = nullptr;			// Pointer to the render window
-		std::unique_ptr<MidiInputPort> mMidiInputPort = nullptr;
-		std::unique_ptr<audio::AudioDeviceSettingsGui> mAudioDeviceSettingsGui = nullptr;
+			std::unique_ptr<audio::AudioDeviceSettingsGui> mAudioDeviceSettingsGui = nullptr;
 
 		ObjectPtr<EntityInstance> mSynthEntity = nullptr;
 	};

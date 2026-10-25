@@ -68,11 +68,6 @@ namespace nap
     	if (!mParameterGUI->init(error))
     		return false;
 
-    	// Create the midi input port
-    	mMidiInputPort = std::make_unique<MidiInputPort>(getCore());
-    	if (!mMidiInputPort->start(error))
-    		return false;
-
     	auto scene = mResourceManager->findObject<Scene>("Scene");
     	mSynthEntity = scene->findEntity("SynthEntity");
 
