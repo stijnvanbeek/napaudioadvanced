@@ -114,8 +114,8 @@ namespace nap
             auto envelopeValue = envelope->getValue(); // Get current ADSR envelope output
             auto freq = math::lerp(cutoff, envelopeValue * cutoff, mResource->mEnvelopeModulation->mValue); // Combine cutoff parameter and ADSR value using envelope modulation parameter
             // Make sure cutoff frequency value doesn't blow up in subsonic range and set the filter frequency
-            if (freq < 20.f)
-                freq = 20.f;
+            if (freq < 100.f)
+                freq = 100.f;
             filter->setFrequency(freq);
         }
     }
@@ -170,8 +170,8 @@ namespace nap
         auto filter = mFilters[voice]->getChannel(0); // Because the filter is mono we operate on channel 0
         // Calculate the cutoff frequency of the filter, avoid low subsonic cutoff frequencies
         auto cutoffFreq = audio::mtof(math::lerp<float>(mResource->mFilterCutoff->mValue, 0.0, mResource->mEnvelopeModulation->mValue) * mModWheelModulation);
-        if (cutoffFreq < 20.f)
-            cutoffFreq = 20.f;
+        if (cutoffFreq < 100.f)
+            cutoffFreq = 100.f;
 
         // Update the ADSR envelope's segment data
         auto envelope = mEnvelopes[voice];
@@ -203,6 +203,7 @@ namespace nap
                 filter->setResonance(mResource->mFilterResonance->mValue);
             }
         }
+        filter->setSmoothing(0.f);
     }
 
 

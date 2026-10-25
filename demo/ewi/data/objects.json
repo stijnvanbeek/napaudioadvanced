@@ -239,7 +239,7 @@
                         "Polyphonic",
                         "Monophonic"
                     ],
-                    "SelectedIndex": 0
+                    "SelectedIndex": 1
                 },
                 {
                     "Type": "nap::ParameterFloat",
@@ -261,9 +261,9 @@
                     "Type": "nap::ParameterFloat",
                     "mID": "FilterResonance",
                     "Name": "Filter Resonance",
-                    "Value": 3.5,
+                    "Value": 2.0,
                     "Minimum": 0.5,
-                    "Maximum": 20.0
+                    "Maximum": 10.0
                 },
                 {
                     "Type": "nap::ParameterFloat",
@@ -314,7 +314,7 @@
                         "Saw",
                         "Square"
                     ],
-                    "SelectedIndex": 1
+                    "SelectedIndex": 2
                 },
                 {
                     "Type": "nap::ParameterFloat",
