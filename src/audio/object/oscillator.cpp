@@ -4,6 +4,8 @@
 
 #include "oscillator.h"
 
+#include <utility/fileutils.h>
+
 RTTI_BEGIN_ENUM(nap::audio::WaveTable::Waveform)
 	RTTI_ENUM_VALUE(nap::audio::WaveTable::Waveform::Sine, "Sine"),
 	RTTI_ENUM_VALUE(nap::audio::WaveTable::Waveform::Saw, "Saw"),
@@ -16,6 +18,7 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::WaveTableResource)
     RTTI_PROPERTY("Size", &nap::audio::WaveTableResource::mSize, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("Waveform", &nap::audio::WaveTableResource::mWaveform, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("NumberOfBands", &nap::audio::WaveTableResource::mNumberOfBands, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("FileName", &nap::audio::WaveTableResource::mFileName, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS(nap::audio::Oscillator)
@@ -41,7 +44,26 @@ namespace nap
 
         bool WaveTableResource::init(utility::ErrorState& errorState)
         {
+            // When a file name is specified and the file exists, load the wave table from it
+            if (!mFileName.empty() && utility::fileExists(mFileName))
+            {
+                mWave = mNodeManager->makeSafe<WaveTable>(mFileName);
+                if (mWave->getSize() == 0)
+                {
+                    errorState.fail("Failed to load wave table from file: %s", mFileName.c_str());
+                    return false;
+                }
+                return true;
+            }
+
+            // Otherwise calculate the wave table and save it to the file
             mWave = mNodeManager->makeSafe<WaveTable>(mSize, mWaveform, mNumberOfBands);
+
+            if (!mFileName.empty() && !mWave->saveToFile(mFileName))
+            {
+                errorState.fail("Failed to save wave table to file: %s", mFileName.c_str());
+                return false;
+            }
             return true;
         }
 

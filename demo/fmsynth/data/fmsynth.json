@@ -190,6 +190,7 @@
                     "mID": "SawWaveform",
                     "Size": 2048,
                     "Waveform": "Saw",
+                    "FileName": "saw.dat",
                     "NumberOfBands": 20
                 },
                 {
@@ -197,6 +198,7 @@
                     "mID": "SineWaveform",
                     "Size": 2048,
                     "Waveform": "Sine",
+                    "FileName": "sine.dat",
                     "NumberOfBands": 100
                 },
                 {
@@ -204,6 +206,7 @@
                     "mID": "SquareWaveform",
                     "Size": 2048,
                     "Waveform": "Square",
+                    "FileName": "square.dat",
                     "NumberOfBands": 100
                 },
                 {

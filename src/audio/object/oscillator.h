@@ -38,6 +38,7 @@ namespace nap
             int mSize = 2048;                                          ///< Property: 'Size' Size of the wavetable. Has to be a power of two.
             int mNumberOfBands = 100;                                  ///< Property: 'NumberOfBands' Number of bands used for band limiting
             WaveTable::Waveform mWaveform = WaveTable::Waveform::Sine; ///< Property: 'Waveform' Waveform of the wave table.
+            std::string mFileName;                                     ///< Property: 'FileName' File to cache the wavetable data in. When the file exists on initialization the wave table is loaded from it, otherwise the calculated wave table is saved to it.
 
             /**
              * @return Pointer to the managed WaveTable object.

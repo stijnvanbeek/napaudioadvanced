@@ -6,6 +6,8 @@
 
 #include <math.h>
 
+#include <fstream>
+
 // Rtti includes
 #include <rtti/rtti.h>
 
@@ -29,6 +31,62 @@ namespace nap
     {
         
 		// --- Wavetable --- //
+
+		WaveTable::WaveTable(const std::string& fileName)
+        {
+			std::ifstream stream(fileName, std::ios::binary);
+			if (!stream.is_open())
+				return;
+
+			long bandCount = 0;
+			long size = 0;
+			stream.read(reinterpret_cast<char*>(&bandCount), sizeof(bandCount));
+			stream.read(reinterpret_cast<char*>(&size), sizeof(size));
+			if (!stream.good() || bandCount <= 0 || size <= 0)
+				return;
+
+			mBandBottoms.resize(bandCount);
+			for (auto& band : mBandBottoms)
+				stream.read(reinterpret_cast<char*>(&band), sizeof(band));
+
+			mData.resize(bandCount, size);
+			for (long band = 0; band < bandCount; ++band)
+			{
+				auto& bandData = mData[band];
+				for (long i = 0; i < size; ++i)
+				{
+					float sample = 0.f;
+					stream.read(reinterpret_cast<char*>(&sample), sizeof(sample));
+					bandData[i] = sample;
+				}
+			}
+        }
+
+
+		bool WaveTable::saveToFile(const std::string& fileName)
+        {
+			std::ofstream stream(fileName, std::ios::binary);
+			if (!stream.is_open())
+				return false;
+
+			long bandCount = static_cast<long>(mData.getChannelCount());
+			long size = mData.getSize();
+			stream.write(reinterpret_cast<char*>(&bandCount), sizeof(bandCount));
+			stream.write(reinterpret_cast<char*>(&size), sizeof(size));
+			for (auto band : mBandBottoms)
+				stream.write(reinterpret_cast<char*>(&band), sizeof(band));
+			for (long band = 0; band < bandCount; ++band)
+			{
+				auto& bandData = mData[band];
+				for (long i = 0; i < size; ++i)
+				{
+					float sample = bandData[i];
+					stream.write(reinterpret_cast<char*>(&sample), sizeof(sample));
+				}
+			}
+			return stream.good();
+        }
+
 
 		WaveTable::WaveTable(long size, Waveform waveform, int numberOfBands)
         {
