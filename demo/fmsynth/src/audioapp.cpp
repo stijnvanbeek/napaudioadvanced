@@ -96,8 +96,8 @@ namespace nap
     	ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.0f, 0.0f, 0.0f, 0.7f));
     	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
 
-    	ImGui::SetNextWindowPos(ImVec2(150, 25));
-    	ImGui::SetNextWindowSize(ImVec2(400, 500));
+    	ImGui::SetNextWindowPos(ImVec2(150 * mGuiService->getScale(), 25 * mGuiService->getScale()));
+    	ImGui::SetNextWindowSize(ImVec2(400 * mGuiService->getScale(), 500 * mGuiService->getScale()));
     	ImGui::SetNextWindowBgAlpha(0.0f);
 
     	ImGui::Begin("FM Synth", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
