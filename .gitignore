@@ -1,2 +1,5 @@
 CMakeLists.txt
 cache/
+.DS_Store
+.cache/
+.idea/
