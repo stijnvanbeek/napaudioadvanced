@@ -6,6 +6,7 @@
 
 // Std includes
 #include <atomic>
+#include <string>
 
 #include <audio/core/audionode.h>
 #include <audio/utility/linearsmoothedvalue.h>
@@ -36,6 +37,20 @@ namespace nap
              * @param waveform
              */
             WaveTable(long size, Waveform waveform = Waveform::Sine, int numberOfBands = 1);
+            
+            /**
+             * Constructor that loads wavetable data previously saved to a binary file, see saveToFile().
+             * Leaves the wavetable empty when the file cannot be read.
+             * @param fileName Path of the file to load the wavetable data from
+             */
+            WaveTable(const std::string& fileName);
+            
+            /**
+             * Save the wavetable data to a binary file, so it can be restored later using the constructor taking a file name.
+             * @param fileName Path of the file to write the wavetable data to
+             * @return True on success
+             */
+            bool saveToFile(const std::string& fileName);
             
             /**
              * Normalize the waveform so the "loudest" sample has amplitude 1.f
