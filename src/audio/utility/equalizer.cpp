@@ -1,4 +1,4 @@
-#include "Equalizer.h"
+#include "equalizer.h"
 
 #include <mathutils.h>
 
