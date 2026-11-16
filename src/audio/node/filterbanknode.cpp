@@ -58,18 +58,25 @@ namespace nap
             float8 one = float8(1);
             float8 two = float8(2);
 
+            // Bandpass coefficients in the textbook convention:
+            //
+            //          b0 + b1 * z^-1 + b2 * z^-2
+            //   H(z) = --------------------------
+            //          1  + a1 * z^-1 + a2 * z^-2
+            //
+            // with b0 / b1 / b2 the numerator taps and a1 / a2 the denominator taps.
             float8 c = one / tanVec(float8(math::PI) * bandWidth / sampleRate);
             float8 d = two * cosVec(float8(math::PIX2) * centerFrequency / sampleRate);
-            float8 a0 = one / (one + c);
-            float8 a1 = zero;
-            float8 a2 = zero - a0;
-            float8 b1 = a2 * c * d;
-            float8 b2 = a0 * (c - one);
+            float8 b0 = one / (one + c);
+            float8 b1 = zero;
+            float8 b2 = zero - b0;
+            float8 a1 = b2 * c * d;
+            float8 a2 = b0 * (c - one);
             auto biquadPtr = &mFilter;
             
             auto updateFunction = new std::function<void()>(
-                [a0, a1, a2, b1, b2, scaledGain, biquadPtr](){
-                  biquadPtr->setCoefficients(a0, a1, a2, b1, b2, scaledGain);
+                [b0, b1, b2, a1, a2, scaledGain, biquadPtr](){
+                  biquadPtr->setCoefficients(b0, b1, b2, a1, a2, scaledGain, float8(0.f));
                 }
             );
 			
