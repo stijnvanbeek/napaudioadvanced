@@ -6,10 +6,21 @@ namespace nap
 	namespace audio
 	{
 
+		EqualizerNode::EqualizerNode(NodeManager &nodeManager): Node(nodeManager)
+		{
+			for (auto& eq : mEQs)
+				eq.prepare(Equalizer::Mode::Peak, 440, nodeManager.getSampleRate(), 0.f, 0.f);
+
+			for (auto& enable : mEnabled)
+				enable.store(false);
+		}
+
+
 		void EqualizerNode::prepare(int index, Equalizer::Mode mode, ControllerValue frequency, ControllerValue gain, ControllerValue q)
 		{
 			mEQs[index].prepare(mode, frequency, getNodeManager().getSampleRate(), gain, q);
 		}
+
 
 		void EqualizerNode::set(int index, Equalizer::Mode mode, ControllerValue frequency, ControllerValue gain, ControllerValue q)
 		{
@@ -39,6 +50,12 @@ namespace nap
 			}
 		}
 
+
+		void EqualizerNode::sampleRateChanged(float sampleRate)
+		{
+			for (auto& eq : mEQs)
+				eq.setSampleRate(sampleRate);
+		}
 	}
 
 }

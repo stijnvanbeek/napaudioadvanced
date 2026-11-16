@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-#include "dynamiccompressornode.h"
+#include "DynamicsNode.h"
 
 #include <audio/core/audionodemanager.h>
 #include <audio/utility/audiofunctions.h>
@@ -11,17 +11,17 @@
 
 #include <nap/logger.h>
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::DynamicCompressorNode)
-	RTTI_FUNCTION("setMode", &nap::audio::DynamicCompressorNode::setMode)
-	RTTI_FUNCTION("getMode", &nap::audio::DynamicCompressorNode::getMode)
-	RTTI_FUNCTION("setThreshold", &nap::audio::DynamicCompressorNode::setThreshold)
-	RTTI_FUNCTION("setRatio", &nap::audio::DynamicCompressorNode::setRatio)
-	RTTI_FUNCTION("setKnee", &nap::audio::DynamicCompressorNode::setKnee)
-	RTTI_FUNCTION("getKnee", &nap::audio::DynamicCompressorNode::getKnee)
-	RTTI_FUNCTION("setAttack", &nap::audio::DynamicCompressorNode::setAttack)
-	RTTI_FUNCTION("setRelease", &nap::audio::DynamicCompressorNode::setRelease)
-	RTTI_FUNCTION("setMakeupGainEnabled", &nap::audio::DynamicCompressorNode::setMakeupGainEnabled)
-	RTTI_FUNCTION("getGainReduction", &nap::audio::DynamicCompressorNode::getGainReduction)
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::audio::DynamicsNode)
+	RTTI_FUNCTION("setMode", &nap::audio::DynamicsNode::setMode)
+	RTTI_FUNCTION("getMode", &nap::audio::DynamicsNode::getMode)
+	RTTI_FUNCTION("setThreshold", &nap::audio::DynamicsNode::setThreshold)
+	RTTI_FUNCTION("setRatio", &nap::audio::DynamicsNode::setRatio)
+	RTTI_FUNCTION("setKnee", &nap::audio::DynamicsNode::setKnee)
+	RTTI_FUNCTION("getKnee", &nap::audio::DynamicsNode::getKnee)
+	RTTI_FUNCTION("setAttack", &nap::audio::DynamicsNode::setAttack)
+	RTTI_FUNCTION("setRelease", &nap::audio::DynamicsNode::setRelease)
+	RTTI_FUNCTION("setMakeupGainEnabled", &nap::audio::DynamicsNode::setMakeupGainEnabled)
+	RTTI_FUNCTION("getGainReduction", &nap::audio::DynamicsNode::getGainReduction)
 RTTI_END_CLASS
 
 namespace nap
@@ -30,7 +30,7 @@ namespace nap
 	namespace audio
 	{
 
-		DynamicCompressorNode::DynamicCompressorNode(NodeManager& nodeManager)
+		DynamicsNode::DynamicsNode(NodeManager& nodeManager)
 			: Node(nodeManager)
 		{
 			updateCoefficients();
@@ -38,7 +38,7 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::setMode(Mode mode)
+		void DynamicsNode::setMode(Mode mode)
 		{
 			mMode.store(mode);
 			// Reset the tracked gain state so the mode switch does not cause a click.
@@ -48,13 +48,13 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::setThreshold(ControllerValue threshold)
+		void DynamicsNode::setThreshold(ControllerValue threshold)
 		{
 			mThreshold.store(threshold);
 		}
 
 
-		void DynamicCompressorNode::setRatio(ControllerValue ratio)
+		void DynamicsNode::setRatio(ControllerValue ratio)
 		{
 			if (ratio < 1.f)
 				ratio = 1.f;
@@ -62,7 +62,7 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::setKnee(ControllerValue knee)
+		void DynamicsNode::setKnee(ControllerValue knee)
 		{
 			if (knee < 0.f)
 				knee = 0.f;
@@ -70,7 +70,7 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::setAttack(ControllerValue attack)
+		void DynamicsNode::setAttack(ControllerValue attack)
 		{
 			if (attack < 0.f)
 				attack = 0.f;
@@ -79,7 +79,7 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::setRelease(ControllerValue release)
+		void DynamicsNode::setRelease(ControllerValue release)
 		{
 			if (release < 0.f)
 				release = 0.f;
@@ -88,14 +88,14 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::sampleRateChanged(float sampleRate)
+		void DynamicsNode::sampleRateChanged(float sampleRate)
 		{
 			updateCoefficients();
 			mDryWet.setStepCount(getNodeManager().getSamplesPerMillisecond() * smoothTime);
 		}
 
 
-		void DynamicCompressorNode::updateCoefficients()
+		void DynamicsNode::updateCoefficients()
 		{
 			auto sampleRate = getNodeManager().getSampleRate();
 			if (sampleRate <= 0.f)
@@ -116,7 +116,7 @@ namespace nap
 		}
 
 
-		void DynamicCompressorNode::setByPass(bool bypass)
+		void DynamicsNode::setByPass(bool bypass)
 		{
 			if (bypass == mBypass.load())
 				return;
@@ -128,7 +128,7 @@ namespace nap
 				mDryWet.setValue(1.f);
 		}
 
-		void DynamicCompressorNode::process()
+		void DynamicsNode::process()
 		{
 			auto& outputBuffer = getOutputBuffer(output);
 			auto* inputBuffer = input.pull();

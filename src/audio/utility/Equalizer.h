@@ -20,9 +20,36 @@ namespace nap
 
 			Equalizer() = default;
 
+			/**
+			 * Prepare for processing with a set of parameters.
+			 * @param index index of the band between 0 and bandCount
+			 * @param mode mode of the band's filter
+			 * @param frequency filter frequency in Hz
+			 * @param gain band gain amplitude
+			 * @param q band Q value (0.707 is neutral)
+			 */
 			void prepare(Mode mode, ControllerValue frequency, float sampleRate, ControllerValue gain, ControllerValue q);
+
+			/**
+			 * Modulate properties while processing. Uses smoothing.
+			 * @param index index of the band between 0 and bandCount
+			 * @param mode mode of the band's filter
+			 * @param frequency filter frequency in Hz
+			 * @param gain band gain amplitude
+			 * @param q band Q value (0.707 is neutral)
+			 */
 			void set(Mode mode, ControllerValue frequency, float sampleRate, ControllerValue gain, ControllerValue q);
+
+			/**
+			 * Sets the smooth time used for modulating.
+			 * @param samples time in samples.
+			 */
 			void setSmoothing(int samples) { mBiquad.setSmoothing(samples); }
+
+			/**
+			 * Sets the samplerate
+			 * @param sampleRate in Hz
+			 */
 			void setSampleRate(float sampleRate);
 
 			SampleValue process(SampleValue input) { return mBiquad.process(input); }

@@ -7,7 +7,7 @@
 // Audio includes
 #include <audio/core/audionode.h>
 
-#include "audio/utility/linearsmoothedvalue.h"
+#include <audio/utility/linearsmoothedvalue.h>
 
 namespace nap
 {
@@ -41,7 +41,7 @@ namespace nap
 		 * All parameters are exposed in human-readable units (dB, seconds) and
 		 * can be changed at any time, even while the node is running.
 		 */
-		class NAPAPI DynamicCompressorNode : public Node
+		class NAPAPI DynamicsNode : public Node
 		{
 			RTTI_ENABLE(Node)
 		public:
@@ -57,7 +57,7 @@ namespace nap
 			static constexpr float smoothTime = 50.f;
 
 		public:
-			explicit DynamicCompressorNode(NodeManager& nodeManager);
+			explicit DynamicsNode(NodeManager& nodeManager);
 
 			InputPin  input  = { this };     ///< Audio input pin
 			OutputPin output = { this };     ///< Audio output pin
